@@ -1,0 +1,55 @@
+name: Runner probe (temporary)
+
+# Temporary, manual-only probe: verifies whether `flutter test` can run inside the
+# restricted org runner's sandbox (loopback VM service, toolchain, memory).
+# Removed again once the routing decision is documented.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: runner-probe
+  cancel-in-progress: true
+
+jobs:
+  flutter-test-probe:
+    runs-on: [self-hosted, Linux, X64, org-linux]
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Probe environment
+        run: |
+          set -uxo pipefail
+          id
+          nproc
+          free -m
+          df -h "$RUNNER_TEMP" /home 2>/dev/null || true
+          for p in git curl jq tar xz unzip python3; do printf '%s: ' "$p"; command -v "$p" || echo MISSING; done
+      - name: Assert loopback can be bound and used
+        run: |
+          python3 - <<'PY'
+          import socket, threading
+          srv = socket.socket()
+          srv.bind(('127.0.0.1', 0))
+          srv.listen(1)
+          port = srv.getsockname()[1]
+          print('bound loopback port', port)
+          def serve():
+              conn, _ = srv.accept()
+              conn.sendall(b'ok')
+              conn.close()
+          threading.Thread(target=serve, daemon=True).start()
+          c = socket.create_connection(('127.0.0.1', port), timeout=5)
+          print('loopback roundtrip:', c.recv(2))
+          PY
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          channel: stable
+          flutter-version: "3.47.7"
+          cache: true
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
