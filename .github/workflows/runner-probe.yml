@@ -22,11 +22,11 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - name: Probe environment
         run: |
-          set -uxo pipefail
+          set -ux
           id
           nproc
-          free -m
-          df -h "$RUNNER_TEMP" /home 2>/dev/null || true
+          free -m || echo "meminfo unavailable in sandbox namespace"
+          df -h "$RUNNER_TEMP" 2>/dev/null || true
           for p in git curl jq tar xz unzip python3; do printf '%s: ' "$p"; command -v "$p" || echo MISSING; done
       - name: Assert loopback can be bound and used
         run: |
