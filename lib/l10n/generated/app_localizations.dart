@@ -752,6 +752,12 @@ abstract class AppLocalizations {
   /// **'Übergabe {title} öffnen'**
   String handoverOpenSemantics(String title);
 
+  /// No description provided for @attachmentPreviewUnsupported.
+  ///
+  /// In de, this message translates to:
+  /// **'Für diesen Anhang gibt es keine Bildvorschau.'**
+  String get attachmentPreviewUnsupported;
+
   /// No description provided for @detailsLoadFailed.
   ///
   /// In de, this message translates to:

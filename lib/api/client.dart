@@ -104,6 +104,10 @@ class WachbuchApi {
   final http.Client _client;
   final ApiCache? _cache;
 
+  /// Last known checklist rows, used to merge completion responses that omit
+  /// title, description and items.
+  final Map<int, Checklist> _knownChecklists = <int, Checklist>{};
+
   Uri _uri(String path) {
     final root = baseUrl.endsWith('/')
         ? baseUrl.substring(0, baseUrl.length - 1)
@@ -329,7 +333,12 @@ class WachbuchApi {
   /// GET /api/v1/checklisten/
   Future<List<Checklist>> checklisten() async {
     final body = await _getJson('/api/v1/checklisten/', cacheKey: 'checklists');
-    return _readList(body).map(Checklist.fromJson).toList(growable: false);
+    final lists = _readList(body).map(Checklist.fromJson).toList(growable: false);
+    // Remember the known rows: the completion response carries no title/items.
+    for (final list in lists) {
+      _knownChecklists[list.id] = list;
+    }
+    return lists;
   }
 
   /// GET /api/v1/pinnwand/ with encrypted offline fallback.
@@ -375,7 +384,23 @@ class WachbuchApi {
       );
       final body = _decode(response);
       if (body.isEmpty) return Checklist(id: id, title: '', completed: true);
-      return Checklist.fromJson({...body, 'id': body['checklist'] ?? id, 'completed': true});
+      final completion = Checklist.fromJson({
+        ...body,
+        'id': body['checklist'] ?? id,
+        'completed': true,
+        // Completion responses carry the timestamp as created_at.
+        'completed_at': body['completed_at'] ?? body['created_at'],
+      });
+      // Merge onto the last known row so title, description and items survive.
+      final known = _knownChecklists[id];
+      if (known == null) return completion;
+      final merged = completion.copyWith(
+        title: known.title,
+        description: known.description,
+        items: known.items,
+      );
+      _knownChecklists[id] = merged;
+      return merged;
     }, maxAttempts: 1);
   }
 

@@ -21,6 +21,7 @@ class Checklist {
       items: _readItems(json['items'] ?? json['tasks'] ?? const []),
       completed: json['completed'] == true || json['is_completed'] == true,
       completedAt: _readDate(json['completed_at']) ??
+          _readDate(json['last_completed_at']) ??
           _readDate((json['completion'] is Map
                   ? (json['completion'] as Map)['created_at']
                   : null)),
@@ -114,10 +115,15 @@ class ChecklistItem {
 
 List<ChecklistItem> _readItems(Object? value) {
   if (value is! List) return const [];
-  return value
-      .whereType<Map>()
-      .map((item) => ChecklistItem.fromJson(Map<String, dynamic>.from(item)))
-      .toList(growable: false);
+  var index = 0;
+  return value.map((item) {
+    index++;
+    if (item is Map) {
+      return ChecklistItem.fromJson(Map<String, dynamic>.from(item));
+    }
+    // The server sends items as plain strings; keep them instead of dropping.
+    return ChecklistItem(id: index, label: item?.toString().trim() ?? '', checked: false);
+  }).where((item) => item.label.isNotEmpty).toList(growable: false);
 }
 
 DateTime? _readDate(Object? value) {

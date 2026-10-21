@@ -120,6 +120,7 @@
   "handoverUntitled": "untitled",
   "handoverFallback": "Handover",
   "handoverOpenSemantics": "Open handover {title}",
+  "attachmentPreviewUnsupported": "This attachment has no image preview.",
   "detailsLoadFailed": "Details could not be loaded.",
   "detailsNoFurtherInfo": "No further details.",
   "detailsUpdatedAt": "Updated {timestamp}",

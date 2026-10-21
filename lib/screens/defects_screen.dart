@@ -549,7 +549,25 @@ class _DefectDetailSheetState extends State<_DefectDetailSheet> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Flexible(child: InteractiveViewer(child: Image.memory(bytes))),
+                Flexible(
+                  child: attachment.contentType
+                          .toLowerCase()
+                          .startsWith('image/')
+                      ? InteractiveViewer(
+                          child: Image.memory(
+                            bytes,
+                            errorBuilder: (context, error, stackTrace) =>
+                                Padding(
+                              padding: const EdgeInsets.all(24),
+                              child: Text(l.attachmentPreviewUnsupported),
+                            ),
+                          ),
+                        )
+                      : Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: Text(l.attachmentPreviewUnsupported),
+                        ),
+                ),
                 Padding(
                   padding: const EdgeInsets.all(12),
                   child: Text(attachment.filename),

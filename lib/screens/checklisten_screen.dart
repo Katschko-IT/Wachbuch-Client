@@ -78,7 +78,14 @@ class _ChecklistenScreenState extends State<ChecklistenScreen> {
       if (!mounted) return;
       setState(() {
         _lists = _lists
-            .map((entry) => entry.id == list.id ? updated.copyWith(title: updated.title.isEmpty ? list.title : updated.title) : entry)
+            .map((entry) => entry.id == list.id
+                ? updated.copyWith(
+                    title: updated.title.isEmpty ? list.title : updated.title,
+                    description:
+                        updated.description.isEmpty ? list.description : updated.description,
+                    items: list.items,
+                  )
+                : entry)
             .toList(growable: false);
       });
     } on ApiException catch (error) {
