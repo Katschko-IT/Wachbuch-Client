@@ -125,6 +125,7 @@
   "handoverFallback": "Übergabe",
   "handoverOpenSemantics": "Übergabe {title} öffnen",
   "@handoverOpenSemantics": {"placeholders": {"title": {"type": "String"}}},
+  "attachmentPreviewUnsupported": "Für diesen Anhang gibt es keine Bildvorschau.",
   "detailsLoadFailed": "Details konnten nicht geladen werden.",
   "detailsNoFurtherInfo": "Keine weiteren Angaben.",
   "detailsUpdatedAt": "Aktualisiert {timestamp}",

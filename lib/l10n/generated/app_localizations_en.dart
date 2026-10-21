@@ -354,6 +354,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get attachmentPreviewUnsupported =>
+      'This attachment has no image preview.';
+
+  @override
   String get detailsLoadFailed => 'Details could not be loaded.';
 
   @override

@@ -51,3 +51,6 @@ app.*.map.json
 
 # Local release outputs
 /dist/
+
+# Kotlin/Gradle daemon cache (never commit)
+/android/.kotlin/

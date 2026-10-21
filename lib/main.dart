@@ -12,6 +12,7 @@ import 'package:wachbuch_mobile/auth/session_store.dart';
 import 'package:wachbuch_mobile/demo/demo_api.dart';
 import 'package:wachbuch_mobile/demo/demo_profiles.dart';
 import 'package:wachbuch_mobile/screens/home_shell.dart';
+import 'package:wachbuch_mobile/state/crypto_session.dart';
 import 'package:wachbuch_mobile/screens/login_screen.dart';
 import 'package:wachbuch_mobile/screens/server_setup_screen.dart';
 import 'package:wachbuch_mobile/services/update_service.dart';
@@ -369,6 +370,8 @@ class _WachbuchAppState extends State<WachbuchApp> with WidgetsBindingObserver {
   Future<void> _logout({String? notice}) async {
     await _revokeCurrentTokenBestEffort();
     await _clearCurrentApiCache();
+    // Drop the decrypted identity so a shared device cannot keep using it.
+    CryptoSession.instance.lock();
     await widget.store.clearToken();
     if (!mounted) return;
     setState(() {
@@ -383,6 +386,7 @@ class _WachbuchAppState extends State<WachbuchApp> with WidgetsBindingObserver {
   Future<void> _changeServer() async {
     await _revokeCurrentTokenBestEffort();
     await _clearCurrentApiCache();
+    CryptoSession.instance.lock();
     await widget.store.clearAll();
     if (!mounted) return;
     setState(() {
