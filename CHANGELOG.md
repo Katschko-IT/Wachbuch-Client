@@ -4,6 +4,19 @@ Alle wesentlichen Änderungen an Wachbuch Mobile werden hier dokumentiert.
 
 ## Unreleased
 
+- Vertrag mit Server 0.21.0 repariert: Kaffeekasse liest `balance_euros`,
+  `results`, `amount_euros` und `reason`; das Währungssymbol wird nicht mehr
+  als Funktionsreferenz ausgegeben.
+- Checklisten übernehmen Prüfpunkte, die der Server als Stringliste liefert,
+  und behalten beim Abschluss Titel, Beschreibung, Punkte und Zeitstempel.
+  `last_completed_at` wird beim Neuladen ausgewertet.
+- PDF-Anhänge laufen nicht mehr durch `Image.memory`; Nicht-Bilder zeigen
+  einen Hinweis statt einer ungefangenen Decode-Ausnahme.
+- Abmeldung und Serverwechsel löschen den entsperrten E2EE-Schlüssel.
+- `mobile_scanner` auf 7.4.2: behebt die Kotlin-Gradle-Plugin-Warnung,
+  fängt CameraX-Initialisierungsfehler ab und behält ML-Kit-Klassen im
+  Release-Build.
+
 - Gemeinsame Palette mit der Web-PWA: Primary `#0D47A1`, Fläche `#F7F9FC`.
 - High-Contrast-Emergency-Themes sind an `MaterialApp` verdrahtet
   (`highContrastTheme` / `highContrastDarkTheme`).

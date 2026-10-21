@@ -9,7 +9,7 @@ Open-Source-Begleit-App für das selbst gehostete **[Wachbuch](https://github.co
 | **Lizenz** | AGPL-3.0-or-later |
 | **API** | `/api/v1/` · Token-Auth |
 | **App-Version** | `1.0.0+12` |
-| **Produktiv-Paarung** | Server `0.16.x` |
+| **Produktiv-Paarung** | Server `0.21.x` (Vertragstests gegen `0.21.0` grün) |
 | **E2E-Abnahme** | [docs/E2E-WACHALLTAG.md](docs/E2E-WACHALLTAG.md) |
 | **Store-Release** | [docs/STORE-RELEASE-1.0.md](docs/STORE-RELEASE-1.0.md) |
 | **Secure-Storage-Migration** | [docs/SECURE-STORAGE-MIGRATION-1.0.md](docs/SECURE-STORAGE-MIGRATION-1.0.md) |
