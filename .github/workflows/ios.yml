@@ -15,7 +15,10 @@ concurrency:
 
 jobs:
   ios-build:
-    runs-on: [self-hosted, macOS, ARM64]
+    # GitHub-hosted macOS 26 ARM64 image ships Xcode 26.6 (and the iOS 26 SDK),
+    # so the App Store toolchain gate below is satisfied without maintaining a
+    # self-hosted runner. No signing material is used in this job.
+    runs-on: macos-26
     timeout-minutes: 45
 
     steps:
