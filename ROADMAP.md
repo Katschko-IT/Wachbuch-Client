@@ -22,6 +22,9 @@ Checks → Schlüssel/Pools → Offline-Cache → Auswertung. Prototyp Phase A�
   `PATCH /defects/{id}/`, Kalender- und Kassen-Einträge.
 - [ ] `next`-Paginierung auswerten, sobald der Server sie liefert.
 - [ ] Upload-Grenze mit dem Server vereinheitlichen (Client 2 MiB, Server 5 MiB).
+- [x] ~~Lokale Erinnerung „Einwirkzeit abgelaufen“ für die Fahrzeugbesatzung.~~
+- [ ] Echter Push (APNs/FCM): Apple-Developer-Konto, Firebase-Projekt, Push-Relay
+  betreiben, Token über `POST /api/v1/push/geraete/` registrieren.
 
 Bericht: `docs/REVIEW-2026-10-22.md` im Server-Repository.
 

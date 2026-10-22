@@ -4,6 +4,7 @@ library;
 import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
+import 'package:wachbuch_mobile/models/crew_notice.dart';
 import 'package:wachbuch_mobile/api/api_cache.dart';
 import 'package:wachbuch_mobile/api/client.dart';
 import 'package:wachbuch_mobile/demo/demo_profiles.dart';
@@ -124,6 +125,16 @@ class DemoWachbuchApi extends WachbuchApi {
   int _nextAttachmentId = 1;
 
   bool get isDemo => true;
+
+  // Demo-Profile haben keine Fahrzeugsperren und keinen Posteingang.
+  @override
+  Future<List<VehicleLock>> vehicleLocks() async => const [];
+
+  @override
+  Future<List<CrewNotice>> crewNotices() async => const [];
+
+  @override
+  Future<void> markCrewNoticeRead(int id) async {}
 
   @override
   Future<Map<String, dynamic>> discover() async {

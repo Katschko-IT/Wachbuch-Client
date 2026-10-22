@@ -4,6 +4,13 @@ Alle wesentlichen Änderungen an Wachbuch Mobile werden hier dokumentiert.
 
 ## Unreleased
 
+- Erinnerung für die Besatzung, wenn die Desinfektions-Einwirkzeit eines
+  Fahrzeugs abläuft (Server ab 0.24.0). Die App plant eine lokale
+  Benachrichtigung zur Sperrzeit und zeigt neue Hinweise aus dem persönlichen
+  Posteingang. Freigeben muss die Besatzung selbst; der Server gibt Fahrzeuge
+  nicht automatisch frei. Neue Android-Berechtigungen: `POST_NOTIFICATIONS`,
+  `VIBRATE`. Nativer Push über APNs/FCM ist serverseitig vorbereitet
+  (`docs/PUSH-RELAY.md` im Server-Repository).
 - API-Vertrag mit dem Server abgeglichen (Review 2026-10-22):
   - Kaffeekasse liest die echten Serverfelder `balance_euros`, `results`,
     `amount_euros` und `reason` (zuvor immer „0,00 €“ und keine Buchungen).

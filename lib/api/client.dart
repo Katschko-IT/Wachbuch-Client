@@ -13,6 +13,7 @@ import 'package:wachbuch_mobile/models/defect.dart';
 import 'package:wachbuch_mobile/models/defect_attachment.dart';
 import 'package:wachbuch_mobile/models/handover_ack.dart';
 import 'package:wachbuch_mobile/models/inventory_item.dart';
+import 'package:wachbuch_mobile/models/crew_notice.dart';
 import 'package:wachbuch_mobile/models/kaffeekasse.dart';
 import 'package:wachbuch_mobile/models/kalender_entry.dart';
 import 'package:wachbuch_mobile/models/pinboard_note.dart';
@@ -301,6 +302,45 @@ class WachbuchApi {
   /// GET /api/v1/me/ with encrypted offline fallback.
   Future<Map<String, dynamic>> me() =>
       _getJson('/api/v1/me/', cacheKey: 'me');
+
+  /// GET /api/v1/fahrzeuge/sperren/ – laufende Desinfektionssperren der
+  /// Fahrzeuge, die die angemeldete Person besetzt. Ältere Server ohne diesen
+  /// Endpunkt liefern 404; dann gibt es schlicht nichts zu planen.
+  Future<List<VehicleLock>> vehicleLocks() async {
+    final body = await _getOptionalJson('/api/v1/fahrzeuge/sperren/');
+    return _readList(body)
+        .map(VehicleLock.fromJson)
+        .where((lock) => lock.lockedUntil != null && lock.key.isNotEmpty)
+        .toList(growable: false);
+  }
+
+  /// GET /api/v1/benachrichtigungen/ – persönlicher Posteingang.
+  Future<List<CrewNotice>> crewNotices() async {
+    final body = await _getOptionalJson('/api/v1/benachrichtigungen/');
+    return _readList(body).map(CrewNotice.fromJson).toList(growable: false);
+  }
+
+  /// POST /api/v1/benachrichtigungen/{id}/gelesen/
+  Future<void> markCrewNoticeRead(int id) async {
+    await _withRetry(() async {
+      final response = await _send(
+        _client.post(
+          _uri('/api/v1/benachrichtigungen/$id/gelesen/'),
+          headers: _headers(),
+        ),
+      );
+      if (response.statusCode == 404) return;
+      _decode(response);
+    }, maxAttempts: 1);
+  }
+
+  Future<Map<String, dynamic>> _getOptionalJson(String path) async {
+    final response = await _send(_client.get(_uri(path), headers: _headers()));
+    if (response.statusCode == 404 || response.statusCode == 501) {
+      return const {'results': []};
+    }
+    return _decode(response);
+  }
 
   /// GET /api/v1/handovers/ with encrypted offline fallback.
   Future<List<Map<String, dynamic>>> handovers() async {
