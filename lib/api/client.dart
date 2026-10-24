@@ -632,6 +632,63 @@ class WachbuchApi {
     return _readList(body).map(Defect.fromJson).toList(growable: false);
   }
 
+  /// GET /api/v1/defects/?active=1&limit=… — erste Seite, sortiert vom
+  /// Server (offen → in Arbeit → wartend → erledigt, dann nach Priorität).
+  /// Ohne [includeDone] schließt `active=1` erledigte Mängel aus.
+  Future<DefectPage> defectsPage({bool includeDone = false, int limit = 100}) async {
+    final path = Uri(
+      path: '/api/v1/defects/',
+      queryParameters: {
+        if (!includeDone) 'active': '1',
+        'limit': '${limit.clamp(1, 200)}',
+      },
+    ).toString();
+    return _defectPage(await _getJson(path, moduleLabel: 'Mängel'));
+  }
+
+  /// Folgt dem `next`-Pfad einer [DefectPage]. Nur Pfade unter
+  /// `/api/v1/defects/` auf diesem Server werden angefragt.
+  Future<DefectPage> defectsNext(String next) async {
+    final path = _sameOriginPath(next, '/api/v1/defects/');
+    if (path == null) {
+      throw ApiException(400, 'Ungültiger Folgelink vom Server.');
+    }
+    return _defectPage(await _getJson(path, moduleLabel: 'Mängel'));
+  }
+
+  DefectPage _defectPage(Map<String, dynamic> body) {
+    final items = _readList(body).map(Defect.fromJson).toList(growable: false);
+    String? link(Object? value) {
+      final text = value?.toString().trim() ?? '';
+      return text.isEmpty ? null : text;
+    }
+
+    return DefectPage(
+      items: items,
+      count: body['count'] is num ? (body['count'] as num).toInt() : items.length,
+      next: link(body['next']),
+      previous: link(body['previous']),
+    );
+  }
+
+  /// Pfad samt Query eines Folgelinks, wenn er auf diesen Server und unter
+  /// [prefix] zeigt; sonst `null`.
+  String? _sameOriginPath(String link, String prefix) {
+    final uri = Uri.tryParse(link.trim());
+    if (uri == null) return null;
+    if (uri.hasScheme || uri.hasAuthority) {
+      final base = Uri.tryParse(baseUrl);
+      if (base == null ||
+          uri.scheme != base.scheme ||
+          uri.host != base.host ||
+          uri.port != base.port) {
+        return null;
+      }
+    }
+    if (!uri.path.startsWith(prefix)) return null;
+    return uri.hasQuery ? '${uri.path}?${uri.query}' : uri.path;
+  }
+
   Future<Defect> createDefect({
     required String title,
     String description = '',

@@ -1807,6 +1807,24 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Wird einmal gesendet. Bei einem Fehler bitte die Liste prüfen, bevor Sie erneut senden.'**
   String get handoverNoAutoRetryHint;
+
+  /// No description provided for @defectsShowDone.
+  ///
+  /// In de, this message translates to:
+  /// **'Erledigte anzeigen'**
+  String get defectsShowDone;
+
+  /// No description provided for @defectsLoadMore.
+  ///
+  /// In de, this message translates to:
+  /// **'Mehr laden'**
+  String get defectsLoadMore;
+
+  /// No description provided for @defectsShownOfTotal.
+  ///
+  /// In de, this message translates to:
+  /// **'{shown} von {total} Mängeln'**
+  String defectsShownOfTotal(int shown, int total);
 }
 
 class _AppLocalizationsDelegate

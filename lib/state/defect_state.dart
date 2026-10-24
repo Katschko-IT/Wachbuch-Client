@@ -13,8 +13,20 @@ class DefectState extends ChangeNotifier {
   String? _error;
   ApiException? _lastError;
   bool _disposed = false;
+  bool _showDone = false;
+  bool _loadingMore = false;
+  String? _next;
+  int _totalCount = 0;
 
   List<Defect> get items => _items;
+
+  /// Erledigte Mängel mitladen (sonst `active=1`).
+  bool get showDone => _showDone;
+  bool get loadingMore => _loadingMore;
+  bool get hasMore => _next != null && _next!.isNotEmpty;
+
+  /// Gesamtzahl laut Server (`count`), auch wenn nur eine Seite geladen ist.
+  int get totalCount => _totalCount;
   bool get loading => _loading;
   String? get error => _error;
   ApiException? get lastError => _lastError;
@@ -29,12 +41,17 @@ class DefectState extends ChangeNotifier {
     _lastError = null;
     _notify();
     try {
-      _items = await api.defects();
+      final page = await api.defectsPage(includeDone: _showDone);
+      _items = page.items;
+      _next = page.next;
+      _totalCount = page.count;
     } on ApiException catch (error) {
       _lastError = error;
       _error = error.message;
       if (WachbuchApi.isModuleUnavailable(error)) {
         _items = const [];
+        _next = null;
+        _totalCount = 0;
       }
     } catch (error) {
       _error = error.toString();
@@ -42,6 +59,41 @@ class DefectState extends ChangeNotifier {
       _loading = false;
       _notify();
     }
+  }
+
+  /// Nächste Seite über `next` laden und anhängen.
+  Future<void> loadMore() async {
+    final next = _next;
+    if (next == null || next.isEmpty || _loadingMore) return;
+    _loadingMore = true;
+    _error = null;
+    _lastError = null;
+    _notify();
+    try {
+      final page = await api.defectsNext(next);
+      final known = _items.map((item) => item.id).toSet();
+      _items = [
+        ..._items,
+        ...page.items.where((item) => !known.contains(item.id)),
+      ];
+      _next = page.next;
+      _totalCount = page.count;
+    } on ApiException catch (error) {
+      _lastError = error;
+      _error = error.message;
+    } catch (error) {
+      _error = error.toString();
+    } finally {
+      _loadingMore = false;
+      _notify();
+    }
+  }
+
+  /// Option „Erledigte anzeigen“; lädt die Liste neu.
+  Future<void> setShowDone(bool value) async {
+    if (value == _showDone) return;
+    _showDone = value;
+    await reload();
   }
 
   Future<Defect?> create({
@@ -64,6 +116,7 @@ class DefectState extends ChangeNotifier {
         dueAt: dueAt,
       );
       _items = [created, ..._items];
+      _totalCount++;
       _notify();
       return created;
     } on ApiException catch (error) {

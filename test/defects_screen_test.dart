@@ -18,9 +18,11 @@ class _DefectsApi extends WachbuchApi {
   Uint8List bytes = Uint8List.fromList(const [0x25, 0x50, 0x44, 0x46]);
 
   @override
-  Future<List<Defect>> defects() async => const [
-        Defect(id: 1, title: 'Trage quietscht', priority: 'normal'),
-      ];
+  Future<DefectPage> defectsPage({bool includeDone = false, int limit = 100}) async =>
+      const DefectPage(
+        items: [Defect(id: 1, title: 'Trage quietscht', priority: 'normal')],
+        count: 1,
+      );
 
   @override
   Future<List<DefectAttachment>> defectAttachments(int defectId) async =>

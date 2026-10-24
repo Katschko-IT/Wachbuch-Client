@@ -314,5 +314,9 @@
   "handoverRequiredField": "Pflichtfeld",
   "handoverCreated": "Übergabe angelegt.",
   "handoverStatusChanged": "Status geändert.",
-  "handoverNoAutoRetryHint": "Wird einmal gesendet. Bei einem Fehler bitte die Liste prüfen, bevor Sie erneut senden."
+  "handoverNoAutoRetryHint": "Wird einmal gesendet. Bei einem Fehler bitte die Liste prüfen, bevor Sie erneut senden.",
+  "defectsShowDone": "Erledigte anzeigen",
+  "defectsLoadMore": "Mehr laden",
+  "defectsShownOfTotal": "{shown} von {total} Mängeln",
+  "@defectsShownOfTotal": {"placeholders": {"shown": {"type": "int"}, "total": {"type": "int"}}}
 }

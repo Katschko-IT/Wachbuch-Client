@@ -940,4 +940,15 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get handoverNoAutoRetryHint =>
       'Sent once. If an error occurs, please check the list before sending again.';
+
+  @override
+  String get defectsShowDone => 'Show completed';
+
+  @override
+  String get defectsLoadMore => 'Load more';
+
+  @override
+  String defectsShownOfTotal(int shown, int total) {
+    return '$shown of $total defects';
+  }
 }

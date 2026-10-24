@@ -140,67 +140,125 @@ class _DefectsScreenState extends State<DefectsScreen> {
           final items = _visible;
           return RefreshIndicator(
             onRefresh: _state.reload,
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: maxW),
-                child: ListView(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
-                  children: [
-                    Text(
-                      l.defectsHint,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                    ),
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        for (final status in const [
-                          'open',
-                          'in_progress',
-                          'waiting',
-                          'done',
-                        ])
-                          FilterChip(
-                            label: Text(_statusLabel(l, status)),
-                            selected: _statusFilter == status,
-                            onSelected: (selected) {
-                              setState(() {
-                                _statusFilter = selected ? status : null;
-                              });
-                            },
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    if (_state.error != null) ...[
-                      ErrorBanner(message: _state.error!),
+            child: NotificationListener<ScrollEndNotification>(
+              // Am Listenende automatisch die nächste Seite laden.
+              onNotification: (notification) {
+                if (notification.metrics.extentAfter < 200 &&
+                    _state.hasMore &&
+                    !_state.loadingMore) {
+                  _state.loadMore();
+                }
+                return false;
+              },
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: maxW),
+                  child: ListView(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
+                    children: [
+                      Text(
+                        l.defectsHint,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                      ),
                       const SizedBox(height: 12),
-                    ],
-                    if (_state.loading && !_state.hasData)
-                      const Padding(
-                        padding: EdgeInsets.all(32),
-                        child: Center(child: CircularProgressIndicator()),
-                      )
-                    else if (items.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.all(24),
-                        child: Text(l.defectsEmpty),
-                      )
-                    else
-                      ...items.map(
-                        (defect) => Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: _DefectCard(
-                            defect: defect,
-                            onTap: () => _openDetail(defect),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (final status in const [
+                            'open',
+                            'in_progress',
+                            'waiting',
+                            'done',
+                          ])
+                            FilterChip(
+                              label: Text(_statusLabel(l, status)),
+                              selected: _statusFilter == status,
+                              onSelected: (selected) {
+                                setState(() {
+                                  _statusFilter = selected ? status : null;
+                                });
+                                // Erledigte lädt der Server nur auf Wunsch.
+                                if (selected && status == 'done') {
+                                  _state.setShowDone(true);
+                                }
+                              },
+                            ),
+                        ],
+                      ),
+                      SwitchListTile(
+                        key: const Key('defects-show-done'),
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(l.defectsShowDone),
+                        value: _state.showDone,
+                        onChanged: _state.loading
+                            ? null
+                            : (value) {
+                                if (!value && _statusFilter == 'done') {
+                                  setState(() => _statusFilter = null);
+                                }
+                                _state.setShowDone(value);
+                              },
+                      ),
+                      if (_state.hasData)
+                        Text(
+                          l.defectsShownOfTotal(
+                            _state.items.length,
+                            _state.totalCount,
+                          ),
+                          style: Theme.of(context).textTheme.labelLarge,
+                        ),
+                      const SizedBox(height: 12),
+                      if (_state.error != null) ...[
+                        ErrorBanner(message: _state.error!),
+                        const SizedBox(height: 12),
+                      ],
+                      if (_state.loading && !_state.hasData)
+                        const Padding(
+                          padding: EdgeInsets.all(32),
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                      else if (items.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: Text(l.defectsEmpty),
+                        )
+                      else
+                        ...items.map(
+                          (defect) => Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: _DefectCard(
+                              defect: defect,
+                              onTap: () => _openDetail(defect),
+                            ),
                           ),
                         ),
-                      ),
-                  ],
+                      if (_state.hasMore)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Center(
+                            child: OutlinedButton.icon(
+                              key: const Key('defects-load-more'),
+                              onPressed:
+                                  _state.loadingMore ? null : _state.loadMore,
+                              icon: _state.loadingMore
+                                  ? const SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Icon(Icons.expand_more),
+                              label: Text(l.defectsLoadMore),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),

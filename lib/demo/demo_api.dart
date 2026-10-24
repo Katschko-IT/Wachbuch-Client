@@ -317,6 +317,18 @@ class DemoWachbuchApi extends WachbuchApi {
   Future<List<Defect>> defects() async => List<Defect>.unmodifiable(_defects);
 
   @override
+  Future<DefectPage> defectsPage({bool includeDone = false, int limit = 100}) async {
+    final items = _defects
+        .where((item) => includeDone || item.status != 'done')
+        .toList(growable: false);
+    return DefectPage(items: items, count: items.length);
+  }
+
+  @override
+  Future<DefectPage> defectsNext(String next) async =>
+      const DefectPage(items: [], count: 0);
+
+  @override
   Future<Defect> createDefect({
     required String title,
     String description = '',

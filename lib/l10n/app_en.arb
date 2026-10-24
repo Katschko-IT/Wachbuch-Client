@@ -305,5 +305,8 @@
   "handoverRequiredField": "Required",
   "handoverCreated": "Handover created.",
   "handoverStatusChanged": "Status changed.",
-  "handoverNoAutoRetryHint": "Sent once. If an error occurs, please check the list before sending again."
+  "handoverNoAutoRetryHint": "Sent once. If an error occurs, please check the list before sending again.",
+  "defectsShowDone": "Show completed",
+  "defectsLoadMore": "Load more",
+  "defectsShownOfTotal": "{shown} of {total} defects"
 }
