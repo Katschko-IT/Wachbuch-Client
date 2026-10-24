@@ -4,6 +4,15 @@ Alle wesentlichen Änderungen an Wachbuch Mobile werden hier dokumentiert.
 
 ## Unreleased
 
+- Designsystem „Wachbuch Klar 2“ (gleich mit der Web-PWA):
+  - Tokens hell/dunkel als ThemeExtension `WachbuchColors`; Namen wie im Web
+    (`brandDeep` und `brandHover` waren vertauscht).
+  - Hausschrift Atkinson Hyperlegible Next (OFL), tabellarische Ziffern für
+    Beträge und Uhrzeiten.
+  - Statusbedeutung einheitlich: dringend = danger, offen = info,
+    in Arbeit = warning, wartend = neutral, erledigt = success.
+  - Gemeinsame Widgets `EmptyState` und `SectionTitle`; Warnmarkierung als
+    einziges Markenelement oben in der Kopfleiste.
 - Review 2026-10-24:
   - Abmelden und Serverwechsel sperren die entschlüsselte Chat-Identität.
   - 401 und 403 „Kein aktiver Wachenzugang“ melden app-weit ab (Token,
