@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:wachbuch_mobile/l10n/generated/app_localizations.dart';
 import 'package:wachbuch_mobile/models/station_asset.dart';
 import 'package:wachbuch_mobile/theme/design_tokens.dart';
+import 'package:wachbuch_mobile/ui/section_title.dart';
 
 /// Compact vehicle/device status board for the overview and asset screens.
 class AssetStatusBoard extends StatelessWidget {
@@ -22,11 +23,9 @@ class AssetStatusBoard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          l.assetsBoardTitle,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
+        SectionTitle(
+          icon: Icons.airport_shuttle_outlined,
+          title: l.assetsBoardTitle,
         ),
         const SizedBox(height: WachbuchTokens.space3),
         LayoutBuilder(

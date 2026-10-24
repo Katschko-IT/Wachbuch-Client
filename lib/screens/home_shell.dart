@@ -476,10 +476,14 @@ class _StationHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final c = WachbuchColors.of(context);
+    // Ruhige Fläche: Farbe bleibt Zustand und Bedienung vorbehalten.
     return Material(
-      color: scheme.primary,
-      borderRadius: BorderRadius.circular(WachbuchTokens.radiusLg),
+      color: c.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(WachbuchTokens.radiusLg),
+        side: BorderSide(color: c.line),
+      ),
       clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.all(WachbuchTokens.space5),
@@ -489,16 +493,16 @@ class _StationHero extends StatelessWidget {
               width: 52,
               height: 52,
               decoration: BoxDecoration(
-                color: scheme.onPrimary.withValues(alpha: 0.14),
+                color: c.accentSoft,
                 borderRadius: BorderRadius.circular(WachbuchTokens.radiusLg),
               ),
               child: Icon(
                 Icons.local_hospital_outlined,
-                color: scheme.onPrimary,
+                color: c.brandDeep,
                 size: 30,
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: WachbuchTokens.space4),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -509,14 +513,14 @@ class _StationHero extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(
                       context,
-                    ).textTheme.titleLarge?.copyWith(color: scheme.onPrimary),
+                    ).textTheme.titleLarge?.copyWith(color: c.text),
                   ),
                   if (roleLabel.isNotEmpty) ...[
-                    const SizedBox(height: 4),
+                    const SizedBox(height: WachbuchTokens.space1),
                     Text(
                       roleLabel,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: scheme.onPrimary.withValues(alpha: 0.88),
+                        color: c.muted,
                       ),
                     ),
                   ],
