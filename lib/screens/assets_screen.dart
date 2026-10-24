@@ -352,7 +352,9 @@ class _InventoryCard extends StatelessWidget {
           children: [
             Icon(
               item.kind == 'key' ? Icons.key_outlined : Icons.devices_other,
-              color: item.isOut ? WachbuchTokens.important : scheme.primary,
+              color: item.isOut
+                  ? WachbuchColors.of(context).warning
+                  : scheme.primary,
             ),
             const SizedBox(width: 12),
             Expanded(

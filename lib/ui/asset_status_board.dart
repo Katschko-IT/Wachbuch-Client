@@ -28,15 +28,16 @@ class AssetStatusBoard extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: WachbuchTokens.space3),
         LayoutBuilder(
           builder: (context, constraints) {
             final columns = constraints.maxWidth >= 600 ? 4 : 2;
             final width =
-                (constraints.maxWidth - (8 * (columns - 1))) / columns;
+                (constraints.maxWidth - (WachbuchTokens.space2 * (columns - 1))) /
+                columns;
             return Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: WachbuchTokens.space2,
+              runSpacing: WachbuchTokens.space2,
               children: [
                 for (final asset in assets)
                   SizedBox(
@@ -65,11 +66,11 @@ class _AssetCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final scheme = Theme.of(context).colorScheme;
-    final accent = switch (asset.status) {
-      'ready' => WachbuchTokens.done,
-      'limited' => WachbuchTokens.important,
-      _ => WachbuchTokens.urgent,
-    };
+    final tone = WachbuchColors.of(context).tone(switch (asset.status) {
+      'ready' => WachbuchTone.success,
+      'limited' => WachbuchTone.warning,
+      _ => WachbuchTone.danger,
+    });
     final statusLabel = switch (asset.status) {
       'ready' => l.assetStatusReady,
       'limited' => l.assetStatusLimited,
@@ -78,7 +79,7 @@ class _AssetCard extends StatelessWidget {
     };
 
     final content = Padding(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(WachbuchTokens.space3),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -90,24 +91,43 @@ class _AssetCard extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                 ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: WachbuchTokens.space2),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(WachbuchTokens.radiusSm),
-              border: Border.all(color: accent.withValues(alpha: 0.55)),
+            padding: const EdgeInsets.symmetric(
+              horizontal: WachbuchTokens.space2,
+              vertical: WachbuchTokens.space1,
             ),
-            child: Text(
-              statusLabel,
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: scheme.onSurface,
-                    fontWeight: FontWeight.w700,
+            decoration: BoxDecoration(
+              color: tone.background,
+              borderRadius: BorderRadius.circular(WachbuchTokens.radiusSm),
+              border: Border.all(color: tone.border),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: tone.accent,
+                    shape: BoxShape.circle,
                   ),
+                ),
+                const SizedBox(width: WachbuchTokens.space2),
+                Flexible(
+                  child: Text(
+                    statusLabel,
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                          color: tone.foreground,
+                          fontWeight: FontWeight.w700,
+                        ),
+                  ),
+                ),
+              ],
             ),
           ),
           if (asset.note.isNotEmpty) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: WachbuchTokens.space2),
             Text(
               asset.note,
               maxLines: 2,

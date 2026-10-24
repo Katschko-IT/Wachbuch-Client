@@ -18,12 +18,15 @@ import 'package:wachbuch_mobile/services/connectivity_service.dart';
 import 'package:wachbuch_mobile/state/auth_state.dart';
 import 'package:wachbuch_mobile/state/handover_state.dart';
 import 'package:wachbuch_mobile/state/station_roles.dart';
+import 'package:wachbuch_mobile/theme/design_tokens.dart';
 import 'package:wachbuch_mobile/ui/asset_status_board.dart';
 import 'package:wachbuch_mobile/ui/demo_banner.dart';
 import 'package:wachbuch_mobile/ui/error_banner.dart';
 import 'package:wachbuch_mobile/ui/handover_filter.dart';
 import 'package:wachbuch_mobile/ui/layout.dart';
 import 'package:wachbuch_mobile/ui/offline_banner.dart';
+import 'package:wachbuch_mobile/ui/priority_badge.dart';
+import 'package:wachbuch_mobile/ui/status_chip.dart';
 
 class HomeShell extends StatefulWidget {
   const HomeShell({
@@ -1192,7 +1195,9 @@ class _HandoverCard extends StatelessWidget {
               children: [
                 Container(
                   width: 5,
-                  color: _priorityColors(context, item['priority']).foreground,
+                  color: WachbuchColors.of(context).priority(
+                    item['priority']?.toString() ?? '',
+                  ).accent,
                 ),
                 Expanded(
                   child: Padding(
@@ -1221,16 +1226,13 @@ class _HandoverCard extends StatelessWidget {
                           spacing: 8,
                           runSpacing: 8,
                           children: [
-                            _HandoverChip(
+                            StatusChip(
+                              status: item['status']?.toString() ?? '',
                               label: handoverStatusLabel(item['status'], l),
-                              colors: _statusColors(context, item['status']),
                             ),
-                            _HandoverChip(
+                            PriorityBadge(
+                              priority: item['priority']?.toString() ?? '',
                               label: handoverPriorityLabel(item['priority'], l),
-                              colors: _priorityColors(
-                                context,
-                                item['priority'],
-                              ),
                             ),
                           ],
                         ),
@@ -1248,24 +1250,28 @@ class _HandoverCard extends StatelessWidget {
 }
 
 class _HandoverChip extends StatelessWidget {
-  const _HandoverChip({required this.label, required this.colors});
+  const _HandoverChip({required this.label});
 
   final String label;
-  final ({Color background, Color foreground}) colors;
 
   @override
   Widget build(BuildContext context) {
+    final c = WachbuchColors.of(context);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      constraints: const BoxConstraints(minHeight: 36),
+      padding: const EdgeInsets.symmetric(
+        horizontal: WachbuchTokens.space3,
+        vertical: WachbuchTokens.space1,
+      ),
       decoration: BoxDecoration(
-        color: colors.background,
-        borderRadius: BorderRadius.circular(999),
+        color: c.surfaceSoft,
+        border: Border.all(color: c.line),
+        borderRadius: BorderRadius.circular(WachbuchTokens.radiusSm),
       ),
       child: Text(
         label,
         style: Theme.of(context).textTheme.labelMedium?.copyWith(
-          color: colors.foreground,
-          fontSize: 14,
+          color: c.text,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -1487,20 +1493,14 @@ class _HandoverDetailSheetState extends State<_HandoverDetailSheet> {
                   children: [
                     _HandoverChip(
                       label: handoverCategoryLabel(item['category'], l),
-                      colors: (
-                        background: Theme.of(
-                          context,
-                        ).colorScheme.surfaceContainerHighest,
-                        foreground: Theme.of(context).colorScheme.onSurface,
-                      ),
                     ),
-                    _HandoverChip(
+                    StatusChip(
+                      status: item['status']?.toString() ?? '',
                       label: handoverStatusLabel(item['status'], l),
-                      colors: _statusColors(context, item['status']),
                     ),
-                    _HandoverChip(
+                    PriorityBadge(
+                      priority: item['priority']?.toString() ?? '',
                       label: handoverPriorityLabel(item['priority'], l),
-                      colors: _priorityColors(context, item['priority']),
                     ),
                   ],
                 ),
@@ -1656,52 +1656,6 @@ double _handoverCardExtent(BuildContext context) {
   final scale = MediaQuery.textScalerOf(context).scale(1);
   final extraScale = (scale - 1).clamp(0.0, 2.0);
   return 196 + (190 * extraScale);
-}
-
-({Color background, Color foreground}) _statusColors(
-  BuildContext context,
-  Object? status,
-) {
-  final colors = Theme.of(context).colorScheme;
-  return switch (status?.toString()) {
-    'open' => (
-      background: colors.primaryContainer,
-      foreground: colors.onPrimaryContainer,
-    ),
-    'in_progress' => (
-      background: colors.secondaryContainer,
-      foreground: colors.onSecondaryContainer,
-    ),
-    'done' => (
-      background: colors.surfaceContainerHighest,
-      foreground: colors.onSurface,
-    ),
-    _ => (
-      background: colors.surfaceContainerHigh,
-      foreground: colors.onSurface,
-    ),
-  };
-}
-
-({Color background, Color foreground}) _priorityColors(
-  BuildContext context,
-  Object? priority,
-) {
-  final colors = Theme.of(context).colorScheme;
-  return switch (priority?.toString()) {
-    'urgent' => (
-      background: colors.errorContainer,
-      foreground: colors.onErrorContainer,
-    ),
-    'important' => (
-      background: colors.tertiaryContainer,
-      foreground: colors.onTertiaryContainer,
-    ),
-    _ => (
-      background: colors.surfaceContainerHighest,
-      foreground: colors.onSurface,
-    ),
-  };
 }
 
 String _formatTimestamp(Object? value) {

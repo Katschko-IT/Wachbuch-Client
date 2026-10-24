@@ -46,12 +46,11 @@ class DemoPickerSheet extends StatelessWidget {
                       color: scheme.onSurfaceVariant,
                     ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: WachbuchTokens.space5),
               _DemoOption(
                 icon: Icons.medical_services_outlined,
                 title: l.setupDemoRettungsdienst,
                 subtitle: l.setupDemoRettungsdienstHint,
-                accent: WachbuchTokens.brandAccent,
                 onTap: () =>
                     Navigator.of(context).pop(DemoService.rettungsdienst),
               ),
@@ -60,7 +59,6 @@ class DemoPickerSheet extends StatelessWidget {
                 icon: Icons.local_fire_department_outlined,
                 title: l.setupDemoFeuerwehr,
                 subtitle: l.setupDemoFeuerwehrHint,
-                accent: WachbuchTokens.urgent,
                 onTap: () => Navigator.of(context).pop(DemoService.feuerwehr),
               ),
               const SizedBox(height: 12),
@@ -68,7 +66,6 @@ class DemoPickerSheet extends StatelessWidget {
                 icon: Icons.home_work_outlined,
                 title: l.setupDemoFfw,
                 subtitle: l.setupDemoFfwHint,
-                accent: WachbuchTokens.important,
                 onTap: () => Navigator.of(context).pop(DemoService.ffw),
               ),
               const SizedBox(height: 12),
@@ -76,7 +73,6 @@ class DemoPickerSheet extends StatelessWidget {
                 icon: Icons.local_police_outlined,
                 title: l.setupDemoPolizei,
                 subtitle: l.setupDemoPolizeiHint,
-                accent: WachbuchTokens.brandDeep,
                 onTap: () => Navigator.of(context).pop(DemoService.polizei),
               ),
             ],
@@ -92,21 +88,23 @@ class _DemoOption extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.subtitle,
-    required this.accent,
     required this.onTap,
   });
 
   final IconData icon;
   final String title;
   final String subtitle;
-  final Color accent;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final c = WachbuchColors.of(context);
     return Material(
-      color: accent.withValues(alpha: 0.08),
-      borderRadius: BorderRadius.circular(WachbuchTokens.radiusLg),
+      color: c.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(WachbuchTokens.radiusLg),
+        side: BorderSide(color: c.line),
+      ),
       child: InkWell(
         borderRadius: BorderRadius.circular(WachbuchTokens.radiusLg),
         onTap: onTap,
@@ -116,7 +114,7 @@ class _DemoOption extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                Icon(icon, color: accent, size: 32),
+                Icon(icon, color: c.brand, size: 32),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
