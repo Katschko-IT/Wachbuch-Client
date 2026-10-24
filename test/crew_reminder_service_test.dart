@@ -41,8 +41,28 @@ class FakeServer {
   List<Map<String, dynamic>> locks = [];
   List<Map<String, dynamic>> notices = [];
   int statusForLocks = 200;
+  int statusForRead = 200;
+  int userId = 7;
+  final readIds = <int>[];
 
   http.Client get client => MockClient((request) async {
+        if (request.url.path == '/api/v1/me/') {
+          return http.Response(
+            jsonEncode({
+              'ok': true,
+              'user': {'id': userId, 'username': 'user$userId'},
+              'membership': {'role': 'member'},
+            }),
+            200,
+          );
+        }
+        final read = RegExp(r'^/api/v1/benachrichtigungen/(\d+)/gelesen/$')
+            .firstMatch(request.url.path);
+        if (read != null && request.method == 'POST') {
+          readIds.add(int.parse(read.group(1)!));
+          if (statusForRead != 200) return http.Response('{}', statusForRead);
+          return http.Response(jsonEncode({'ok': true, 'read': true}), 200);
+        }
         if (request.url.path == '/api/v1/fahrzeuge/sperren/') {
           if (statusForLocks != 200) return http.Response('{}', statusForLocks);
           return http.Response(jsonEncode({'ok': true, 'results': locks}), 200);
@@ -62,10 +82,11 @@ void main() {
   late FakeServer server;
   late FakeScheduler scheduler;
 
-  CrewReminderService service() => CrewReminderService(
-        api: WachbuchApi(baseUrl: 'https://wache.test', token: 'wb_x', client: server.client),
+  CrewReminderService service({String token = 'wb_x', String namespace = 'test'}) =>
+      CrewReminderService(
+        api: WachbuchApi(baseUrl: 'https://wache.test', token: token, client: server.client),
         scheduler: scheduler,
-        store: ReminderStore(namespace: 'test'),
+        store: ReminderStore(namespace: namespace),
         clock: () => now,
       );
 
@@ -112,6 +133,36 @@ void main() {
 
     expect(scheduler.shown.length, 1);
     expect(scheduler.shown.values.single, contains('RTW 2'));
+  });
+
+  test('angezeigte Hinweise werden beim Server als gelesen markiert', () async {
+    server.notices = [
+      {'id': 7, 'key': 'vehicle_ready:2:f', 'title': 'RTW 2', 'body': 'x', 'read': false},
+      {'id': 8, 'key': 'vehicle_ready:3:f', 'title': 'RTW 3', 'body': 'x', 'read': true},
+    ];
+    await service().sync();
+
+    expect(scheduler.shown, hasLength(1));
+    expect(server.readIds, [7]);
+  });
+
+  test('„schon angezeigt“ gilt pro Benutzer, nicht pro Token', () async {
+    server.statusForRead = 500; // Hinweis bleibt serverseitig ungelesen
+    server.notices = [
+      {'id': 9, 'key': 'vehicle_ready:2:g', 'title': 'RTW 2', 'body': 'x', 'read': false},
+    ];
+    await service(token: 'wb_alt', namespace: 'token-a').sync();
+    expect(scheduler.shown, hasLength(1));
+
+    // Neue Anmeldung desselben Benutzers mit neuem Token: nicht erneut zeigen.
+    scheduler.shown.clear();
+    await service(token: 'wb_neu', namespace: 'token-b').sync();
+    expect(scheduler.shown, isEmpty);
+
+    // Anderer Benutzer auf demselben Gerät bekommt den Hinweis.
+    server.userId = 8;
+    await service(token: 'wb_anderer', namespace: 'token-c').sync();
+    expect(scheduler.shown, hasLength(1));
   });
 
   test('does not repeat a notice that the local reminder already showed', () async {
