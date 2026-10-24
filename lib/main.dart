@@ -17,6 +17,7 @@ import 'package:wachbuch_mobile/screens/login_screen.dart';
 import 'package:wachbuch_mobile/screens/server_setup_screen.dart';
 import 'package:wachbuch_mobile/services/crew_reminder_service.dart';
 import 'package:wachbuch_mobile/services/update_service.dart';
+import 'package:wachbuch_mobile/state/crypto_session.dart';
 import 'package:wachbuch_mobile/theme/app_theme.dart';
 import 'package:wachbuch_mobile/theme/solar_theme.dart';
 import 'package:wachbuch_mobile/theme/high_contrast_theme.dart';
@@ -466,6 +467,9 @@ class _WachbuchAppState extends State<WachbuchApp> with WidgetsBindingObserver {
   }
 
   Future<void> _logout({String? notice}) async {
+    // Entschlüsselte Chat-Identität sofort verwerfen, damit ein geteiltes
+    // Gerät sie nach dem Abmelden nicht weiter nutzen kann.
+    CryptoSession.instance.lock();
     await _stopReminders();
     await _revokeCurrentTokenBestEffort();
     await _clearCurrentApiCache();
@@ -481,6 +485,7 @@ class _WachbuchAppState extends State<WachbuchApp> with WidgetsBindingObserver {
   }
 
   Future<void> _changeServer() async {
+    CryptoSession.instance.lock();
     await _stopReminders();
     await _revokeCurrentTokenBestEffort();
     await _clearCurrentApiCache();
