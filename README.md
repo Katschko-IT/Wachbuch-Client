@@ -115,6 +115,56 @@ Wachenterminal mit `pair=<Code>` meldet die App zusätzlich ohne Passwort an
 (`POST /api/v1/token/kopplung/`, Code 120 s gültig und einmalig). Einrichtung
 des Servers: `docs/PI-WACHENTERMINAL.md` im Server-Repository.
 
+## Ende-zu-Ende-Test
+
+`integration_test/app_e2e_test.dart` startet die echte `WachbuchApp` (echter
+Secure Storage, echte HTTP-Aufrufe, keine Mocks; nur der lokale
+Benachrichtigungsplaner ist still geschaltet) und bedient sie per
+`WidgetTester` gegen einen laufenden Server:
+
+- a–f: Serveradresse eingeben, als Mitglied anmelden, Übersicht, Übergabe
+  anlegen (ohne Statusaktion), Mängel inkl. „Erledigte anzeigen“ (ohne
+  „Erledigt“ für Mitglieder), Kalender/Kaffeekasse/Checklisten sofern als
+  Modul aktiv, Abmelden; danach als Schichtleitung dieselbe Übergabe auf
+  „erledigt“ setzen (gegen den Server geprüft).
+- g: Token per `DELETE /api/v1/token/` widerrufen, beim Neuladen wechselt
+  die App zur Anmeldung.
+- HTTPS: Verbindungslink `wachbuch://connect?url=…&pin=sha256/…`; falscher
+  Fingerabdruck wird abgelehnt, richtiger führt zur Anmeldung.
+
+Server, Konten und Passwort kommen nur per `--dart-define` (nichts davon im
+Repository); ohne `E2E_SERVER`/`E2E_PASSWORD` werden die Tests übersprungen.
+HTTP ist nur im Debug-Build erlaubt, daher läuft der Test im Simulator:
+
+```bash
+xcrun simctl boot "iPhone 16"
+flutter test integration_test -d <simulator-id> \
+  --dart-define=E2E_SERVER=http://localhost:18090 \
+  --dart-define=E2E_USER=app.mitglied \
+  --dart-define=E2E_LEAD_USER=app.schicht \
+  --dart-define=E2E_PASSWORD='<Passwort der Testkonten>' \
+  --dart-define=E2E_HTTPS_SERVER=https://localhost:18443 \
+  --dart-define=E2E_HTTPS_PIN=<SHA-256 des Leaf-Zertifikats, hex> \
+  --dart-define=E2E_SCREENSHOT_DIR=/tmp/wachbuch-e2e
+```
+
+Der Pin ist der SHA-256 des DER-kodierten **Leaf**-Zertifikats (das prüft
+`ServerTrust.certificateMatches`):
+
+```bash
+openssl s_client -connect localhost:18443 -servername localhost </dev/null \
+  | openssl x509 -outform der | shasum -a 256
+```
+
+Caddys interne CA stellt Leaf-Zertifikate nur für 12 Stunden aus; der Pin
+muss dann neu ermittelt werden. Optional: `E2E_STATION` (Wachenname in der
+Übersicht, Standard „Rettungswache Musterstadt“) und `E2E_DEFECT_TITLE`
+(erwarteter Mangel, Standard „E2E: Trage klemmt“). Mit `E2E_SCREENSHOT_DIR`
+legt der Test PNGs von Anmeldung, Übersicht, Übergaben und Mängeln ab
+(Suffix `-hell`/`-dunkel` nach Systemdarstellung, umschaltbar mit
+`xcrun simctl ui <id> appearance dark`). Der Test legt bei jedem Lauf eine
+Übergabe „E2E-App <Zeitstempel>“ an und setzt sie auf „erledigt“.
+
 ## Qualitätsgates
 
 Vor Freigabe müssen mindestens bestehen:
