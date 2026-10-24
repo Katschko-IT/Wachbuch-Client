@@ -4,6 +4,7 @@ class Kaffeekasse {
     required this.currency,
     this.ledger = const [],
     this.paymentHint = '',
+    this.scope,
   });
 
   /// Server (`GET /api/v1/kaffeekasse/`) liefert `balance_euros` und
@@ -21,6 +22,11 @@ class Kaffeekasse {
       ),
       paymentHint:
           (json['payment_hint'] ?? json['payment'] ?? '').toString().trim(),
+      scope: switch (json['scope']) {
+        'station' => 'station',
+        'own' => 'own',
+        _ => null,
+      },
     );
   }
 
@@ -28,6 +34,10 @@ class Kaffeekasse {
   final String currency;
   final List<KaffeekasseEntry> ledger;
   final String paymentHint;
+
+  /// `station`: Wachensaldo (Kassenwart/Admin), `own`: eigene Buchungen.
+  /// `null` bei älteren Servern ohne dieses Feld.
+  final String? scope;
 
   bool get isNegative => _parseMoney(balance).isNegative;
 }

@@ -318,5 +318,7 @@
   "defectsShowDone": "Erledigte anzeigen",
   "defectsLoadMore": "Mehr laden",
   "defectsShownOfTotal": "{shown} von {total} Mängeln",
-  "@defectsShownOfTotal": {"placeholders": {"shown": {"type": "int"}, "total": {"type": "int"}}}
+  "@defectsShownOfTotal": {"placeholders": {"shown": {"type": "int"}, "total": {"type": "int"}}},
+  "kaffeekasseBalanceStation": "Kassenstand der Wache",
+  "kaffeekasseBalanceOwn": "Mein Saldo"
 }

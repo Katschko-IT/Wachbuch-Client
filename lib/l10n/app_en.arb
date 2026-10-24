@@ -308,5 +308,7 @@
   "handoverNoAutoRetryHint": "Sent once. If an error occurs, please check the list before sending again.",
   "defectsShowDone": "Show completed",
   "defectsLoadMore": "Load more",
-  "defectsShownOfTotal": "{shown} of {total} defects"
+  "defectsShownOfTotal": "{shown} of {total} defects",
+  "kaffeekasseBalanceStation": "Station fund balance",
+  "kaffeekasseBalanceOwn": "My balance"
 }

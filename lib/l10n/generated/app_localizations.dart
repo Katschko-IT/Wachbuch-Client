@@ -1825,6 +1825,18 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'{shown} von {total} Mängeln'**
   String defectsShownOfTotal(int shown, int total);
+
+  /// No description provided for @kaffeekasseBalanceStation.
+  ///
+  /// In de, this message translates to:
+  /// **'Kassenstand der Wache'**
+  String get kaffeekasseBalanceStation;
+
+  /// No description provided for @kaffeekasseBalanceOwn.
+  ///
+  /// In de, this message translates to:
+  /// **'Mein Saldo'**
+  String get kaffeekasseBalanceOwn;
 }
 
 class _AppLocalizationsDelegate

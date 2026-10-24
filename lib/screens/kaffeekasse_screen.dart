@@ -139,7 +139,12 @@ class _BalanceCard extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    AppLocalizations.of(context)!.kaffeekasseBalanceLabel,
+                    switch (kasse.scope) {
+                      'station' =>
+                        AppLocalizations.of(context)!.kaffeekasseBalanceStation,
+                      'own' => AppLocalizations.of(context)!.kaffeekasseBalanceOwn,
+                      _ => AppLocalizations.of(context)!.kaffeekasseBalanceLabel,
+                    },
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(

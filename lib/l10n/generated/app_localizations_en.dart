@@ -951,4 +951,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String defectsShownOfTotal(int shown, int total) {
     return '$shown of $total defects';
   }
+
+  @override
+  String get kaffeekasseBalanceStation => 'Station fund balance';
+
+  @override
+  String get kaffeekasseBalanceOwn => 'My balance';
 }

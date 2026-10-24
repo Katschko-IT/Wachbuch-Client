@@ -3,6 +3,13 @@ import 'package:wachbuch_mobile/models/kaffeekasse.dart';
 
 void main() {
   group('Kaffeekasse', () {
+    test('liest scope (station/own) und fällt ohne Feld auf null zurück', () {
+      expect(Kaffeekasse.fromJson({'balance_euros': 1, 'scope': 'station'}).scope, 'station');
+      expect(Kaffeekasse.fromJson({'balance_euros': 1, 'scope': 'own'}).scope, 'own');
+      expect(Kaffeekasse.fromJson({'balance_euros': 1}).scope, isNull);
+      expect(Kaffeekasse.fromJson({'balance_euros': 1, 'scope': 'xyz'}).scope, isNull);
+    });
+
     test('parses the real server payload (balance_euros/results)', () {
       // Form von core/api/views.py coffee_api im Server-Repository.
       final kasse = Kaffeekasse.fromJson({
