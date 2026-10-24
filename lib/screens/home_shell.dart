@@ -28,6 +28,7 @@ import 'package:wachbuch_mobile/ui/offline_banner.dart';
 import 'package:wachbuch_mobile/ui/priority_badge.dart';
 import 'package:wachbuch_mobile/ui/section_title.dart';
 import 'package:wachbuch_mobile/ui/status_chip.dart';
+import 'package:wachbuch_mobile/ui/warn_stripe.dart';
 
 class HomeShell extends StatefulWidget {
   const HomeShell({
@@ -185,6 +186,11 @@ class _HomeShellState extends State<HomeShell> {
         );
 
         final appBar = AppBar(
+          // Warnmarkierung: einzige Stelle des Markenelements in der App.
+          flexibleSpace: const SafeArea(
+            bottom: false,
+            child: Align(alignment: Alignment.topCenter, child: WarnStripe()),
+          ),
           title: Text(
             stationName,
             maxLines: 1,
