@@ -164,9 +164,10 @@ ThemeData buildWachbuchThemeFrom(WachbuchColors c, Brightness brightness) {
       elevation: const WidgetStatePropertyAll(0),
       side: WidgetStatePropertyAll(BorderSide(color: c.lineStrong)),
       shape: WidgetStatePropertyAll(controlShape),
-      textStyle: WidgetStatePropertyAll(text.bodyLarge),
+      // Einzeilige Eingabe: Fließtext-Zeilenhöhe 1,5 schiebt den Text nach oben.
+      textStyle: WidgetStatePropertyAll(text.bodyLarge?.copyWith(height: 1.2)),
       hintStyle: WidgetStatePropertyAll(
-        text.bodyMedium?.copyWith(color: c.muted),
+        text.bodyLarge?.copyWith(color: c.muted, height: 1.2),
       ),
       constraints: const BoxConstraints(
         minHeight: WachbuchTokens.inputHeight,

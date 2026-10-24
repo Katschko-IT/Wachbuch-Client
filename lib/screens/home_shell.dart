@@ -1057,7 +1057,10 @@ class _FilterSection extends StatelessWidget {
     if (values.isEmpty) {
       return const SizedBox.shrink();
     }
-    return Padding(
+    // Volle Breite, damit die Gruppe wie bei den Mängeln linksbündig steht
+    // und nicht vom übergeordneten Layout zentriert wird.
+    return Container(
+      width: double.infinity,
       padding: const EdgeInsets.fromLTRB(16, 8, 0, 2),
       child: Semantics(
         container: true,
