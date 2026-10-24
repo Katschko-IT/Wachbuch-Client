@@ -1,240 +1,391 @@
 import 'package:flutter/material.dart';
 
-/// Deterministic, field-readable Wachbuch design system.
+import 'design_tokens.dart';
+
+/// Wachbuch Klar 2: ruhige Flächen, Farbe nur für Zustand und Bedienung.
 ///
-/// The palette follows Material 3 semantics with a calm white/blue identity.
-/// Status colors remain semantic and are never used as low-contrast body text.
+/// Alle Farben stammen aus [WachbuchColors] (hell/dunkel), Radien und
+/// Abstände aus [WachbuchTokens]. Das Theme trägt [WachbuchColors] als
+/// ThemeExtension, damit Widgets soft-/strong-/accent-Farben passend zum
+/// Modus lesen können.
 ThemeData buildWachbuchTheme(Brightness brightness) {
-  final dark = brightness == Brightness.dark;
-  final scheme = dark ? _darkScheme : _lightScheme;
+  final c = brightness == Brightness.dark
+      ? WachbuchColors.dark
+      : WachbuchColors.light;
+  return buildWachbuchThemeFrom(c, brightness);
+}
+
+/// Baut ein vollständiges Theme aus einem Farbsatz (auch für Hochkontrast).
+ThemeData buildWachbuchThemeFrom(WachbuchColors c, Brightness brightness) {
+  final scheme = wachbuchColorScheme(c, brightness);
   final base = ThemeData(
     brightness: brightness,
     colorScheme: scheme,
     useMaterial3: true,
+    fontFamily: WachbuchTokens.fontFamily,
   );
-  final readableText = base.textTheme.copyWith(
-    headlineMedium: base.textTheme.headlineMedium?.copyWith(
-      fontWeight: FontWeight.w700,
-      height: 1.2,
-    ),
-    headlineSmall: base.textTheme.headlineSmall?.copyWith(
-      fontWeight: FontWeight.w700,
-      height: 1.25,
-    ),
-    titleLarge: base.textTheme.titleLarge?.copyWith(
-      fontWeight: FontWeight.w700,
-      height: 1.25,
-    ),
-    titleMedium: base.textTheme.titleMedium?.copyWith(
-      fontWeight: FontWeight.w600,
-      height: 1.3,
-    ),
-    bodyLarge: base.textTheme.bodyLarge?.copyWith(fontSize: 16, height: 1.5),
-    bodyMedium: base.textTheme.bodyMedium?.copyWith(fontSize: 15, height: 1.45),
-    bodySmall: base.textTheme.bodySmall?.copyWith(fontSize: 14, height: 1.4),
-    labelLarge: base.textTheme.labelLarge?.copyWith(
-      fontSize: 14,
-      fontWeight: FontWeight.w600,
-    ),
-    labelMedium: base.textTheme.labelMedium?.copyWith(
-      fontSize: 14,
-      fontWeight: FontWeight.w600,
-    ),
-  );
-  final cardBorder = dark ? const Color(0xFF263650) : const Color(0xFFDCE4EF);
+  final text = _readableText(base.textTheme, c);
+
+  final radiusSm = BorderRadius.circular(WachbuchTokens.radiusSm);
+  final radiusMd = BorderRadius.circular(WachbuchTokens.radiusMd);
+  final radiusLg = BorderRadius.circular(WachbuchTokens.radiusLg);
+  final controlShape = RoundedRectangleBorder(borderRadius: radiusMd);
   final inputBorder = OutlineInputBorder(
-    borderRadius: BorderRadius.circular(12),
-    borderSide: BorderSide(color: cardBorder),
+    borderRadius: radiusMd,
+    borderSide: BorderSide(color: c.lineStrong),
   );
-  final buttonShape = RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(12),
+  const buttonSize = Size(64, WachbuchTokens.touchTarget);
+  const fullWidthButton = Size.fromHeight(WachbuchTokens.touchTarget);
+  const buttonPadding = EdgeInsets.symmetric(
+    horizontal: WachbuchTokens.space4,
+    vertical: WachbuchTokens.space3,
   );
 
   return base.copyWith(
-    scaffoldBackgroundColor: dark
-        ? const Color(0xFF0B1220)
-        : const Color(0xFFF7F9FC),
-    textTheme: readableText,
+    scaffoldBackgroundColor: c.bg,
+    canvasColor: c.bg,
+    textTheme: text,
+    extensions: [c],
+    dividerColor: c.line,
+    dividerTheme: DividerThemeData(color: c.line, thickness: 1, space: 1),
     appBarTheme: AppBarTheme(
       elevation: 0,
       scrolledUnderElevation: 0,
-      backgroundColor: scheme.surface,
-      foregroundColor: scheme.onSurface,
+      backgroundColor: c.surface,
+      foregroundColor: c.text,
       surfaceTintColor: Colors.transparent,
       centerTitle: false,
-      titleTextStyle: readableText.titleLarge?.copyWith(
-        color: scheme.onSurface,
-      ),
+      shape: Border(bottom: BorderSide(color: c.line)),
+      titleTextStyle: text.titleLarge?.copyWith(color: c.text),
     ),
     cardTheme: CardThemeData(
-      color: dark ? const Color(0xFF121C2E) : Colors.white,
+      color: c.surface,
       surfaceTintColor: Colors.transparent,
+      shadowColor: Colors.transparent,
       elevation: 0,
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: cardBorder),
+        borderRadius: radiusLg,
+        side: BorderSide(color: c.line),
       ),
     ),
-    dividerColor: cardBorder,
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: scheme.surface,
-      constraints: const BoxConstraints(minHeight: 56),
+      fillColor: c.surface,
+      constraints: const BoxConstraints(
+        minHeight: WachbuchTokens.inputHeight,
+      ),
       border: inputBorder,
       enabledBorder: inputBorder,
       focusedBorder: inputBorder.copyWith(
-        borderSide: BorderSide(color: scheme.primary, width: 2),
+        borderSide: BorderSide(color: c.brand, width: 2),
       ),
-      labelStyle: readableText.bodyMedium,
-      helperStyle: readableText.bodySmall?.copyWith(
-        color: scheme.onSurfaceVariant,
+      errorBorder: inputBorder.copyWith(
+        borderSide: BorderSide(color: c.danger),
       ),
-      errorStyle: readableText.bodySmall?.copyWith(color: scheme.error),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      focusedErrorBorder: inputBorder.copyWith(
+        borderSide: BorderSide(color: c.danger, width: 2),
+      ),
+      disabledBorder: inputBorder.copyWith(
+        borderSide: BorderSide(color: c.line),
+      ),
+      labelStyle: text.bodyMedium?.copyWith(color: c.muted),
+      floatingLabelStyle: text.bodyMedium?.copyWith(color: c.brand),
+      hintStyle: text.bodyMedium?.copyWith(color: c.muted),
+      helperStyle: text.bodySmall?.copyWith(color: c.muted),
+      errorStyle: text.bodySmall?.copyWith(color: c.danger),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: WachbuchTokens.space4,
+        vertical: WachbuchTokens.space4,
+      ),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        minimumSize: const Size.fromHeight(52),
-        shape: buttonShape,
-        textStyle: readableText.labelLarge,
+        minimumSize: fullWidthButton,
+        padding: buttonPadding,
+        shape: controlShape,
+        backgroundColor: c.brand,
+        foregroundColor: c.onPrimary,
+        textStyle: text.labelLarge,
+      ),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        minimumSize: buttonSize,
+        padding: buttonPadding,
+        elevation: 0,
+        shape: controlShape,
+        backgroundColor: c.brand,
+        foregroundColor: c.onPrimary,
+        textStyle: text.labelLarge,
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        minimumSize: const Size.fromHeight(52),
-        shape: buttonShape,
-        side: BorderSide(color: scheme.primary),
-        textStyle: readableText.labelLarge,
+        minimumSize: fullWidthButton,
+        padding: buttonPadding,
+        shape: controlShape,
+        foregroundColor: c.brand,
+        side: BorderSide(color: c.brand),
+        textStyle: text.labelLarge,
       ),
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        minimumSize: const Size(48, 48),
-        shape: buttonShape,
-        textStyle: readableText.labelLarge,
+        minimumSize: const Size(
+          WachbuchTokens.touchTarget,
+          WachbuchTokens.touchTarget,
+        ),
+        shape: controlShape,
+        foregroundColor: c.brand,
+        textStyle: text.labelLarge,
       ),
+    ),
+    iconButtonTheme: IconButtonThemeData(
+      style: IconButton.styleFrom(
+        minimumSize: const Size(
+          WachbuchTokens.touchTarget,
+          WachbuchTokens.touchTarget,
+        ),
+      ),
+    ),
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      backgroundColor: c.brand,
+      foregroundColor: c.onPrimary,
+      elevation: 0,
+      focusElevation: 0,
+      hoverElevation: 0,
+      highlightElevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: radiusLg),
     ),
     searchBarTheme: SearchBarThemeData(
-      backgroundColor: WidgetStatePropertyAll(scheme.surface),
+      backgroundColor: WidgetStatePropertyAll(c.surface),
       surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
       elevation: const WidgetStatePropertyAll(0),
-      side: WidgetStatePropertyAll(BorderSide(color: cardBorder)),
-      shape: WidgetStatePropertyAll(buttonShape),
-      textStyle: WidgetStatePropertyAll(readableText.bodyLarge),
+      side: WidgetStatePropertyAll(BorderSide(color: c.lineStrong)),
+      shape: WidgetStatePropertyAll(controlShape),
+      // Einzeilige Eingabe: Fließtext-Zeilenhöhe 1,5 schiebt den Text nach oben.
+      textStyle: WidgetStatePropertyAll(text.bodyLarge?.copyWith(height: 1.2)),
       hintStyle: WidgetStatePropertyAll(
-        readableText.bodyMedium?.copyWith(color: scheme.onSurfaceVariant),
+        text.bodyLarge?.copyWith(color: c.muted, height: 1.2),
       ),
-      constraints: const BoxConstraints(minHeight: 56),
+      constraints: const BoxConstraints(
+        minHeight: WachbuchTokens.inputHeight,
+      ),
     ),
     chipTheme: base.chipTheme.copyWith(
-      backgroundColor: scheme.surfaceContainerHighest,
-      selectedColor: scheme.primary,
-      labelStyle: readableText.labelLarge?.copyWith(color: scheme.onSurface),
-      secondaryLabelStyle: readableText.labelLarge?.copyWith(
-        color: scheme.onPrimary,
+      backgroundColor: c.surface,
+      selectedColor: c.accentSoft,
+      checkmarkColor: c.brandDeep,
+      labelStyle: text.labelLarge?.copyWith(color: c.text),
+      secondaryLabelStyle: text.labelLarge?.copyWith(color: c.brandDeep),
+      side: BorderSide(color: c.lineStrong),
+      shape: RoundedRectangleBorder(borderRadius: radiusMd),
+      padding: const EdgeInsets.symmetric(
+        horizontal: WachbuchTokens.space2,
+        vertical: WachbuchTokens.space1,
       ),
-      side: BorderSide(color: cardBorder),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+    ),
+    segmentedButtonTheme: SegmentedButtonThemeData(
+      style: SegmentedButton.styleFrom(
+        minimumSize: const Size(0, WachbuchTokens.touchTarget),
+        side: BorderSide(color: c.lineStrong),
+        selectedBackgroundColor: c.accentSoft,
+        selectedForegroundColor: c.brandDeep,
+        shape: controlShape,
+        textStyle: text.labelLarge,
+      ),
+    ),
+    listTileTheme: ListTileThemeData(
+      iconColor: c.muted,
+      textColor: c.text,
+      minTileHeight: WachbuchTokens.touchTarget,
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: WachbuchTokens.space4,
+      ),
+      shape: RoundedRectangleBorder(borderRadius: radiusMd),
     ),
     navigationBarTheme: NavigationBarThemeData(
-      backgroundColor: scheme.surface,
+      backgroundColor: c.surface,
       surfaceTintColor: Colors.transparent,
+      shadowColor: Colors.transparent,
+      elevation: 0,
       labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
       height: 76,
-      indicatorColor: scheme.primaryContainer,
+      indicatorColor: c.accentSoft,
+      indicatorShape: RoundedRectangleBorder(borderRadius: radiusMd),
       iconTheme: WidgetStateProperty.resolveWith((states) {
         final selected = states.contains(WidgetState.selected);
         return IconThemeData(
           size: 26,
-          color: selected ? scheme.primary : scheme.onSurfaceVariant,
+          color: selected ? c.brandDeep : c.muted,
         );
       }),
       labelTextStyle: WidgetStateProperty.resolveWith((states) {
         final selected = states.contains(WidgetState.selected);
-        return readableText.labelMedium?.copyWith(
-          color: selected ? scheme.primary : scheme.onSurfaceVariant,
+        return text.labelMedium?.copyWith(
+          color: selected ? c.brandDeep : c.muted,
           fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
         );
       }),
     ),
     navigationRailTheme: NavigationRailThemeData(
-      backgroundColor: scheme.surface,
-      indicatorColor: scheme.primaryContainer,
-      selectedIconTheme: IconThemeData(color: scheme.primary, size: 28),
-      unselectedIconTheme: IconThemeData(
-        color: scheme.onSurfaceVariant,
-        size: 26,
+      backgroundColor: c.surface,
+      indicatorColor: c.accentSoft,
+      indicatorShape: RoundedRectangleBorder(borderRadius: radiusMd),
+      selectedIconTheme: IconThemeData(color: c.brandDeep, size: 28),
+      unselectedIconTheme: IconThemeData(color: c.muted, size: 26),
+      selectedLabelTextStyle: text.labelLarge?.copyWith(color: c.brandDeep),
+      unselectedLabelTextStyle: text.labelLarge?.copyWith(color: c.muted),
+    ),
+    dialogTheme: DialogThemeData(
+      backgroundColor: c.surface,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: radiusLg,
+        side: BorderSide(color: c.line),
       ),
-      selectedLabelTextStyle: readableText.labelLarge?.copyWith(
-        color: scheme.primary,
+      titleTextStyle: text.titleLarge?.copyWith(color: c.text),
+      contentTextStyle: text.bodyMedium?.copyWith(color: c.text),
+    ),
+    bottomSheetTheme: BottomSheetThemeData(
+      backgroundColor: c.surface,
+      surfaceTintColor: Colors.transparent,
+      modalBackgroundColor: c.surface,
+      elevation: 0,
+      showDragHandle: true,
+      dragHandleColor: c.lineStrong,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(WachbuchTokens.radiusLg),
+        ),
       ),
-      unselectedLabelTextStyle: readableText.labelLarge?.copyWith(
-        color: scheme.onSurfaceVariant,
+    ),
+    snackBarTheme: SnackBarThemeData(
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: c.text,
+      contentTextStyle: text.bodyMedium?.copyWith(color: c.surface),
+      actionTextColor: c.surface,
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: radiusMd),
+    ),
+    tooltipTheme: TooltipThemeData(
+      decoration: BoxDecoration(color: c.text, borderRadius: radiusSm),
+      textStyle: text.bodySmall?.copyWith(color: c.surface),
+    ),
+    progressIndicatorTheme: ProgressIndicatorThemeData(
+      color: c.brand,
+      linearTrackColor: c.surfaceSoft,
+      circularTrackColor: Colors.transparent,
+    ),
+    switchTheme: SwitchThemeData(
+      trackOutlineColor: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.selected)
+            ? Colors.transparent
+            : c.lineStrong,
       ),
+    ),
+    checkboxTheme: CheckboxThemeData(
+      side: BorderSide(color: c.lineStrong, width: 2),
+      shape: RoundedRectangleBorder(borderRadius: radiusSm),
     ),
   );
 }
 
-const _lightScheme = ColorScheme(
-  brightness: Brightness.light,
-  primary: Color(0xFF0D47A1),
-  onPrimary: Colors.white,
-  primaryContainer: Color(0xFFDCEBFF),
-  onPrimaryContainer: Color(0xFF082E63),
-  secondary: Color(0xFF1565C0),
-  onSecondary: Colors.white,
-  secondaryContainer: Color(0xFFE3F2FD),
-  onSecondaryContainer: Color(0xFF0B3D70),
-  tertiary: Color(0xFF425E91),
-  onTertiary: Colors.white,
-  tertiaryContainer: Color(0xFFE0E8FF),
-  onTertiaryContainer: Color(0xFF263F70),
-  error: Color(0xFFBA1A1A),
-  onError: Colors.white,
-  errorContainer: Color(0xFFFFDAD6),
-  onErrorContainer: Color(0xFF710B0B),
-  surface: Colors.white,
-  onSurface: Color(0xFF172033),
-  onSurfaceVariant: Color(0xFF445066),
-  outline: Color(0xFF6F7A8F),
-  outlineVariant: Color(0xFFDCE4EF),
-  shadow: Color(0xFF000000),
-  scrim: Color(0xFF000000),
-  inverseSurface: Color(0xFF2D3443),
-  onInverseSurface: Color(0xFFF1F3F8),
-  inversePrimary: Color(0xFF9ECAFF),
-  surfaceTint: Color(0xFF0D47A1),
-);
+/// ColorScheme aus den Tokens. `error` ist `danger` (eine Quelle).
+ColorScheme wachbuchColorScheme(WachbuchColors c, Brightness brightness) {
+  final dark = brightness == Brightness.dark;
+  return ColorScheme(
+    brightness: brightness,
+    primary: c.brand,
+    onPrimary: c.onPrimary,
+    primaryContainer: c.accentSoft,
+    onPrimaryContainer: c.brandDeep,
+    secondary: c.brandDeep,
+    onSecondary: c.onPrimary,
+    secondaryContainer: c.surfaceSoft,
+    onSecondaryContainer: c.text,
+    tertiary: c.warning,
+    onTertiary: c.surface,
+    tertiaryContainer: c.warningSoft,
+    onTertiaryContainer: c.warning,
+    error: c.danger,
+    onError: dark ? c.dangerSoft : c.surface,
+    errorContainer: c.dangerSoft,
+    onErrorContainer: c.danger,
+    surface: c.surface,
+    onSurface: c.text,
+    onSurfaceVariant: c.muted,
+    surfaceContainerLowest: c.surface,
+    surfaceContainerLow: c.surface,
+    surfaceContainer: c.surfaceSoft,
+    surfaceContainerHigh: c.surfaceSoft,
+    surfaceContainerHighest: c.surfaceSoft,
+    surfaceDim: c.bg,
+    surfaceBright: c.surface,
+    outline: c.lineStrong,
+    outlineVariant: c.line,
+    shadow: const Color(0xFF000000),
+    scrim: const Color(0xFF000000),
+    inverseSurface: c.text,
+    onInverseSurface: c.surface,
+    inversePrimary: dark
+        ? WachbuchColors.light.brand
+        : WachbuchColors.dark.brand,
+    surfaceTint: Colors.transparent,
+  );
+}
 
-const _darkScheme = ColorScheme(
-  brightness: Brightness.dark,
-  primary: Color(0xFF9ECAFF),
-  onPrimary: Color(0xFF00315D),
-  primaryContainer: Color(0xFF164B78),
-  onPrimaryContainer: Color(0xFFD3E5FF),
-  secondary: Color(0xFFA8CAFF),
-  onSecondary: Color(0xFF00315D),
-  secondaryContainer: Color(0xFF1B3E67),
-  onSecondaryContainer: Color(0xFFD6E7FF),
-  tertiary: Color(0xFFBBC8F7),
-  onTertiary: Color(0xFF243257),
-  tertiaryContainer: Color(0xFF3A4970),
-  onTertiaryContainer: Color(0xFFDDE2FF),
-  error: Color(0xFFFFB4AB),
-  onError: Color(0xFF690005),
-  errorContainer: Color(0xFF93000A),
-  onErrorContainer: Color(0xFFFFDAD6),
-  surface: Color(0xFF0B1220),
-  onSurface: Color(0xFFE5EAF3),
-  onSurfaceVariant: Color(0xFFC2CAD8),
-  outline: Color(0xFF8C96A8),
-  outlineVariant: Color(0xFF3E495D),
-  shadow: Color(0xFF000000),
-  scrim: Color(0xFF000000),
-  inverseSurface: Color(0xFFE5EAF3),
-  onInverseSurface: Color(0xFF263044),
-  inversePrimary: Color(0xFF0D47A1),
-  surfaceTint: Color(0xFF9ECAFF),
-);
+TextTheme _readableText(TextTheme base, WachbuchColors c) {
+  // Zahlen in Kennzahlen, Zählern und Etiketten stehen spaltengenau.
+  const tabular = WachbuchTokens.tabularFigures;
+  final t = base.apply(bodyColor: c.text, displayColor: c.text);
+  return t.copyWith(
+    displayLarge: t.displayLarge?.copyWith(fontFeatures: tabular),
+    displayMedium: t.displayMedium?.copyWith(fontFeatures: tabular),
+    displaySmall: t.displaySmall?.copyWith(fontFeatures: tabular),
+    headlineLarge: t.headlineLarge?.copyWith(
+      fontWeight: FontWeight.w700,
+      height: 1.2,
+      fontFeatures: tabular,
+    ),
+    headlineMedium: t.headlineMedium?.copyWith(
+      fontWeight: FontWeight.w700,
+      height: 1.2,
+      fontFeatures: tabular,
+    ),
+    headlineSmall: t.headlineSmall?.copyWith(
+      fontWeight: FontWeight.w700,
+      height: 1.25,
+      fontFeatures: tabular,
+    ),
+    titleLarge: t.titleLarge?.copyWith(fontWeight: FontWeight.w700, height: 1.25),
+    titleMedium: t.titleMedium?.copyWith(
+      fontWeight: FontWeight.w600,
+      height: 1.3,
+    ),
+    titleSmall: t.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+    bodyLarge: t.bodyLarge?.copyWith(fontSize: 16, height: 1.5),
+    bodyMedium: t.bodyMedium?.copyWith(fontSize: 15, height: 1.45),
+    bodySmall: t.bodySmall?.copyWith(
+      fontSize: WachbuchTokens.textBody,
+      height: 1.4,
+      color: c.muted,
+    ),
+    labelLarge: t.labelLarge?.copyWith(
+      fontSize: WachbuchTokens.textBody,
+      fontWeight: FontWeight.w600,
+      fontFeatures: tabular,
+    ),
+    labelMedium: t.labelMedium?.copyWith(
+      fontSize: WachbuchTokens.textBody,
+      fontWeight: FontWeight.w600,
+      fontFeatures: tabular,
+    ),
+    labelSmall: t.labelSmall?.copyWith(
+      fontWeight: FontWeight.w600,
+      fontFeatures: tabular,
+    ),
+  );
+}

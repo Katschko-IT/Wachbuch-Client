@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wachbuch_mobile/theme/design_tokens.dart';
 import 'package:wachbuch_mobile/api/client.dart';
 import 'package:wachbuch_mobile/l10n/generated/app_localizations.dart';
 import 'package:wachbuch_mobile/models/pinboard_note.dart';
@@ -153,7 +154,7 @@ class _PinboardCard extends StatelessWidget {
         note.category == 'important' ? scheme.onErrorContainer : scheme.onSecondaryContainer;
     return Material(
       color: scheme.surfaceContainerHighest,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(WachbuchTokens.radiusLg),
       clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -170,7 +171,7 @@ class _PinboardCard extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
                     color: accent,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(WachbuchTokens.radiusSm),
                   ),
                   child: Text(
                     pinboardCategoryLabel(context, note.category),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wachbuch_mobile/ui/empty_state.dart';
 import 'package:wachbuch_mobile/l10n/generated/app_localizations.dart';
 import 'package:wachbuch_mobile/api/client.dart';
 import 'package:wachbuch_mobile/models/checkliste.dart';
@@ -143,9 +144,12 @@ class _ChecklistenScreenState extends State<ChecklistenScreen> {
             const SizedBox(height: 16),
           ],
           if (_lists.isEmpty && _error == null)
-            _EmptyState(
+            EmptyState(
               icon: Icons.checklist_outlined,
+              title: AppLocalizations.of(context)!.checklistenEmptyTitle,
               message: AppLocalizations.of(context)!.checklistenEmpty,
+              actionLabel: AppLocalizations.of(context)!.refreshTooltip,
+              onAction: _reload,
             )
           else ...[
             if (_dueLists.isNotEmpty) ...[
@@ -353,26 +357,4 @@ String _formatTimestamp(DateTime date) {
   String two(int n) => n.toString().padLeft(2, '0');
   return '${two(date.day)}.${two(date.month)}.${date.year}, '
       '${two(date.hour)}:${two(date.minute)} Uhr';
-}
-
-class _EmptyState extends StatelessWidget {
-  const _EmptyState({required this.icon, required this.message});
-
-  final IconData icon;
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 48),
-      child: Column(
-        children: [
-          Icon(icon, size: 48, color: scheme.onSurfaceVariant),
-          const SizedBox(height: 12),
-          Text(message, style: Theme.of(context).textTheme.bodyLarge),
-        ],
-      ),
-    );
-  }
 }

@@ -64,6 +64,8 @@ class DemoProfile {
         'username': username,
         'user': {'username': username},
         'membership': {
+          // Alle Demo-Profile zeigen eine Leitungsrolle mit Schreibrechten.
+          'role': 'shift_lead',
           'role_label': roleLabel,
           'station': {
             'name': stationName,

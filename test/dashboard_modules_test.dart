@@ -50,9 +50,13 @@ class _ModulesApi extends WachbuchApi {
       ];
 
   @override
-  Future<List<Defect>> defects() async => const [
-        Defect(id: 1, title: 'Defi-Akku', status: 'open', priority: 'urgent'),
-      ];
+  Future<DefectPage> defectsPage({bool includeDone = false, int limit = 100}) async =>
+      const DefectPage(
+        items: [
+          Defect(id: 1, title: 'Defi-Akku', status: 'open', priority: 'urgent'),
+        ],
+        count: 1,
+      );
 
   @override
   Future<List<StationAsset>> assets() async => const [

@@ -135,6 +135,7 @@
 
   "kalenderTitle": "Calendar",
   "kalenderEmpty": "No upcoming appointments.",
+  "kalenderEmptyTitle": "No appointments",
   "kalenderEntryFallback": "Appointment",
   "kalenderTimeTbd": "Time to be announced",
   "kalenderAllDay": "All day",
@@ -144,10 +145,12 @@
   "kaffeekasseNegative": "The fund is in the negative – please top up.",
   "kaffeekasseLastTransactions": "Recent transactions",
   "kaffeekasseEmptyLedger": "No transactions yet.",
+  "kaffeekasseEmptyLedgerTitle": "No transactions",
   "kaffeekasseEntryFallback": "Transaction",
 
   "checklistenTitle": "Checklists",
   "checklistenEmpty": "No checklists available.",
+  "checklistenEmptyTitle": "No checklists",
   "checklistFallback": "Checklist",
   "checklistNoItems": "No items.",
   "checklistCompleteButton": "Complete checklist",
@@ -295,5 +298,20 @@
   "keyVerifyReverified": "Changed key of {name} verified again.",
   "keyVerifyChangedTag": "Key changed!",
   "keyVerifyChangedWarning": "{count, plural, one {{count} verified key has changed} other {{count} verified keys have changed}}. Please compare again in person.",
-  "keyVerifyServerMismatch": "{count, plural, one {{count} server-reported fingerprint disagrees with the key} other {{count} server-reported fingerprints disagree with the key}}. Possible server tampering \u2013 do not verify."
+  "keyVerifyServerMismatch": "{count, plural, one {{count} server-reported fingerprint disagrees with the key} other {{count} server-reported fingerprints disagree with the key}}. Possible server tampering \u2013 do not verify.",
+  "attachmentPreviewUnavailable": "Preview not available",
+  "attachmentFileInfo": "{filename} ({contentType})",
+  "sessionInvalidNotice": "Your sign-in expired or was revoked. Please sign in again.",
+  "sessionNoMembershipNotice": "This account has no active station access. Please contact your station management.",
+  "handoverCreate": "Create handover",
+  "handoverDetailsLabel": "Details",
+  "handoverRequiredField": "Required",
+  "handoverCreated": "Handover created.",
+  "handoverStatusChanged": "Status changed.",
+  "handoverNoAutoRetryHint": "Sent once. If an error occurs, please check the list before sending again.",
+  "defectsShowDone": "Show completed",
+  "defectsLoadMore": "Load more",
+  "defectsShownOfTotal": "{shown} of {total} defects",
+  "kaffeekasseBalanceStation": "Station fund balance",
+  "kaffeekasseBalanceOwn": "My balance"
 }

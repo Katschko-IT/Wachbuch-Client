@@ -28,6 +28,13 @@ class AuthState extends ChangeNotifier {
     return (membership?['role_label'] as String?) ?? '';
   }
 
+  /// Rollenschlüssel aus `/me/` (`membership.role`), z. B. `shift_lead`.
+  String? get role {
+    final membership = _me?['membership'] as Map?;
+    final value = membership?['role']?.toString().trim();
+    return value == null || value.isEmpty ? null : value;
+  }
+
   Map<String, dynamic> get modules {
     final station = (_me?['membership'] as Map?)?['station'] as Map?;
     final modules = station?['modules'];
