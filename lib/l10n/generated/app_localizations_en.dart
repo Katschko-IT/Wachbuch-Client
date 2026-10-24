@@ -905,4 +905,12 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0. Possible server tampering – do not verify.';
   }
+
+  @override
+  String get attachmentPreviewUnavailable => 'Preview not available';
+
+  @override
+  String attachmentFileInfo(String filename, String contentType) {
+    return '$filename ($contentType)';
+  }
 }

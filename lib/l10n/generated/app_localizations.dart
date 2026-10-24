@@ -1747,6 +1747,18 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'{count, plural, one {{count} vom Server gemeldeter Fingerprint weicht vom Schlüssel ab} other {{count} vom Server gemeldete Fingerprints weichen vom Schlüssel ab}}. Mögliche Server-Manipulation – nicht verifizieren.'**
   String keyVerifyServerMismatch(num count);
+
+  /// No description provided for @attachmentPreviewUnavailable.
+  ///
+  /// In de, this message translates to:
+  /// **'Vorschau nicht verfügbar'**
+  String get attachmentPreviewUnavailable;
+
+  /// No description provided for @attachmentFileInfo.
+  ///
+  /// In de, this message translates to:
+  /// **'{filename} ({contentType})'**
+  String attachmentFileInfo(String filename, String contentType);
 }
 
 class _AppLocalizationsDelegate

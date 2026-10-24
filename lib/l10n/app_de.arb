@@ -303,5 +303,8 @@
   "keyVerifyReverified": "Ge\u00e4nderter Schl\u00fcssel von {name} erneut verifiziert.",
   "keyVerifyChangedTag": "Schl\u00fcssel ge\u00e4ndert!",
   "keyVerifyChangedWarning": "{count, plural, one {{count} verifizierter Schl\u00fcssel hat sich ge\u00e4ndert} other {{count} verifizierte Schl\u00fcssel haben sich ge\u00e4ndert}}. Bitte pers\u00f6nlich erneut pr\u00fcfen.",
-  "keyVerifyServerMismatch": "{count, plural, one {{count} vom Server gemeldeter Fingerprint weicht vom Schl\u00fcssel ab} other {{count} vom Server gemeldete Fingerprints weichen vom Schl\u00fcssel ab}}. M\u00f6gliche Server-Manipulation \u2013 nicht verifizieren."
+  "keyVerifyServerMismatch": "{count, plural, one {{count} vom Server gemeldeter Fingerprint weicht vom Schl\u00fcssel ab} other {{count} vom Server gemeldete Fingerprints weichen vom Schl\u00fcssel ab}}. M\u00f6gliche Server-Manipulation \u2013 nicht verifizieren.",
+  "attachmentPreviewUnavailable": "Vorschau nicht verfügbar",
+  "attachmentFileInfo": "{filename} ({contentType})",
+  "@attachmentFileInfo": {"placeholders": {"filename": {"type": "String"}, "contentType": {"type": "String"}}}
 }

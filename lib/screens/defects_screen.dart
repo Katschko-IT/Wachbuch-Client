@@ -549,7 +549,23 @@ class _DefectDetailSheetState extends State<_DefectDetailSheet> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Flexible(child: InteractiveViewer(child: Image.memory(bytes))),
+                // Nur Bilder rendern; PDFs u. Ä. bekommen einen Hinweis statt
+                // eines kaputten Image-Widgets.
+                Flexible(
+                  child: attachment.contentType
+                          .toLowerCase()
+                          .startsWith('image/')
+                      ? InteractiveViewer(
+                          child: Image.memory(
+                            bytes,
+                            errorBuilder: (context, error, stackTrace) =>
+                                _AttachmentPreviewUnavailable(
+                              attachment: attachment,
+                            ),
+                          ),
+                        )
+                      : _AttachmentPreviewUnavailable(attachment: attachment),
+                ),
                 Padding(
                   padding: const EdgeInsets.all(12),
                   child: Text(attachment.filename),
@@ -779,4 +795,37 @@ String _categoryLabel(AppLocalizations l, String locale, String category) {
     'key' => locale == 'en' ? 'Key' : 'Schlüssel',
     _ => l.handoverEnumUnknown,
   };
+}
+
+/// Hinweis für Anhänge ohne Bildvorschau (z. B. PDF oder defekte Bilddaten).
+class _AttachmentPreviewUnavailable extends StatelessWidget {
+  const _AttachmentPreviewUnavailable({required this.attachment});
+
+  final DefectAttachment attachment;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final type = attachment.contentType.isEmpty ? '—' : attachment.contentType;
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.insert_drive_file_outlined, size: 48),
+          const SizedBox(height: 12),
+          Text(
+            l.attachmentPreviewUnavailable,
+            style: Theme.of(context).textTheme.titleMedium,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            l.attachmentFileInfo(attachment.filename, type),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
 }

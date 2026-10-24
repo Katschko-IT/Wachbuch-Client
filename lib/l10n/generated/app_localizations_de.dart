@@ -910,4 +910,12 @@ class AppLocalizationsDe extends AppLocalizations {
     );
     return '$_temp0. Mögliche Server-Manipulation – nicht verifizieren.';
   }
+
+  @override
+  String get attachmentPreviewUnavailable => 'Vorschau nicht verfügbar';
+
+  @override
+  String attachmentFileInfo(String filename, String contentType) {
+    return '$filename ($contentType)';
+  }
 }
