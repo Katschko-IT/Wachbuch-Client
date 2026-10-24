@@ -34,7 +34,10 @@ Dieses Repository ist die **kanonische Quelle** für den Flutter-/iOS-/Android-C
 - Schlüssel-/Poolgeräte ausgeben und zurückgeben
 - wiederkehrende Checklisten mit täglicher/wöchentlicher/monatlicher Fälligkeit
 - Auswertung für offene/überfällige Mängel, Checks, Einsatzklarquote, Pools und Quittierungen
-- token- und servergebundener verschlüsselter Offline-Lesecache
+- token- und servergebundener verschlüsselter Offline-Lesecache nach dem Server-Vertrag
+  `docs/CLIENT-OFFLINE-CONTRACT.md`: nur eigene Mitgliedschaft, Checklisten und
+  Übergabeliste (ohne Freitext), höchstens 24 h alt, nicht für `admin`, `cashier`,
+  `auditor`, lesbar erst nach online bestätigter Sitzung
 - Offline-Fallback nur bei echten Netzwerkfehlern; 401/403 werden nie durch Cache verdeckt
 - Demo-Profile für Rettungsdienst, Feuerwehr, Freiwillige Feuerwehr und Polizei
 - Phone: Bottom-Navigation · Tablet: NavigationRail + Grid

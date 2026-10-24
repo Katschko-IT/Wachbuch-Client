@@ -111,8 +111,10 @@ class WachbuchApi {
     this.requestTimeout = const Duration(seconds: 20),
     ApiCache? cache,
     this.onUnauthorized,
+    DateTime Function()? clock,
   })  : _client = client ?? http.Client(),
-        _cache = cache;
+        _cache = cache,
+        _clock = clock ?? DateTime.now;
 
   /// Origin only, e.g. https://wache.example.org (no trailing slash).
   final String baseUrl;
@@ -123,6 +125,14 @@ class WachbuchApi {
 
   /// App-weite Abmeldung bei ungültiger Sitzung (nur für Anfragen mit Token).
   final UnauthorizedCallback? onUnauthorized;
+  final DateTime Function() _clock;
+
+  /// Rolle aus der letzten erfolgreichen `/me/`-Antwort dieser Sitzung.
+  String? _role;
+
+  /// Der Offline-Cache darf nur gelesen werden, nachdem diese Sitzung online
+  /// bestätigt wurde (CLIENT-OFFLINE-CONTRACT §3.5/§5).
+  bool _sessionConfirmed = false;
 
   Uri _uri(String path) {
     final root = baseUrl.endsWith('/')
@@ -244,11 +254,45 @@ class WachbuchApi {
     return ' (erneut versuchen in $seconds s)';
   }
 
+  /// Rolle aus dem gespeicherten `/me/`-Snapshot (optional ohne Altersprüfung).
+  Future<String?> _storedRole({bool ignoreAge = false}) async {
+    final raw = await _cache?.readJson('me');
+    final data = OfflineCachePolicy.unwrap(raw, _clock(), ignoreAge: ignoreAge);
+    return OfflineCachePolicy.roleOf(data);
+  }
+
+  Future<String?> _effectiveRole() async => _role ?? await _storedRole();
+
+  /// Übernimmt die Rolle aus `/me/`. Ausgeschlossene Rollen und ein
+  /// Rollenwechsel löschen den Cache vollständig (Vertrag §2, §8).
+  Future<void> _applyRole(Map<String, dynamic> me) async {
+    final role = OfflineCachePolicy.roleOf(me);
+    final cache = _cache;
+    try {
+      final previous = _role ?? await _storedRole(ignoreAge: true);
+      if (cache != null &&
+          (!OfflineCachePolicy.roleAllowed(role) ||
+              (previous != null && previous != role))) {
+        await cache.clear();
+      }
+    } catch (_) {
+      // Cache-Fehler dürfen eine erfolgreiche Anfrage nicht scheitern lassen.
+    } finally {
+      _role = role;
+    }
+  }
+
   Future<void> _cacheWrite(String key, Map<String, dynamic> body) async {
     final cache = _cache;
-    if (cache == null) return;
+    if (cache == null || !OfflineCachePolicy.isCacheable(key)) return;
     try {
-      await cache.writeJson(key, body);
+      if (!OfflineCachePolicy.roleAllowed(await _effectiveRole())) return;
+      final entry = OfflineCachePolicy.wrap(
+        OfflineCachePolicy.minimize(key, body),
+        _clock(),
+      );
+      if (jsonEncode(entry).length > OfflineCachePolicy.maxEntryBytes) return;
+      await cache.writeJson(key, entry);
     } catch (_) {
       // Cache failure must never turn a successful online request into an error.
     }
@@ -256,9 +300,21 @@ class WachbuchApi {
 
   Future<Map<String, dynamic>?> _cacheRead(String key) async {
     final cache = _cache;
-    if (cache == null) return null;
+    if (cache == null ||
+        !_sessionConfirmed ||
+        !OfflineCachePolicy.isCacheable(key)) {
+      return null;
+    }
     try {
-      return await cache.readJson(key);
+      if (!OfflineCachePolicy.roleAllowed(await _effectiveRole())) return null;
+      final raw = await cache.readJson(key);
+      final data = OfflineCachePolicy.unwrap(raw, _clock());
+      if (data == null) {
+        // Abgelaufene oder alte Einträge ohne Zeitstempel verwerfen.
+        if (raw != null) await cache.remove(key);
+        return null;
+      }
+      return OfflineCachePolicy.restore(key, data);
     } catch (_) {
       return null;
     }
@@ -268,6 +324,7 @@ class WachbuchApi {
     String path, {
     String? cacheKey,
     String? moduleLabel,
+    Future<void> Function(Map<String, dynamic> body)? onOnline,
   }) async {
     try {
       final body = await _withRetry(() async {
@@ -279,6 +336,8 @@ class WachbuchApi {
             : _requireModule(response, moduleLabel);
         return _decode(checked);
       });
+      if (token != null && token!.isNotEmpty) _sessionConfirmed = true;
+      if (onOnline != null) await onOnline(body);
       if (cacheKey != null) await _cacheWrite(cacheKey, body);
       return body;
     } on ApiException catch (error) {
@@ -379,7 +438,7 @@ class WachbuchApi {
 
   /// GET /api/v1/me/ with encrypted offline fallback.
   Future<Map<String, dynamic>> me() =>
-      _getJson('/api/v1/me/', cacheKey: 'me');
+      _getJson('/api/v1/me/', cacheKey: 'me', onOnline: _applyRole);
 
   /// GET /api/v1/fahrzeuge/sperren/ – laufende Desinfektionssperren der
   /// Fahrzeuge, die die angemeldete Person besetzt. Ältere Server ohne diesen
@@ -426,21 +485,20 @@ class WachbuchApi {
     return _readList(body);
   }
 
-  /// GET /api/v1/handovers/{id}/
-  Future<Map<String, dynamic>> handoverDetail(int id) => _getJson(
-        '/api/v1/handovers/$id/',
-        cacheKey: 'handover_$id',
-      );
+  /// GET /api/v1/handovers/{id}/ — nie offline gespeichert (Freitext).
+  Future<Map<String, dynamic>> handoverDetail(int id) =>
+      _getJson('/api/v1/handovers/$id/');
 
   /// GET /api/v1/kalender/
   Future<List<KalenderEntry>> kalender() async {
-    final body = await _getJson('/api/v1/kalender/', cacheKey: 'calendar');
+    final body = await _getJson('/api/v1/kalender/');
     return _readList(body).map(KalenderEntry.fromJson).toList(growable: false);
   }
 
   /// GET /api/v1/kaffeekasse/
   Future<Kaffeekasse> kaffeekasse() async {
-    final body = await _getJson('/api/v1/kaffeekasse/', cacheKey: 'coffee');
+    // Kaffeekasse ist im Offline-Cache ausdrücklich verboten.
+    final body = await _getJson('/api/v1/kaffeekasse/');
     return Kaffeekasse.fromJson(body);
   }
 
@@ -450,11 +508,10 @@ class WachbuchApi {
     return _readList(body).map(Checklist.fromJson).toList(growable: false);
   }
 
-  /// GET /api/v1/pinnwand/ with encrypted offline fallback.
+  /// GET /api/v1/pinnwand/
   Future<List<PinboardNote>> pinboard() async {
     final body = await _getJson(
       '/api/v1/pinnwand/',
-      cacheKey: 'pinboard',
       moduleLabel: 'Pinnwand',
     );
     return _readList(body).map(PinboardNote.fromJson).toList(growable: false);
@@ -530,7 +587,6 @@ class WachbuchApi {
   Future<List<Defect>> defects() async {
     final body = await _getJson(
       '/api/v1/defects/',
-      cacheKey: 'defects',
       moduleLabel: 'Mängel',
     );
     return _readList(body).map(Defect.fromJson).toList(growable: false);
@@ -584,7 +640,6 @@ class WachbuchApi {
   Future<List<DefectAttachment>> defectAttachments(int defectId) async {
     final body = await _getJson(
       '/api/v1/defects/$defectId/attachments/',
-      cacheKey: 'defect_${defectId}_attachments',
       moduleLabel: 'Mängel',
     );
     return _readList(body)
@@ -635,7 +690,6 @@ class WachbuchApi {
   Future<List<StationAsset>> assets() async {
     final body = await _getJson(
       '/api/v1/assets/',
-      cacheKey: 'assets',
       moduleLabel: 'Geräte',
     );
     return _readList(body)
@@ -681,7 +735,6 @@ class WachbuchApi {
   Future<List<InventoryItem>> inventory() async {
     final body = await _getJson(
       '/api/v1/inventory/',
-      cacheKey: 'inventory',
       moduleLabel: 'Inventar',
     );
     return _readList(body)
@@ -737,7 +790,6 @@ class WachbuchApi {
   Future<List<HandoverAck>> handoverAcks(int id) async {
     final body = await _getJson(
       '/api/v1/handovers/$id/acks/',
-      cacheKey: 'handover_${id}_acks',
       moduleLabel: 'Quittierung',
     );
     return _readList(body).map(HandoverAck.fromJson).toList(growable: false);
@@ -767,7 +819,6 @@ class WachbuchApi {
   Future<WachalltagReport> reportStats() async {
     final body = await _getJson(
       '/api/v1/reports/',
-      cacheKey: 'reports',
       moduleLabel: 'Auswertung',
     );
     return WachalltagReport.fromJson(body);
@@ -1046,6 +1097,7 @@ class WachbuchApi {
       requestTimeout: requestTimeout,
       cache: _cache,
       onUnauthorized: onUnauthorized,
+      clock: _clock,
     );
   }
 }
