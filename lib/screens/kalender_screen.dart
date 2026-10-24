@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wachbuch_mobile/ui/empty_state.dart';
 import 'package:wachbuch_mobile/l10n/generated/app_localizations.dart';
 import 'package:wachbuch_mobile/api/client.dart';
 import 'package:wachbuch_mobile/models/kalender_entry.dart';
@@ -85,9 +86,12 @@ class _KalenderScreenState extends State<KalenderScreen> {
             const SizedBox(height: 16),
           ],
           if (_entries.isEmpty && _error == null)
-            _EmptyState(
+            EmptyState(
               icon: Icons.event_busy,
+              title: AppLocalizations.of(context)!.kalenderEmptyTitle,
               message: AppLocalizations.of(context)!.kalenderEmpty,
+              actionLabel: AppLocalizations.of(context)!.refreshTooltip,
+              onAction: _reload,
             )
           else
             for (final entry in _entries) ...[
@@ -220,25 +224,3 @@ String _formatTime(DateTime date) {
 
 bool _isSameDay(DateTime a, DateTime b) =>
     a.year == b.year && a.month == b.month && a.day == b.day;
-
-class _EmptyState extends StatelessWidget {
-  const _EmptyState({required this.icon, required this.message});
-
-  final IconData icon;
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 48),
-      child: Column(
-        children: [
-          Icon(icon, size: 48, color: scheme.onSurfaceVariant),
-          const SizedBox(height: 12),
-          Text(message, style: Theme.of(context).textTheme.bodyLarge),
-        ],
-      ),
-    );
-  }
-}

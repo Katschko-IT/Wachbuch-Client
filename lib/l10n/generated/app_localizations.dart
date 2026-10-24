@@ -830,6 +830,12 @@ abstract class AppLocalizations {
   /// **'Keine anstehenden Termine.'**
   String get kalenderEmpty;
 
+  /// No description provided for @kalenderEmptyTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine Termine'**
+  String get kalenderEmptyTitle;
+
   /// No description provided for @kalenderEntryFallback.
   ///
   /// In de, this message translates to:
@@ -878,6 +884,12 @@ abstract class AppLocalizations {
   /// **'Noch keine Buchungen.'**
   String get kaffeekasseEmptyLedger;
 
+  /// No description provided for @kaffeekasseEmptyLedgerTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine Buchungen'**
+  String get kaffeekasseEmptyLedgerTitle;
+
   /// No description provided for @kaffeekasseEntryFallback.
   ///
   /// In de, this message translates to:
@@ -895,6 +907,12 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Keine Checklisten verfügbar.'**
   String get checklistenEmpty;
+
+  /// No description provided for @checklistenEmptyTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine Checklisten'**
+  String get checklistenEmptyTitle;
 
   /// No description provided for @checklistFallback.
   ///

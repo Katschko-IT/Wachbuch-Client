@@ -135,6 +135,7 @@
 
   "kalenderTitle": "Calendar",
   "kalenderEmpty": "No upcoming appointments.",
+  "kalenderEmptyTitle": "No appointments",
   "kalenderEntryFallback": "Appointment",
   "kalenderTimeTbd": "Time to be announced",
   "kalenderAllDay": "All day",
@@ -144,10 +145,12 @@
   "kaffeekasseNegative": "The fund is in the negative – please top up.",
   "kaffeekasseLastTransactions": "Recent transactions",
   "kaffeekasseEmptyLedger": "No transactions yet.",
+  "kaffeekasseEmptyLedgerTitle": "No transactions",
   "kaffeekasseEntryFallback": "Transaction",
 
   "checklistenTitle": "Checklists",
   "checklistenEmpty": "No checklists available.",
+  "checklistenEmptyTitle": "No checklists",
   "checklistFallback": "Checklist",
   "checklistNoItems": "No items.",
   "checklistCompleteButton": "Complete checklist",

@@ -397,6 +397,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get kalenderEmpty => 'No upcoming appointments.';
 
   @override
+  String get kalenderEmptyTitle => 'No appointments';
+
+  @override
   String get kalenderEntryFallback => 'Appointment';
 
   @override
@@ -422,6 +425,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get kaffeekasseEmptyLedger => 'No transactions yet.';
 
   @override
+  String get kaffeekasseEmptyLedgerTitle => 'No transactions';
+
+  @override
   String get kaffeekasseEntryFallback => 'Transaction';
 
   @override
@@ -429,6 +435,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get checklistenEmpty => 'No checklists available.';
+
+  @override
+  String get checklistenEmptyTitle => 'No checklists';
 
   @override
   String get checklistFallback => 'Checklist';

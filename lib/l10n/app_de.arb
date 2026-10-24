@@ -142,6 +142,7 @@
 
   "kalenderTitle": "Kalender",
   "kalenderEmpty": "Keine anstehenden Termine.",
+  "kalenderEmptyTitle": "Keine Termine",
   "kalenderEntryFallback": "Termin",
   "kalenderTimeTbd": "Zeit folgt",
   "kalenderAllDay": "Ganztägig",
@@ -151,10 +152,12 @@
   "kaffeekasseNegative": "Die Kasse ist im Minus – bitte nachzahlen.",
   "kaffeekasseLastTransactions": "Letzte Buchungen",
   "kaffeekasseEmptyLedger": "Noch keine Buchungen.",
+  "kaffeekasseEmptyLedgerTitle": "Keine Buchungen",
   "kaffeekasseEntryFallback": "Buchung",
 
   "checklistenTitle": "Checklisten",
   "checklistenEmpty": "Keine Checklisten verfügbar.",
+  "checklistenEmptyTitle": "Keine Checklisten",
   "checklistFallback": "Checkliste",
   "checklistNoItems": "Keine Punkte.",
   "checklistCompleteButton": "Checkliste abschließen",

@@ -26,6 +26,7 @@ import 'package:wachbuch_mobile/ui/handover_filter.dart';
 import 'package:wachbuch_mobile/ui/layout.dart';
 import 'package:wachbuch_mobile/ui/offline_banner.dart';
 import 'package:wachbuch_mobile/ui/priority_badge.dart';
+import 'package:wachbuch_mobile/ui/section_title.dart';
 import 'package:wachbuch_mobile/ui/status_chip.dart';
 
 class HomeShell extends StatefulWidget {
@@ -343,7 +344,7 @@ class _OverviewTab extends StatelessWidget {
                 ErrorBanner(message: error!),
                 const SizedBox(height: 16),
               ],
-              _SectionTitle(
+              SectionTitle(
                 icon: Icons.monitor_heart_outlined,
                 title: l.overviewActiveHandovers,
               ),
@@ -392,7 +393,7 @@ class _OverviewTab extends StatelessWidget {
                 _OverviewAssetBoard(api: api),
               ],
               const SizedBox(height: 24),
-              _SectionTitle(
+              SectionTitle(
                 icon: Icons.dashboard_customize_outlined,
                 title: l.overviewModulesTitle,
               ),
@@ -523,27 +524,6 @@ class _StationHero extends StatelessWidget {
   }
 }
 
-class _SectionTitle extends StatelessWidget {
-  const _SectionTitle({required this.icon, required this.title});
-
-  final IconData icon;
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Row(
-      children: [
-        Icon(icon, size: 24, color: scheme.primary),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(title, style: Theme.of(context).textTheme.titleMedium),
-        ),
-      ],
-    );
-  }
-}
-
 class _DashboardMetric extends StatelessWidget {
   const _DashboardMetric({
     super.key,
@@ -639,7 +619,7 @@ class _ModuleTiles extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _SectionTitle(
+        SectionTitle(
           icon: Icons.apps_outlined,
           title: l.quickAccessTitle,
         ),

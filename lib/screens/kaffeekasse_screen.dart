@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:wachbuch_mobile/ui/empty_state.dart';
+import 'package:wachbuch_mobile/ui/section_title.dart';
 import 'package:wachbuch_mobile/l10n/generated/app_localizations.dart';
 import 'package:wachbuch_mobile/api/client.dart';
 import 'package:wachbuch_mobile/models/kaffeekasse.dart';
@@ -90,12 +92,18 @@ class _KaffeekasseScreenState extends State<KaffeekasseScreen> {
               _PaymentHintCard(hint: kasse.paymentHint),
               const SizedBox(height: 16),
             ],
-            _SectionTitle(title: AppLocalizations.of(context)!.kaffeekasseLastTransactions),
+            SectionTitle(
+              icon: Icons.receipt_outlined,
+              title: AppLocalizations.of(context)!.kaffeekasseLastTransactions,
+            ),
             const SizedBox(height: 8),
             if (kasse.ledger.isEmpty)
-              _EmptyState(
+              EmptyState(
                 icon: Icons.receipt_long_outlined,
+                title: AppLocalizations.of(context)!.kaffeekasseEmptyLedgerTitle,
                 message: AppLocalizations.of(context)!.kaffeekasseEmptyLedger,
+                actionLabel: AppLocalizations.of(context)!.refreshTooltip,
+                onAction: _reload,
               )
             else
               for (final entry in kasse.ledger) ...[
@@ -214,31 +222,6 @@ class _PaymentHintCard extends StatelessWidget {
   }
 }
 
-class _SectionTitle extends StatelessWidget {
-  const _SectionTitle({required this.title});
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Row(
-      children: [
-        Icon(Icons.receipt_outlined, size: 22, color: scheme.primary),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 class _LedgerTile extends StatelessWidget {
   const _LedgerTile({required this.entry});
 
@@ -279,26 +262,4 @@ String _formatTimestamp(DateTime date) {
   String two(int n) => n.toString().padLeft(2, '0');
   return '${two(date.day)}.${two(date.month)}.${date.year}, '
       '${two(date.hour)}:${two(date.minute)} Uhr';
-}
-
-class _EmptyState extends StatelessWidget {
-  const _EmptyState({required this.icon, required this.message});
-
-  final IconData icon;
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 48),
-      child: Column(
-        children: [
-          Icon(icon, size: 48, color: scheme.onSurfaceVariant),
-          const SizedBox(height: 12),
-          Text(message, style: Theme.of(context).textTheme.bodyLarge),
-        ],
-      ),
-    );
-  }
 }
