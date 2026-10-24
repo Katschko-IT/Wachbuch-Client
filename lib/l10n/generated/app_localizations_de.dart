@@ -926,4 +926,23 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get sessionNoMembershipNotice =>
       'Für dieses Konto gibt es keinen aktiven Wachenzugang. Bitte an die Wachenleitung wenden.';
+
+  @override
+  String get handoverCreate => 'Übergabe anlegen';
+
+  @override
+  String get handoverDetailsLabel => 'Details';
+
+  @override
+  String get handoverRequiredField => 'Pflichtfeld';
+
+  @override
+  String get handoverCreated => 'Übergabe angelegt.';
+
+  @override
+  String get handoverStatusChanged => 'Status geändert.';
+
+  @override
+  String get handoverNoAutoRetryHint =>
+      'Wird einmal gesendet. Bei einem Fehler bitte die Liste prüfen, bevor Sie erneut senden.';
 }

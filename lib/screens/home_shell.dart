@@ -17,6 +17,7 @@ import 'package:wachbuch_mobile/screens/reports_screen.dart';
 import 'package:wachbuch_mobile/services/connectivity_service.dart';
 import 'package:wachbuch_mobile/state/auth_state.dart';
 import 'package:wachbuch_mobile/state/handover_state.dart';
+import 'package:wachbuch_mobile/state/station_roles.dart';
 import 'package:wachbuch_mobile/ui/asset_status_board.dart';
 import 'package:wachbuch_mobile/ui/demo_banner.dart';
 import 'package:wachbuch_mobile/ui/error_banner.dart';
@@ -162,6 +163,7 @@ class _HomeShellState extends State<HomeShell> {
               api: widget.api,
               handoverState: _handoverState,
               currentUsername: _authState.username,
+              role: _authState.role,
               error: error,
               onRefresh: _reload,
             ),
@@ -839,11 +841,15 @@ class _HandoversTab extends StatefulWidget {
     required this.currentUsername,
     required this.error,
     required this.onRefresh,
+    this.role,
   });
 
   final WachbuchApi api;
   final HandoverState handoverState;
   final String? currentUsername;
+
+  /// Rolle aus `/me/`; steuert Anlegen und Status-Aktionen.
+  final String? role;
   final String? error;
   final Future<void> Function() onRefresh;
 
@@ -867,6 +873,7 @@ class _HandoversTabState extends State<_HandoversTab> {
       return;
     }
     final detailFuture = widget.api.handoverDetail(id);
+    var changed = false;
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -877,8 +884,26 @@ class _HandoversTabState extends State<_HandoversTab> {
         currentUsername: widget.currentUsername,
         future: detailFuture,
         fallback: item,
+        canChangeStatus: StationRoles.canChangeHandoverStatus(widget.role),
+        onStatusChanged: () => changed = true,
       ),
     );
+    if (changed && mounted) await widget.onRefresh();
+  }
+
+  Future<void> _openCreate() async {
+    final l = AppLocalizations.of(context)!;
+    final created = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => _HandoverCreateSheet(api: widget.api),
+    );
+    if (created != true || !mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l.handoverCreated)),
+    );
+    await widget.onRefresh();
   }
 
   @override
@@ -915,6 +940,19 @@ class _HandoversTabState extends State<_HandoversTab> {
         constraints: BoxConstraints(maxWidth: maxW),
         child: Column(
           children: [
+            if (StationRoles.canCreateHandover(widget.role))
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: FilledButton.icon(
+                    key: const Key('handover-create'),
+                    onPressed: _openCreate,
+                    icon: const Icon(Icons.add),
+                    label: Text(l.handoverCreate),
+                  ),
+                ),
+              ),
             if (items.isNotEmpty) ...[
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
@@ -1224,6 +1262,8 @@ class _HandoverDetailSheet extends StatefulWidget {
     required this.currentUsername,
     required this.future,
     required this.fallback,
+    this.canChangeStatus = false,
+    this.onStatusChanged,
   });
 
   final WachbuchApi api;
@@ -1231,6 +1271,8 @@ class _HandoverDetailSheet extends StatefulWidget {
   final String? currentUsername;
   final Future<Map<String, dynamic>> future;
   final Map<String, dynamic> fallback;
+  final bool canChangeStatus;
+  final VoidCallback? onStatusChanged;
 
   @override
   State<_HandoverDetailSheet> createState() => _HandoverDetailSheetState();
@@ -1242,6 +1284,34 @@ class _HandoverDetailSheetState extends State<_HandoverDetailSheet> {
   bool _acking = false;
   bool _creatingDefect = false;
   String? _ackError;
+  Map<String, dynamic>? _updated;
+  bool _statusBusy = false;
+  String? _statusError;
+
+  /// POST …/status/ einmalig senden; keine automatische Wiederholung.
+  Future<void> _setStatus(AppLocalizations l, String status) async {
+    setState(() {
+      _statusBusy = true;
+      _statusError = null;
+    });
+    try {
+      final updated = await widget.api.setHandoverStatus(
+        widget.handoverId,
+        status,
+      );
+      if (!mounted) return;
+      widget.onStatusChanged?.call();
+      setState(() => _updated = {...updated, 'status': updated['status'] ?? status});
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.handoverStatusChanged)),
+      );
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      setState(() => _statusError = error.message);
+    } finally {
+      if (mounted) setState(() => _statusBusy = false);
+    }
+  }
 
   @override
   void initState() {
@@ -1366,7 +1436,7 @@ class _HandoverDetailSheetState extends State<_HandoverDetailSheet> {
               child: ErrorBanner(message: message),
             );
           }
-          final item = {...widget.fallback, ...?snapshot.data};
+          final item = {...widget.fallback, ...?snapshot.data, ...?_updated};
           final rawAuthor = item['author'];
           final author = rawAuthor is Map ? rawAuthor : null;
           final authorName = author?['display_name']?.toString();
@@ -1416,6 +1486,33 @@ class _HandoverDetailSheetState extends State<_HandoverDetailSheet> {
                     ),
                   ],
                 ),
+                if (widget.canChangeStatus) ...[
+                  const SizedBox(height: 16),
+                  Text(
+                    l.defectSetStatus,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (final status in const ['open', 'in_progress', 'done'])
+                        ChoiceChip(
+                          key: Key('handover-status-$status'),
+                          label: Text(handoverStatusLabel(status, l)),
+                          selected: item['status'] == status,
+                          onSelected: _statusBusy || item['status'] == status
+                              ? null
+                              : (_) => _setStatus(l, status),
+                        ),
+                    ],
+                  ),
+                  if (_statusError != null) ...[
+                    const SizedBox(height: 8),
+                    ErrorBanner(message: _statusError!),
+                  ],
+                ],
                 const SizedBox(height: 20),
                 Text(
                   details?.isNotEmpty == true
@@ -1661,6 +1758,179 @@ class _AccountTab extends StatelessWidget {
               child: Text(l.accountChangeServer),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Formular für POST /api/v1/handovers/ (Felder wie `HandoverForm`).
+class _HandoverCreateSheet extends StatefulWidget {
+  const _HandoverCreateSheet({required this.api});
+
+  final WachbuchApi api;
+
+  @override
+  State<_HandoverCreateSheet> createState() => _HandoverCreateSheetState();
+}
+
+class _HandoverCreateSheetState extends State<_HandoverCreateSheet> {
+  final _formKey = GlobalKey<FormState>();
+  final _title = TextEditingController();
+  final _details = TextEditingController();
+  String _category = 'station';
+  String _priority = 'normal';
+  bool _busy = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _title.dispose();
+    _details.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (_busy || !_formKey.currentState!.validate()) return;
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      await widget.api.createHandover(
+        title: _title.text.trim(),
+        details: _details.text.trim(),
+        category: _category,
+        priority: _priority,
+      );
+      if (!mounted) return;
+      Navigator.of(context).pop(true);
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      setState(() => _error = error.message);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    String? required(String? value) =>
+        value == null || value.trim().isEmpty ? l.handoverRequiredField : null;
+    return SafeArea(
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+          24,
+          0,
+          24,
+          24 + MediaQuery.viewInsetsOf(context).bottom,
+        ),
+        child: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  l.handoverCreate,
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  key: const Key('handover-create-title'),
+                  controller: _title,
+                  maxLength: 160,
+                  textInputAction: TextInputAction.next,
+                  decoration: InputDecoration(
+                    labelText: l.defectTitleLabel,
+                    border: const OutlineInputBorder(),
+                  ),
+                  validator: required,
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  key: const Key('handover-create-details'),
+                  controller: _details,
+                  minLines: 3,
+                  maxLines: 6,
+                  maxLength: 3000,
+                  decoration: InputDecoration(
+                    labelText: l.handoverDetailsLabel,
+                    border: const OutlineInputBorder(),
+                  ),
+                  validator: required,
+                ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<String>(
+                  initialValue: _category,
+                  decoration: InputDecoration(
+                    labelText: l.defectCategoryLabel,
+                    border: const OutlineInputBorder(),
+                  ),
+                  items: [
+                    for (final value in const [
+                      'station',
+                      'vehicle',
+                      'material',
+                      'task',
+                      'safety',
+                    ])
+                      DropdownMenuItem(
+                        value: value,
+                        child: Text(handoverCategoryLabel(value, l)),
+                      ),
+                  ],
+                  onChanged: _busy
+                      ? null
+                      : (value) => setState(() => _category = value ?? 'station'),
+                ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<String>(
+                  initialValue: _priority,
+                  decoration: InputDecoration(
+                    labelText: l.defectPriorityLabel,
+                    border: const OutlineInputBorder(),
+                  ),
+                  items: [
+                    for (final value in const ['normal', 'important', 'urgent'])
+                      DropdownMenuItem(
+                        value: value,
+                        child: Text(handoverPriorityLabel(value, l)),
+                      ),
+                  ],
+                  onChanged: _busy
+                      ? null
+                      : (value) => setState(() => _priority = value ?? 'normal'),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  l.handoverNoAutoRetryHint,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                ),
+                if (_error != null) ...[
+                  const SizedBox(height: 12),
+                  ErrorBanner(message: _error!),
+                ],
+                const SizedBox(height: 16),
+                FilledButton(
+                  key: const Key('handover-create-submit'),
+                  onPressed: _busy ? null : _submit,
+                  child: _busy
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Text(l.commonSave),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

@@ -921,4 +921,23 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get sessionNoMembershipNotice =>
       'This account has no active station access. Please contact your station management.';
+
+  @override
+  String get handoverCreate => 'Create handover';
+
+  @override
+  String get handoverDetailsLabel => 'Details';
+
+  @override
+  String get handoverRequiredField => 'Required';
+
+  @override
+  String get handoverCreated => 'Handover created.';
+
+  @override
+  String get handoverStatusChanged => 'Status changed.';
+
+  @override
+  String get handoverNoAutoRetryHint =>
+      'Sent once. If an error occurs, please check the list before sending again.';
 }

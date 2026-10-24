@@ -299,5 +299,11 @@
   "attachmentPreviewUnavailable": "Preview not available",
   "attachmentFileInfo": "{filename} ({contentType})",
   "sessionInvalidNotice": "Your sign-in expired or was revoked. Please sign in again.",
-  "sessionNoMembershipNotice": "This account has no active station access. Please contact your station management."
+  "sessionNoMembershipNotice": "This account has no active station access. Please contact your station management.",
+  "handoverCreate": "Create handover",
+  "handoverDetailsLabel": "Details",
+  "handoverRequiredField": "Required",
+  "handoverCreated": "Handover created.",
+  "handoverStatusChanged": "Status changed.",
+  "handoverNoAutoRetryHint": "Sent once. If an error occurs, please check the list before sending again."
 }

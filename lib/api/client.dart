@@ -485,6 +485,46 @@ class WachbuchApi {
     return _readList(body);
   }
 
+  /// POST /api/v1/handovers/ — Felder wie `HandoverForm` des Servers.
+  /// Keine automatische Wiederholung, damit keine Doppel-Übergaben entstehen.
+  Future<Map<String, dynamic>> createHandover({
+    required String title,
+    required String details,
+    required String category,
+    String priority = 'normal',
+  }) async {
+    return _withRetry(() async {
+      final response = await _send(
+        _client.post(
+          _uri('/api/v1/handovers/'),
+          headers: _headers(),
+          body: jsonEncode({
+            'title': title,
+            'details': details,
+            'category': category,
+            'priority': priority,
+          }),
+        ),
+      );
+      return _decode(response);
+    }, maxAttempts: 1);
+  }
+
+  /// POST /api/v1/handovers/{id}/status/ — `{"status": ...}`. Der Server
+  /// erhöht `version` selbst und liefert die Übergabe mit Details zurück.
+  Future<Map<String, dynamic>> setHandoverStatus(int id, String status) async {
+    return _withRetry(() async {
+      final response = await _send(
+        _client.post(
+          _uri('/api/v1/handovers/$id/status/'),
+          headers: _headers(),
+          body: jsonEncode({'status': status}),
+        ),
+      );
+      return _decode(response);
+    }, maxAttempts: 1);
+  }
+
   /// GET /api/v1/handovers/{id}/ — nie offline gespeichert (Freitext).
   Future<Map<String, dynamic>> handoverDetail(int id) =>
       _getJson('/api/v1/handovers/$id/');

@@ -1771,6 +1771,42 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Für dieses Konto gibt es keinen aktiven Wachenzugang. Bitte an die Wachenleitung wenden.'**
   String get sessionNoMembershipNotice;
+
+  /// No description provided for @handoverCreate.
+  ///
+  /// In de, this message translates to:
+  /// **'Übergabe anlegen'**
+  String get handoverCreate;
+
+  /// No description provided for @handoverDetailsLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Details'**
+  String get handoverDetailsLabel;
+
+  /// No description provided for @handoverRequiredField.
+  ///
+  /// In de, this message translates to:
+  /// **'Pflichtfeld'**
+  String get handoverRequiredField;
+
+  /// No description provided for @handoverCreated.
+  ///
+  /// In de, this message translates to:
+  /// **'Übergabe angelegt.'**
+  String get handoverCreated;
+
+  /// No description provided for @handoverStatusChanged.
+  ///
+  /// In de, this message translates to:
+  /// **'Status geändert.'**
+  String get handoverStatusChanged;
+
+  /// No description provided for @handoverNoAutoRetryHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Wird einmal gesendet. Bei einem Fehler bitte die Liste prüfen, bevor Sie erneut senden.'**
+  String get handoverNoAutoRetryHint;
 }
 
 class _AppLocalizationsDelegate

@@ -191,21 +191,66 @@ class DemoWachbuchApi extends WachbuchApi {
   @override
   Future<Map<String, dynamic>> me() async => Map<String, dynamic>.from(profile.me);
 
+  /// Lokal angelegte Übergaben und geänderte Status (nur im Speicher).
+  final List<Map<String, dynamic>> _createdHandovers = [];
+  final Map<int, String> _handoverStatus = {};
+
+  List<Map<String, dynamic>> get _allHandovers => [
+        ..._createdHandovers,
+        ...profile.handovers,
+      ].map((entry) {
+        final copy = Map<String, dynamic>.from(entry);
+        final status = _handoverStatus[copy['id']];
+        if (status != null) copy['status'] = status;
+        return copy;
+      }).toList(growable: false);
+
   @override
   Future<List<Map<String, dynamic>>> handovers() async {
-    return profile.handovers
-        .map((entry) => Map<String, dynamic>.from(entry))
-        .toList(growable: false);
+    return _allHandovers;
   }
 
   @override
   Future<Map<String, dynamic>> handoverDetail(int id) async {
-    for (final entry in profile.handovers) {
-      if (entry['id'] == id) {
-        return Map<String, dynamic>.from(entry);
-      }
+    for (final entry in _allHandovers) {
+      if (entry['id'] == id) return entry;
     }
     throw ApiException(404, 'Übergabe nicht gefunden.');
+  }
+
+  @override
+  Future<Map<String, dynamic>> createHandover({
+    required String title,
+    required String details,
+    required String category,
+    String priority = 'normal',
+  }) async {
+    final ids = _allHandovers.map((entry) => entry['id']).whereType<int>();
+    final now = DateTime.now().toUtc().toIso8601String();
+    final created = <String, dynamic>{
+      'id': (ids.isEmpty ? 0 : ids.reduce((a, b) => a > b ? a : b)) + 1,
+      'title': title,
+      'details': details,
+      'category': category,
+      'priority': priority,
+      'status': 'open',
+      'created_at': now,
+      'updated_at': now,
+      'version': 1,
+    };
+    _createdHandovers.insert(0, created);
+    return Map<String, dynamic>.from(created);
+  }
+
+  @override
+  Future<Map<String, dynamic>> setHandoverStatus(int id, String status) async {
+    final current = await handoverDetail(id);
+    _handoverStatus[id] = status;
+    return {
+      ...current,
+      'status': status,
+      'version': ((current['version'] as num?)?.toInt() ?? 1) + 1,
+    };
   }
 
   @override

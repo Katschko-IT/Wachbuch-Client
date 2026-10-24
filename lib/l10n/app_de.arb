@@ -308,5 +308,11 @@
   "attachmentFileInfo": "{filename} ({contentType})",
   "@attachmentFileInfo": {"placeholders": {"filename": {"type": "String"}, "contentType": {"type": "String"}}},
   "sessionInvalidNotice": "Anmeldung abgelaufen oder widerrufen. Bitte erneut anmelden.",
-  "sessionNoMembershipNotice": "Für dieses Konto gibt es keinen aktiven Wachenzugang. Bitte an die Wachenleitung wenden."
+  "sessionNoMembershipNotice": "Für dieses Konto gibt es keinen aktiven Wachenzugang. Bitte an die Wachenleitung wenden.",
+  "handoverCreate": "Übergabe anlegen",
+  "handoverDetailsLabel": "Details",
+  "handoverRequiredField": "Pflichtfeld",
+  "handoverCreated": "Übergabe angelegt.",
+  "handoverStatusChanged": "Status geändert.",
+  "handoverNoAutoRetryHint": "Wird einmal gesendet. Bei einem Fehler bitte die Liste prüfen, bevor Sie erneut senden."
 }
