@@ -347,7 +347,7 @@ class _InventoryCard extends StatelessWidget {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(WachbuchTokens.space4),
         child: Row(
           children: [
             Icon(

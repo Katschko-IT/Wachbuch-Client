@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wachbuch_mobile/theme/design_tokens.dart';
 import 'package:wachbuch_mobile/ui/empty_state.dart';
 import 'package:wachbuch_mobile/ui/section_title.dart';
 import 'package:wachbuch_mobile/l10n/generated/app_localizations.dart';
@@ -130,10 +131,10 @@ class _BalanceCard extends StatelessWidget {
     final foreground = urgent ? scheme.onErrorContainer : scheme.onPrimaryContainer;
     return Material(
       color: background,
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(WachbuchTokens.radiusLg),
       clipBehavior: Clip.antiAlias,
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(WachbuchTokens.space5),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -196,9 +197,9 @@ class _PaymentHintCard extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Material(
       color: scheme.secondaryContainer,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(WachbuchTokens.radiusMd),
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(WachbuchTokens.space4),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

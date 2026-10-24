@@ -428,9 +428,9 @@ class _OverviewTab extends StatelessWidget {
               const SizedBox(height: 24),
               Material(
                 color: Theme.of(context).colorScheme.primaryContainer,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(WachbuchTokens.radiusMd),
                 child: Padding(
-                  padding: const EdgeInsets.all(14),
+                  padding: const EdgeInsets.all(WachbuchTokens.space4),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -473,10 +473,10 @@ class _StationHero extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Material(
       color: scheme.primary,
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(WachbuchTokens.radiusLg),
       clipBehavior: Clip.antiAlias,
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(WachbuchTokens.space5),
         child: Row(
           children: [
             Container(
@@ -484,7 +484,7 @@ class _StationHero extends StatelessWidget {
               height: 52,
               decoration: BoxDecoration(
                 color: scheme.onPrimary.withValues(alpha: 0.14),
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(WachbuchTokens.radiusLg),
               ),
               child: Icon(
                 Icons.local_hospital_outlined,
@@ -805,7 +805,7 @@ class _ModuleTile extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(WachbuchTokens.space4),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

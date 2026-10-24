@@ -782,7 +782,7 @@ class _DefectDetailSheetState extends State<_DefectDetailSheet> {
               if (_attachmentError != null) ErrorBanner(message: _attachmentError!),
               if (_attachmentsLoading)
                 const Padding(
-                  padding: EdgeInsets.all(20),
+                  padding: EdgeInsets.all(WachbuchTokens.space5),
                   child: Center(child: CircularProgressIndicator()),
                 )
               else if (_attachments.isEmpty)
@@ -825,7 +825,7 @@ class _DefectCard extends StatelessWidget {
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: WachbuchTokens.touchTarget),
           child: Padding(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(WachbuchTokens.space4),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

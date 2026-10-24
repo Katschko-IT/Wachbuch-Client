@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wachbuch_mobile/theme/design_tokens.dart';
 import 'package:wachbuch_mobile/ui/empty_state.dart';
 import 'package:wachbuch_mobile/l10n/generated/app_localizations.dart';
 import 'package:wachbuch_mobile/api/client.dart';
@@ -124,7 +125,7 @@ class _KalenderCard extends StatelessWidget {
               height: 56,
               decoration: BoxDecoration(
                 color: scheme.primary,
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(WachbuchTokens.radiusSm),
               ),
             ),
             const SizedBox(width: 14),
