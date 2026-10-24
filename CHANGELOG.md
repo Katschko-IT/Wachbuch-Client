@@ -4,6 +4,14 @@ Alle wesentlichen Änderungen an Wachbuch Mobile werden hier dokumentiert.
 
 ## Unreleased
 
+- Abhängigkeiten aktualisiert (Stand 24.10.2026): Flutter 3.47.8, app_links,
+  geolocator, image_picker, mobile_scanner 7.4.2, package_info_plus,
+  shared_preferences, url_launcher, flutter_secure_storage 10.3.4; Gradle 9.8.2,
+  Android Gradle Plugin 9.4.1, Kotlin 2.4.21; GitHub Actions mit SHA-Pin.
+  Bewusst nicht angehoben: flutter_secure_storage 11 (gestufte Migration, siehe
+  `docs/SECURE-STORAGE-MIGRATION-1.0.md`), permission_handler 13 (verlangt
+  compileSdk 37) und connectivity_plus 7.3.2 (dbus-Konflikt mit geolocator).
+
 - Wache ohne Internet: Ein Verbindungs-QR mit `pin=sha256/…` hinterlegt den
   Fingerabdruck eines lokalen Serverzertifikats (z. B. Raspberry Pi mit eigenem
   WLAN). Die App vertraut dann genau diesem Zertifikat für diesen Server.

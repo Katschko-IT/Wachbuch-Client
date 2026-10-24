@@ -15,7 +15,8 @@ void main() {
       'docs/SECURE-STORAGE-MIGRATION-1.0.md',
     ).readAsString();
 
-    expect(pubspec, contains('flutter_secure_storage: ^10.3.1'));
+    // Gestufte Migration: bis zur Freigabe von v11 auf Major 10 bleiben.
+    expect(pubspec, matches(RegExp(r'flutter_secure_storage: \^10\.\d+\.\d+')));
     expect(pubspec, isNot(contains('flutter_secure_storage: ^11')));
     expect(storage, contains('migrateOnAlgorithmChange: true'));
     expect(storage, contains('migrateWithBackup: true'));
