@@ -246,13 +246,16 @@ class _LedgerTile extends StatelessWidget {
           if (entry.userName.isNotEmpty) entry.userName,
           if (entry.createdAt != null) _formatTimestamp(entry.createdAt!),
         ].join(' · '),
-        style: Theme.of(context).textTheme.bodySmall,
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              fontFeatures: WachbuchTokens.tabularFigures,
+            ),
       ),
       trailing: Text(
         entry.formattedAmount,
         style: Theme.of(context).textTheme.titleMedium?.copyWith(
               color: amountColor,
               fontWeight: FontWeight.w600,
+              fontFeatures: WachbuchTokens.tabularFigures,
             ),
       ),
     );

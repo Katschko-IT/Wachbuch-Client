@@ -153,6 +153,7 @@ class _KalenderCard extends StatelessWidget {
                           _formatRange(entry, AppLocalizations.of(context)!),
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                 color: scheme.onSurfaceVariant,
+                                fontFeatures: WachbuchTokens.tabularFigures,
                               ),
                         ),
                       ),
