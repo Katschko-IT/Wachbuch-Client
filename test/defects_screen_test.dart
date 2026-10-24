@@ -6,6 +6,8 @@ import 'package:wachbuch_mobile/api/client.dart';
 import 'package:wachbuch_mobile/models/defect.dart';
 import 'package:wachbuch_mobile/models/defect_attachment.dart';
 import 'package:wachbuch_mobile/screens/defects_screen.dart';
+import 'package:wachbuch_mobile/theme/app_theme.dart';
+import 'package:wachbuch_mobile/theme/high_contrast_theme.dart';
 
 import 'test_localization.dart';
 
@@ -102,4 +104,31 @@ void main() {
     expect(find.text('Vorschau nicht verfügbar'), findsWidgets);
     expect(find.text('trage.jpg (image/jpeg)'), findsWidgets);
   });
+
+  // Gefunden im Ende-zu-Ende-Test auf dem iOS-Simulator: Das App-Theme gibt
+  // FilledButton eine Mindestbreite „unendlich“ (Size.fromHeight); der
+  // Foto-Button in der Zeile der Mängeldetails warf dadurch beim Layout
+  // „BoxConstraints forces an infinite width“.
+  for (final entry in {
+    'hell': buildWachbuchTheme(Brightness.light),
+    'dunkel': buildWachbuchTheme(Brightness.dark),
+    'hoher Kontrast': HighContrastTheme.light(),
+  }.entries) {
+    testWidgets('Mängeldetails rendern mit App-Theme (${entry.key})',
+        (tester) async {
+      _usePhone(tester);
+      await tester.pumpWidget(
+        localizedApp(
+          theme: entry.value,
+          home: DefectsScreen(api: _DefectsApi()),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Trage quietscht'));
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('Foto hinzufügen'), findsOneWidget);
+    });
+  }
 }

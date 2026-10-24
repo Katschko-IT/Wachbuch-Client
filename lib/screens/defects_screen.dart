@@ -759,6 +759,11 @@ class _DefectDetailSheetState extends State<_DefectDetailSheet> {
                     ),
                   ),
                   FilledButton.tonalIcon(
+                    // Das Theme macht FilledButtons volle Breite
+                    // (Size.fromHeight); in einer Row wäre das unendlich.
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size(64, WachbuchTokens.touchTarget),
+                    ),
                     onPressed: _photoBusy ? null : _addPhoto,
                     icon: _photoBusy
                         ? const SizedBox(
