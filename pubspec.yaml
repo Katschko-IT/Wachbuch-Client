@@ -38,3 +38,16 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true
+  assets:
+    - assets/fonts/OFL-AtkinsonHyperlegibleNext.txt
+  fonts:
+    # Atkinson Hyperlegible Next, SIL Open Font License 1.1
+    # Quelle: github.com/googlefonts/atkinson-hyperlegible-next (fonts/ttf)
+    - family: Atkinson Hyperlegible Next
+      fonts:
+        - asset: assets/fonts/AtkinsonHyperlegibleNext-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/AtkinsonHyperlegibleNext-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/AtkinsonHyperlegibleNext-Bold.ttf
+          weight: 700

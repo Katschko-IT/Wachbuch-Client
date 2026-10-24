@@ -19,11 +19,13 @@ import 'package:wachbuch_mobile/services/crew_reminder_service.dart';
 import 'package:wachbuch_mobile/services/update_service.dart';
 import 'package:wachbuch_mobile/state/crypto_session.dart';
 import 'package:wachbuch_mobile/theme/app_theme.dart';
+import 'package:wachbuch_mobile/theme/font_license.dart';
 import 'package:wachbuch_mobile/theme/solar_theme.dart';
 import 'package:wachbuch_mobile/theme/high_contrast_theme.dart';
 import 'package:wachbuch_mobile/widgets/update_dialog.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  registerFontLicenses();
   
   // Initialize session store
   final store = SessionStore();
