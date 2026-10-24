@@ -183,6 +183,10 @@ class WachbuchApi {
             'Serverfehler (${response.statusCode}). Bitte später erneut versuchen.',
           );
         }
+        final proxyMessage = _proxyErrorMessage(response);
+        if (proxyMessage != null) {
+          _raise(ApiException(response.statusCode, proxyMessage));
+        }
         _raise(ApiException(
           response.statusCode,
           'Der Server hat eine ungültige Antwort gesendet.',
@@ -206,16 +210,38 @@ class WachbuchApi {
       message ??= body['message']?.toString();
       code ??= body['code']?.toString();
       correlationId ??= body['correlation_id']?.toString();
+      final resolved = message?.isNotEmpty == true
+          ? message! + _retryAfterHint(response)
+          : _proxyErrorMessage(response) ??
+              'Anfrage fehlgeschlagen (${response.statusCode})';
       _raise(ApiException(
         response.statusCode,
-        message?.isNotEmpty == true
-            ? message!
-            : 'Anfrage fehlgeschlagen (${response.statusCode})',
+        resolved,
         code: code,
         correlationId: correlationId,
       ));
     }
     return body;
+  }
+
+  /// Verständliche Meldungen für Antworten ohne JSON-Körper, wie sie z. B.
+  /// nginx vor dem Server bei zu großen Uploads oder Ratenbegrenzung liefert.
+  String? _proxyErrorMessage(http.Response response) {
+    return switch (response.statusCode) {
+      413 => 'Datei zu groß (max. 2 MiB)',
+      415 => 'Dateityp nicht unterstützt',
+      429 => 'Zu viele Anfragen – bitte kurz warten${_retryAfterHint(response)}',
+      _ => null,
+    };
+  }
+
+  /// Wartezeit aus `Retry-After` (nur Sekundenangabe) für 429-Meldungen.
+  String _retryAfterHint(http.Response response) {
+    if (response.statusCode != 429) return '';
+    final raw = response.headers['retry-after']?.trim();
+    final seconds = raw == null ? null : int.tryParse(raw);
+    if (seconds == null || seconds <= 0) return '';
+    return ' (erneut versuchen in $seconds s)';
   }
 
   Future<void> _cacheWrite(String key, Map<String, dynamic> body) async {
