@@ -135,6 +135,20 @@ void main() {
     expect(scheduler.shown, isEmpty);
   });
 
+  test('401 wird nicht still geschluckt und verwirft geplante Erinnerungen', () async {
+    server.locks = [lock('vehicle_ready:2:e', now.add(const Duration(minutes: 5)))];
+    final reminders = service();
+    await reminders.sync();
+    expect(scheduler.scheduled, isNotEmpty);
+
+    server.statusForLocks = 401;
+    await expectLater(
+      reminders.sync(),
+      throwsA(isA<ApiException>().having((e) => e.statusCode, 'status', 401)),
+    );
+    expect(scheduler.scheduled, isEmpty);
+  });
+
   test('clear removes all planned reminders', () async {
     server.locks = [lock('vehicle_ready:2:d', now.add(const Duration(minutes: 5)))];
     final reminders = service();

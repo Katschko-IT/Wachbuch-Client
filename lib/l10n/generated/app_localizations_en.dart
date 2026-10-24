@@ -913,4 +913,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String attachmentFileInfo(String filename, String contentType) {
     return '$filename ($contentType)';
   }
+
+  @override
+  String get sessionInvalidNotice =>
+      'Your sign-in expired or was revoked. Please sign in again.';
+
+  @override
+  String get sessionNoMembershipNotice =>
+      'This account has no active station access. Please contact your station management.';
 }

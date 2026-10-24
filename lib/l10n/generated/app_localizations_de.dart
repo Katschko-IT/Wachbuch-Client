@@ -918,4 +918,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String attachmentFileInfo(String filename, String contentType) {
     return '$filename ($contentType)';
   }
+
+  @override
+  String get sessionInvalidNotice =>
+      'Anmeldung abgelaufen oder widerrufen. Bitte erneut anmelden.';
+
+  @override
+  String get sessionNoMembershipNotice =>
+      'Für dieses Konto gibt es keinen aktiven Wachenzugang. Bitte an die Wachenleitung wenden.';
 }

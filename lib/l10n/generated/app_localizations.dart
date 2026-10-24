@@ -1759,6 +1759,18 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'{filename} ({contentType})'**
   String attachmentFileInfo(String filename, String contentType);
+
+  /// No description provided for @sessionInvalidNotice.
+  ///
+  /// In de, this message translates to:
+  /// **'Anmeldung abgelaufen oder widerrufen. Bitte erneut anmelden.'**
+  String get sessionInvalidNotice;
+
+  /// No description provided for @sessionNoMembershipNotice.
+  ///
+  /// In de, this message translates to:
+  /// **'Für dieses Konto gibt es keinen aktiven Wachenzugang. Bitte an die Wachenleitung wenden.'**
+  String get sessionNoMembershipNotice;
 }
 
 class _AppLocalizationsDelegate

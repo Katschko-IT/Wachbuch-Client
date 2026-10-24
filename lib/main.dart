@@ -52,6 +52,13 @@ Future<void> main() async {
 
 enum _BootPhase { booting, setupServer, login, home }
 
+/// Erzeugt die API einer Sitzung; in Tests ersetzbar.
+typedef SessionApiFactory = WachbuchApi Function(
+  String baseUrl, {
+  String? token,
+  UnauthorizedCallback? onUnauthorized,
+});
+
 class WachbuchApp extends StatefulWidget {
   const WachbuchApp({
     super.key,
@@ -59,6 +66,7 @@ class WachbuchApp extends StatefulWidget {
     this.linkSource = const NoopServerLinkSource(),
     this.themeController,
     this.reminderSchedulerFactory,
+    this.apiFactory = createWachbuchApi,
   });
 
   final SessionStore store;
@@ -67,6 +75,9 @@ class WachbuchApp extends StatefulWidget {
 
   /// Für Tests ersetzbar; Standard sind lokale Plattform-Benachrichtigungen.
   final ReminderScheduler Function()? reminderSchedulerFactory;
+
+  /// Für Tests ersetzbar; Standard ist [createWachbuchApi].
+  final SessionApiFactory apiFactory;
 
   @override
   State<WachbuchApp> createState() => _WachbuchAppState();
@@ -80,6 +91,11 @@ class _WachbuchAppState extends State<WachbuchApp> with WidgetsBindingObserver {
   StreamSubscription<Uri>? _linkSubscription;
   ThemeMode _themeMode = ThemeMode.system;
   String? _sessionNotice;
+
+  /// Lokalisierter Hinweis für die Anmeldeseite (hat Vorrang vor
+  /// [_sessionNotice]); wird erst unterhalb von MaterialApp aufgelöst.
+  String Function(AppLocalizations l)? _localizedNotice;
+  bool _loggingOut = false;
   CrewReminderService? _reminders;
   Timer? _reminderTimer;
   static const _reminderInterval = Duration(minutes: 3);
@@ -213,7 +229,7 @@ class _WachbuchAppState extends State<WachbuchApp> with WidgetsBindingObserver {
     setState(() {
       _serverUrl = url;
       if (url != null && url.isNotEmpty && token != null && token.isNotEmpty) {
-        _api = createWachbuchApi(url, token: token);
+        _api = _createSessionApi(url, token);
         _phase = _BootPhase.home;
       } else if (url != null &&
           url.isNotEmpty &&
@@ -262,7 +278,7 @@ class _WachbuchAppState extends State<WachbuchApp> with WidgetsBindingObserver {
   Future<void> _pairWith(ServerLink link) async {
     final code = link.pairingCode;
     if (code == null) return;
-    final api = createWachbuchApi(link.url);
+    final api = widget.apiFactory(link.url);
     try {
       final token = await api.exchangePairingCode(code);
       await _onPaired(link.url, token);
@@ -362,6 +378,7 @@ class _WachbuchAppState extends State<WachbuchApp> with WidgetsBindingObserver {
       _serverUrl = url;
       _phase = _BootPhase.login;
       _sessionNotice = null;
+      _localizedNotice = null;
     });
   }
 
@@ -406,6 +423,7 @@ class _WachbuchAppState extends State<WachbuchApp> with WidgetsBindingObserver {
       _api = DemoWachbuchApi(profile: profile, token: token);
       _phase = _BootPhase.home;
       _sessionNotice = null;
+      _localizedNotice = null;
     });
   }
 
@@ -419,9 +437,10 @@ class _WachbuchAppState extends State<WachbuchApp> with WidgetsBindingObserver {
     if (!mounted) return;
     setState(() {
       _serverUrl = url;
-      _api = createWachbuchApi(url, token: token);
+      _api = _createSessionApi(url, token);
       _phase = _BootPhase.home;
       _sessionNotice = null;
+      _localizedNotice = null;
     });
     _startReminders();
   }
@@ -443,9 +462,37 @@ class _WachbuchAppState extends State<WachbuchApp> with WidgetsBindingObserver {
             ),
           );
     _reminders = reminders;
-    unawaited(reminders.sync());
+    unawaited(_syncReminders(reminders));
     _reminderTimer?.cancel();
-    _reminderTimer = Timer.periodic(_reminderInterval, (_) => unawaited(reminders.sync()));
+    _reminderTimer = Timer.periodic(
+      _reminderInterval,
+      (_) => unawaited(_syncReminders(reminders)),
+    );
+  }
+
+  Future<void> _syncReminders(CrewReminderService reminders) async {
+    try {
+      await reminders.sync();
+    } on ApiException catch (error) {
+      if (error.isSessionInvalid) _handleUnauthorized(error);
+    }
+  }
+
+  WachbuchApi _createSessionApi(String url, String token) => widget.apiFactory(
+        url,
+        token: token,
+        onUnauthorized: _handleUnauthorized,
+      );
+
+  /// Zentrale Reaktion auf 401 bzw. 403 „Kein aktiver Wachenzugang“:
+  /// Token löschen, Krypto sperren, zurück zur Anmeldung.
+  void _handleUnauthorized(ApiException error) {
+    if (_phase != _BootPhase.home || _loggingOut) return;
+    unawaited(_logout(
+      localizedNotice: error.isNoActiveMembership
+          ? (l) => l.sessionNoMembershipNotice
+          : (l) => l.sessionInvalidNotice,
+    ));
   }
 
   Future<void> _stopReminders() async {
@@ -466,22 +513,32 @@ class _WachbuchAppState extends State<WachbuchApp> with WidgetsBindingObserver {
     }
   }
 
-  Future<void> _logout({String? notice}) async {
-    // Entschlüsselte Chat-Identität sofort verwerfen, damit ein geteiltes
-    // Gerät sie nach dem Abmelden nicht weiter nutzen kann.
-    CryptoSession.instance.lock();
-    await _stopReminders();
-    await _revokeCurrentTokenBestEffort();
-    await _clearCurrentApiCache();
-    await widget.store.clearToken();
-    if (!mounted) return;
-    setState(() {
-      _api = null;
-      _sessionNotice = notice;
-      _phase = _serverUrl == null || _serverUrl!.isEmpty
-          ? _BootPhase.setupServer
-          : _BootPhase.login;
-    });
+  Future<void> _logout({
+    String? notice,
+    String Function(AppLocalizations l)? localizedNotice,
+  }) async {
+    if (_loggingOut) return;
+    _loggingOut = true;
+    try {
+      // Entschlüsselte Chat-Identität sofort verwerfen, damit ein geteiltes
+      // Gerät sie nach dem Abmelden nicht weiter nutzen kann.
+      CryptoSession.instance.lock();
+      await _stopReminders();
+      await _revokeCurrentTokenBestEffort();
+      await _clearCurrentApiCache();
+      await widget.store.clearToken();
+      if (!mounted) return;
+      setState(() {
+        _api = null;
+        _sessionNotice = notice;
+        _localizedNotice = localizedNotice;
+        _phase = _serverUrl == null || _serverUrl!.isEmpty
+            ? _BootPhase.setupServer
+            : _BootPhase.login;
+      });
+    } finally {
+      _loggingOut = false;
+    }
   }
 
   Future<void> _changeServer() async {
@@ -495,6 +552,7 @@ class _WachbuchAppState extends State<WachbuchApp> with WidgetsBindingObserver {
       _api = null;
       _serverUrl = null;
       _sessionNotice = null;
+      _localizedNotice = null;
       _phase = _BootPhase.setupServer;
     });
   }
@@ -513,12 +571,17 @@ class _WachbuchAppState extends State<WachbuchApp> with WidgetsBindingObserver {
           onPaired: _onPaired,
         );
       case _BootPhase.login:
-        home = LoginScreen(
-          store: widget.store,
-          serverUrl: _serverUrl!,
-          notice: _sessionNotice,
-          onLoggedIn: _onLoggedIn,
-          onChangeServer: _changeServer,
+        final localizedNotice = _localizedNotice;
+        home = Builder(
+          builder: (context) => LoginScreen(
+            store: widget.store,
+            serverUrl: _serverUrl!,
+            notice: localizedNotice != null
+                ? localizedNotice(AppLocalizations.of(context)!)
+                : _sessionNotice,
+            onLoggedIn: _onLoggedIn,
+            onChangeServer: _changeServer,
+          ),
         );
       case _BootPhase.home:
         home = HomeShell(

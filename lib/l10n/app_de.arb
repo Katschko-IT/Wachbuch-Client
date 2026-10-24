@@ -306,5 +306,7 @@
   "keyVerifyServerMismatch": "{count, plural, one {{count} vom Server gemeldeter Fingerprint weicht vom Schl\u00fcssel ab} other {{count} vom Server gemeldete Fingerprints weichen vom Schl\u00fcssel ab}}. M\u00f6gliche Server-Manipulation \u2013 nicht verifizieren.",
   "attachmentPreviewUnavailable": "Vorschau nicht verfügbar",
   "attachmentFileInfo": "{filename} ({contentType})",
-  "@attachmentFileInfo": {"placeholders": {"filename": {"type": "String"}, "contentType": {"type": "String"}}}
+  "@attachmentFileInfo": {"placeholders": {"filename": {"type": "String"}, "contentType": {"type": "String"}}},
+  "sessionInvalidNotice": "Anmeldung abgelaufen oder widerrufen. Bitte erneut anmelden.",
+  "sessionNoMembershipNotice": "Für dieses Konto gibt es keinen aktiven Wachenzugang. Bitte an die Wachenleitung wenden."
 }

@@ -27,7 +27,11 @@ const _maxAttachmentTotalBytes = 12 * 1024 * 1024;
 
 /// Returns a demo API when [baseUrl] matches a [DemoService] host.
 /// Real authenticated sessions receive a token-bound encrypted read cache.
-WachbuchApi createWachbuchApi(String baseUrl, {String? token}) {
+WachbuchApi createWachbuchApi(
+  String baseUrl, {
+  String? token,
+  UnauthorizedCallback? onUnauthorized,
+}) {
   final service = DemoService.fromServerUrl(baseUrl);
   if (service != null) {
     return DemoWachbuchApi(
@@ -43,6 +47,7 @@ WachbuchApi createWachbuchApi(String baseUrl, {String? token}) {
     cache: token == null || token.isEmpty
         ? null
         : SecureApiCache.forSession(baseUrl: baseUrl, token: token),
+    onUnauthorized: onUnauthorized,
   );
 }
 

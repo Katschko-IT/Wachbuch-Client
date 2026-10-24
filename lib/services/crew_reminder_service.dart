@@ -32,7 +32,9 @@ class CrewReminderService {
   bool _permissionRequested = false;
 
   /// Plant fällige Erinnerungen und zeigt neue Hinweise. Fehler (offline,
-  /// alter Server) lassen bestehende Planungen unverändert.
+  /// alter Server) lassen bestehende Planungen unverändert. Eine ungültige
+  /// Sitzung (401, 403 ohne Wachenzugang) entfernt alle Planungen und wird
+  /// als [ApiException] weitergeworfen.
   Future<void> sync() async {
     if (_syncing) return;
     _syncing = true;
@@ -47,7 +49,8 @@ class CrewReminderService {
       final List<VehicleLock> locks;
       try {
         locks = await api.vehicleLocks();
-      } on ApiException {
+      } on ApiException catch (error) {
+        if (error.isSessionInvalid) rethrow;
         return;
       }
       for (final lock in locks) {
@@ -78,7 +81,8 @@ class CrewReminderService {
       final List<CrewNotice> notices;
       try {
         notices = await api.crewNotices();
-      } on ApiException {
+      } on ApiException catch (error) {
+        if (error.isSessionInvalid) rethrow;
         return;
       }
       final shown = await store.readShown();
@@ -98,6 +102,14 @@ class CrewReminderService {
         shown.add(notice.key);
       }
       await store.writeShown(shown);
+    } on ApiException catch (error) {
+      if (error.isSessionInvalid) {
+        // Sitzung ungültig: nichts mehr für dieses Konto erinnern und den
+        // Fehler an die App weitergeben, damit sie abmeldet.
+        await clear();
+        rethrow;
+      }
+      debugPrint('Erinnerungen konnten nicht synchronisiert werden: $error');
     } catch (error) {
       debugPrint('Erinnerungen konnten nicht synchronisiert werden: $error');
     } finally {

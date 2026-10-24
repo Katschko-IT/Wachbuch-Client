@@ -22,6 +22,10 @@ import 'package:wachbuch_mobile/models/station_asset.dart';
 
 typedef WachbuchApiFactory = WachbuchApi Function(String baseUrl);
 
+/// Wird aufgerufen, wenn der Server die Sitzung nicht mehr anerkennt
+/// (401 oder 403 „Kein aktiver Wachenzugang“). Die App meldet dann ab.
+typedef UnauthorizedCallback = void Function(ApiException error);
+
 WachbuchApi defaultWachbuchApiFactory(String baseUrl) {
   return WachbuchApi(baseUrl: baseUrl);
 }
@@ -66,6 +70,17 @@ class ApiException implements Exception {
   final String? code;
   final String? correlationId;
 
+  /// 403 aus `api_token_required`: Konto ohne aktive Mitgliedschaft.
+  /// Der Server liefert dafür nur den allgemeinen Code `forbidden`, daher wird
+  /// zusätzlich der Meldungstext geprüft.
+  bool get isNoActiveMembership =>
+      statusCode == 403 &&
+      (code == 'no_active_membership' ||
+          message.toLowerCase().contains('kein aktiver wachenzugang'));
+
+  /// Sitzung ist serverseitig nicht (mehr) gültig.
+  bool get isSessionInvalid => statusCode == 401 || isNoActiveMembership;
+
   bool get isMfaRequired =>
       statusCode == 403 &&
       (code == 'mfa_required' ||
@@ -95,6 +110,7 @@ class WachbuchApi {
     http.Client? client,
     this.requestTimeout = const Duration(seconds: 20),
     ApiCache? cache,
+    this.onUnauthorized,
   })  : _client = client ?? http.Client(),
         _cache = cache;
 
@@ -104,6 +120,9 @@ class WachbuchApi {
   final Duration requestTimeout;
   final http.Client _client;
   final ApiCache? _cache;
+
+  /// App-weite Abmeldung bei ungültiger Sitzung (nur für Anfragen mit Token).
+  final UnauthorizedCallback? onUnauthorized;
 
   Uri _uri(String path) {
     final root = baseUrl.endsWith('/')
@@ -136,6 +155,15 @@ class WachbuchApi {
     }
   }
 
+  /// Meldet eine ungültige Sitzung an [onUnauthorized] und wirft den Fehler.
+  Never _raise(ApiException error) {
+    final hasToken = token != null && token!.isNotEmpty;
+    if (hasToken && error.isSessionInvalid) {
+      onUnauthorized?.call(error);
+    }
+    throw error;
+  }
+
   Map<String, dynamic> _decode(http.Response response) {
     Map<String, dynamic> body = {};
     if (response.body.isNotEmpty) {
@@ -155,10 +183,10 @@ class WachbuchApi {
             'Serverfehler (${response.statusCode}). Bitte später erneut versuchen.',
           );
         }
-        throw ApiException(
+        _raise(ApiException(
           response.statusCode,
           'Der Server hat eine ungültige Antwort gesendet.',
-        );
+        ));
       }
     }
     if (response.statusCode >= 400) {
@@ -178,14 +206,14 @@ class WachbuchApi {
       message ??= body['message']?.toString();
       code ??= body['code']?.toString();
       correlationId ??= body['correlation_id']?.toString();
-      throw ApiException(
+      _raise(ApiException(
         response.statusCode,
         message?.isNotEmpty == true
             ? message!
             : 'Anfrage fehlgeschlagen (${response.statusCode})',
         code: code,
         correlationId: correlationId,
-      );
+      ));
     }
     return body;
   }
@@ -991,6 +1019,7 @@ class WachbuchApi {
       client: _client,
       requestTimeout: requestTimeout,
       cache: _cache,
+      onUnauthorized: onUnauthorized,
     );
   }
 }

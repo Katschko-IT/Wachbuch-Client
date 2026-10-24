@@ -82,7 +82,8 @@ class _HomeShellState extends State<HomeShell> {
     final isUnauthorized =
         _authState.lastError?.statusCode == 401 ||
         _handoverState.lastError?.statusCode == 401;
-    if (isUnauthorized) {
+    // Mit zentralem onUnauthorized meldet die App bereits selbst ab.
+    if (isUnauthorized && widget.api.onUnauthorized == null) {
       await widget.onLogout();
     }
   }
