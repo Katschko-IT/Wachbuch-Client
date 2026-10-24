@@ -152,6 +152,8 @@ class _HomeShellState extends State<HomeShell> {
               api: widget.api,
               stationName: stationName,
               roleLabel: _authState.roleLabel,
+              role: _authState.role,
+              username: _authState.username,
               modules: _authState.modules,
               handovers: _handoverState.items,
               loading: loading,
@@ -288,11 +290,15 @@ class _OverviewTab extends StatelessWidget {
     required this.hasData,
     required this.error,
     required this.onRefresh,
+    this.role,
+    this.username,
   });
 
   final WachbuchApi api;
   final String stationName;
   final String roleLabel;
+  final String? role;
+  final String? username;
   final Map<String, dynamic> modules;
   final List<Map<String, dynamic>> handovers;
   final bool loading;
@@ -409,7 +415,12 @@ class _OverviewTab extends StatelessWidget {
                 }).toList(),
               ),
               const SizedBox(height: 24),
-              _ModuleTiles(api: api, modules: modules),
+              _ModuleTiles(
+                api: api,
+                modules: modules,
+                role: role,
+                username: username,
+              ),
               const SizedBox(height: 24),
               Material(
                 color: Theme.of(context).colorScheme.primaryContainer,
@@ -581,10 +592,17 @@ class _DashboardMetric extends StatelessWidget {
 }
 
 class _ModuleTiles extends StatelessWidget {
-  const _ModuleTiles({required this.api, required this.modules});
+  const _ModuleTiles({
+    required this.api,
+    required this.modules,
+    this.role,
+    this.username,
+  });
 
   final WachbuchApi api;
   final Map<String, dynamic> modules;
+  final String? role;
+  final String? username;
 
   /// Module key -> list of tiles to render when the module is enabled.
   /// `chat` renders two tiles (chat + groups); `assets` also matches `inventory`.
@@ -687,9 +705,9 @@ class _ModuleTiles extends StatelessWidget {
       case 'module-tile-checklists':
         screen = ChecklistenScreen(api: api);
       case 'module-tile-defects':
-        screen = DefectsScreen(api: api);
+        screen = DefectsScreen(api: api, role: role);
       case 'module-tile-assets':
-        screen = AssetsScreen(api: api);
+        screen = AssetsScreen(api: api, role: role, username: username);
       case 'module-tile-reports':
         screen = ReportsScreen(api: api);
       case 'module-tile-chat':

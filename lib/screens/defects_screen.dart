@@ -5,6 +5,7 @@ import 'package:wachbuch_mobile/l10n/generated/app_localizations.dart';
 import 'package:wachbuch_mobile/models/defect.dart';
 import 'package:wachbuch_mobile/models/defect_attachment.dart';
 import 'package:wachbuch_mobile/state/defect_state.dart';
+import 'package:wachbuch_mobile/state/station_roles.dart';
 import 'package:wachbuch_mobile/theme/design_tokens.dart';
 import 'package:wachbuch_mobile/ui/error_banner.dart';
 import 'package:wachbuch_mobile/ui/layout.dart';
@@ -13,9 +14,13 @@ import 'package:wachbuch_mobile/ui/status_chip.dart';
 
 /// Persistent station defects: list, create, status workflow and photos.
 class DefectsScreen extends StatefulWidget {
-  const DefectsScreen({super.key, required this.api});
+  const DefectsScreen({super.key, required this.api, this.role});
 
   final WachbuchApi api;
+
+  /// Rolle aus `/me/`. Fehlt sie, lädt der Bildschirm `/me/` selbst; bis
+  /// dahin bleibt „erledigt“ ausgeblendet.
+  final String? role;
 
   @override
   State<DefectsScreen> createState() => _DefectsScreenState();
@@ -24,11 +29,24 @@ class DefectsScreen extends StatefulWidget {
 class _DefectsScreenState extends State<DefectsScreen> {
   late final DefectState _state;
   String? _statusFilter;
+  String? _role;
 
   @override
   void initState() {
     super.initState();
+    _role = widget.role;
     _state = DefectState(api: widget.api)..reload();
+    if (_role == null) _loadRole();
+  }
+
+  Future<void> _loadRole() async {
+    try {
+      final me = await widget.api.me();
+      if (!mounted) return;
+      setState(() => _role = (me['membership'] as Map?)?['role']?.toString());
+    } catch (_) {
+      // Ohne bekannte Rolle bleibt „erledigt“ ausgeblendet.
+    }
   }
 
   @override
@@ -80,6 +98,7 @@ class _DefectsScreenState extends State<DefectsScreen> {
         api: widget.api,
         defect: defect,
         onSetStatus: _state.setStatus,
+        canClose: StationRoles.canCloseDefect(_role),
       ),
     );
   }
@@ -395,11 +414,15 @@ class _DefectDetailSheet extends StatefulWidget {
     required this.api,
     required this.defect,
     required this.onSetStatus,
+    this.canClose = false,
   });
 
   final WachbuchApi api;
   final Defect defect;
   final Future<bool> Function(int id, String status) onSetStatus;
+
+  /// „Erledigt“ nur für WRITE_ROLES (Server: defect_status).
+  final bool canClose;
 
   @override
   State<_DefectDetailSheet> createState() => _DefectDetailSheetState();
@@ -652,8 +675,14 @@ class _DefectDetailSheetState extends State<_DefectDetailSheet> {
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  for (final status in const ['open', 'in_progress', 'waiting', 'done'])
+                  for (final status in [
+                    'open',
+                    'in_progress',
+                    'waiting',
+                    if (widget.canClose || _defect.status == 'done') 'done',
+                  ])
                     FilterChip(
+                      key: Key('defect-status-$status'),
                       label: Text(_statusLabel(l, status)),
                       selected: _defect.status == status,
                       onSelected: _defect.status == status ? null : (_) => _setStatus(status),
