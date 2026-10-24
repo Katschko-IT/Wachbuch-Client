@@ -270,8 +270,14 @@ class WachbuchApi {
     final cache = _cache;
     try {
       final previous = _role ?? await _storedRole(ignoreAge: true);
+      // Snapshots älterer App-Versionen tragen kein schema_version und können
+      // verbotene Daten (z. B. Kaffeekasse) enthalten: komplett verwerfen.
+      final storedMe = _role == null ? await cache?.readJson('me') : null;
+      final legacy = storedMe != null &&
+          storedMe['schema_version'] != OfflineCachePolicy.schemaVersion;
       if (cache != null &&
-          (!OfflineCachePolicy.roleAllowed(role) ||
+          (legacy ||
+              !OfflineCachePolicy.roleAllowed(role) ||
               (previous != null && previous != role))) {
         await cache.clear();
       }

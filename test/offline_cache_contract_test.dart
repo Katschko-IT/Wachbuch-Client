@@ -267,6 +267,18 @@ void main() {
     });
   }
 
+  test('Altbestand aus früheren Versionen wird beim ersten /me/ gelöscht', () async {
+    // Vor dem Vertrag gespeichert: ohne Zeitstempel und mit Kaffeekasse.
+    cache.values['me'] = _me('member');
+    cache.values['coffee'] = {'balance_euros': '12.50'};
+    cache.values['defects'] = {'results': []};
+
+    await api().me();
+
+    expect(cache.values.keys.toSet(), {'me'});
+    expect(cache.values['me']!['schema_version'], 1);
+  });
+
   test('Rollenwechsel löscht den Cache vollständig', () async {
     final client = api();
     await client.me();
