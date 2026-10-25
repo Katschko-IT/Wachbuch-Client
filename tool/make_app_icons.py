@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""App-Icons für Wachwerk erzeugen: blaues Feld, weißes kursives „W“.
+"""App-Icons und Startbildschirm für Wachwerk erzeugen: blaues Feld, weißes kursives „W“.
 
 Das W ist die Glyphe aus *Inter Display SemiBold Italic* (Rasmus Andersson,
 SIL Open Font License 1.1) als Vektorpfad – die Schrift selbst wird nicht
@@ -58,6 +58,8 @@ def render(svg: str, target: Path, size: int, *, opaque: bool = False) -> None:
 ROOT = Path(__file__).resolve().parents[1]
 RES = ROOT / "android" / "app" / "src" / "main" / "res"
 IOS = ROOT / "ios" / "Runner" / "Assets.xcassets" / "AppIcon.appiconset"
+LAUNCH = ROOT / "ios" / "Runner" / "Assets.xcassets" / "LaunchImage.imageset"
+SPLASH = 96
 DENSITIES = {"mdpi": 1, "hdpi": 1.5, "xhdpi": 2, "xxhdpi": 3, "xxxhdpi": 4}
 
 
@@ -79,6 +81,13 @@ def main() -> None:
         points = float(entry["size"].split("x")[0])
         scale = int(entry["scale"].rstrip("x"))
         render(full, IOS / entry["filename"], round(points * scale), opaque=True)
+    # Startbildschirm (Splash): weißes W auf Blau, 96 dp/pt breit. Den blauen
+    # Hintergrund setzen launch_background.xml, values-v31 und LaunchScreen.storyboard.
+    splash = icon_svg(1024, 0.96, background=False)
+    for name, factor in DENSITIES.items():
+        render(splash, RES / f"drawable-{name}" / "splash_w.png", round(SPLASH * factor))
+    for scale, suffix in ((1, ""), (2, "@2x"), (3, "@3x")):
+        render(splash, LAUNCH / f"LaunchImage{suffix}.png", SPLASH * scale)
     # Favicon der Landingpage (landing/) als Vektor.
     favicon = ROOT / "landing" / "favicon.svg"
     favicon.write_text(icon_svg(64, 0.58, radius=0.1875) + "\n")
