@@ -1,35 +1,12 @@
-# Splash screen configuration for Wachbuch Mobile
-# Run: flutter pub run flutter_native_splash:create
-
+# Startbildschirm von Wachwerk: blaues Feld (#0D4693) mit weißem kursivem W.
+# Die nativen Dateien sind bereits erzeugt (tool/make_app_icons.py,
+# launch_background.xml, values-v31, LaunchScreen.storyboard). Diese Datei
+# hält dieselben Werte fest, falls jemand `dart run flutter_native_splash:create`
+# ausführt.
 flutter_native_splash:
-  # Color for the splash screen background
-  color: "#1B5E20"  # Dark green (primary color)
-  
-  # Image path for the splash screen logo
-  image: assets/launch_image.png
-  
-  # Android-specific configuration
-  android:
-    image: assets/launch_image.png
-    color: "#1B5E20"
-    # Android 12+ splash screen
-    android_12:
-      image: assets/launch_image.png
-      color: "#1B5E20"
-      icon_background_color: "#1B5E20"
-  
-  # iOS-specific configuration
-  ios:
-    image: assets/launch_image.png
-    color: "#1B5E20"
-  
-  # Web-specific configuration
-  web:
-    image: assets/launch_image.png
-    color: "#1B5E20"
-  
-  # Duration in milliseconds (default: 2000)
-  duration: 2000
-  
-  # Fill the entire screen with the image (default: false)
-  fill: true
+  color: "#0D4693"
+  image: ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@3x.png
+  android_12:
+    color: "#0D4693"
+    icon_background_color: "#0D4693"
+  web: false
