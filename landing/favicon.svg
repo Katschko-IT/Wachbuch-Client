@@ -1,5 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Wachbuch">
-  <rect width="64" height="64" rx="12" fill="#0b1c22"/>
-  <path d="M12 44V20l20-10 20 10v24l-20 10-20-10z" fill="none" stroke="#f59e0b" stroke-width="4"/>
-  <path d="M32 14v36M12 20l20 10 20-10" fill="none" stroke="#f4f7f8" stroke-width="3"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><rect width="64" height="64" rx="12.0" ry="12.0" fill="#0D4693"/><path d="M327 0H627L997 862C1032 944 1066 1033 1103 1132C1108 1033 1113 944 1121 862L1206 0H1505L2155 1490H1869L1539 687C1488 558 1439 429 1392 301C1386 429 1379 558 1368 687L1298 1490H1019L681 687C627 557 577 427 528 296C524 427 519 557 510 687L446 1490H172Z" fill="#FFFFFF" transform="translate(10.220 45.946) scale(0.018719 -0.018719)"/></svg>

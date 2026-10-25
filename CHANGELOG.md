@@ -4,6 +4,11 @@ Alle wesentlichen Änderungen an Wachbuch Mobile werden hier dokumentiert.
 
 ## Unreleased
 
+- Neues App-Icon statt des Flutter-Standardicons: blaues Feld im Wachwerk-Blau
+  (#0D4693) mit weißem kursivem „W“ – iOS, Android (adaptiv inkl. Themen-Icon ab
+  Android 13, abgerundet für ältere Versionen) und Favicon der Landingpage.
+  Erzeugt mit `tool/make_app_icons.py`; die Glyphe stammt aus Inter Display
+  SemiBold Italic (SIL Open Font License 1.1).
 - Wache ohne Internet: Ein Verbindungs-QR mit `pin=sha256/…` hinterlegt den
   Fingerabdruck eines lokalen Serverzertifikats (z. B. Raspberry Pi mit eigenem
   WLAN). Die App vertraut dann genau diesem Zertifikat für diesen Server.
