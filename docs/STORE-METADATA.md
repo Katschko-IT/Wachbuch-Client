@@ -1,4 +1,4 @@
-# Store-Metadaten – Wachbuch 1.0
+# Store-Metadaten – Wachwerk 1.0
 
 Stand: 10. August 2026
 
@@ -6,17 +6,17 @@ Diese Datei ist die redaktionelle Quelle für App Store Connect und Google Play 
 
 ## Positionierung
 
-**Name:** Wachbuch  
+**Name:** Wachwerk  
 **Kategorie:** Produktivität / Business  
 **Nicht positionieren als:** offizielle Behörden-App, Medizinprodukt, Notruf-, Alarmierungs-, Einsatzleit-, Patientenakten- oder ePCR-App.
 
-Wachbuch ist ein generischer Open-Source-Client für selbst gehostete Organisationsserver. Feuerwehr, Rettungsdienst oder Polizei dürfen in Screenshots/Demo-Beispielen als mögliche Einsatzumgebungen erscheinen, jedoch ohne den Eindruck einer offiziellen staatlichen Herausgeberschaft.
+Wachwerk ist ein generischer Open-Source-Client für selbst gehostete Organisationsserver. Feuerwehr, Rettungsdienst oder Polizei dürfen in Screenshots/Demo-Beispielen als mögliche Einsatzumgebungen erscheinen, jedoch ohne den Eindruck einer offiziellen staatlichen Herausgeberschaft.
 
 ## Apple App Store – Deutsch
 
 ### Name
 
-`Wachbuch`
+`Wachwerk`
 
 ### Untertitel
 
@@ -24,7 +24,7 @@ Wachbuch ist ein generischer Open-Source-Client für selbst gehostete Organisati
 
 ### Beschreibung
 
-Wachbuch verbindet iPhone und iPad mit einem selbst gehosteten Wachbuch-Server.
+Wachwerk verbindet iPhone und iPad mit einem selbst gehosteten Wachwerk-Server.
 
 Organisieren Sie den Stations- und Wachalltag mit Übergaben, Checklisten, Mängeln, Geräte- und Fahrzeugstatus, Pool-/Inventarvorgängen und einer kompakten Auswertung. Die App unterstützt außerdem Mängelfotos, QR-basierte Servereinrichtung und einen verschlüsselten Offline-Lesecache.
 
@@ -42,7 +42,7 @@ Funktionen:
 - Deutsch und Englisch
 - Demo-Modus ohne eigenen Server
 
-Wachbuch ist Open Source (AGPL-3.0-or-later). Es ist keine offizielle Behörden-App und kein Notruf-, Alarmierungs-, Einsatzleit-, Patientenakten- oder ePCR-System.
+Wachwerk ist Open Source (AGPL-3.0-or-later). Es ist keine offizielle Behörden-App und kein Notruf-, Alarmierungs-, Einsatzleit-, Patientenakten- oder ePCR-System.
 
 ### Keywords
 
@@ -50,7 +50,7 @@ Wachbuch ist Open Source (AGPL-3.0-or-later). Es ist keine offizielle Behörden-
 
 ### Marketing-URL
 
-Bevorzugt eine eigene öffentliche Wachbuch-Seite. Bis dahin kann das öffentliche Repository verwendet werden:
+Bevorzugt eine eigene öffentliche Wachwerk-Seite. Bis dahin kann das öffentliche Repository verwendet werden:
 `https://github.com/Katschko-IT/Wachbuch-Client`
 
 ### Support-URL
@@ -65,7 +65,7 @@ Bevorzugt eine eigene öffentliche Wachbuch-Seite. Bis dahin kann das öffentlic
 
 ### Name
 
-`Wachbuch`
+`Wachwerk`
 
 ### Subtitle
 
@@ -73,13 +73,13 @@ Bevorzugt eine eigene öffentliche Wachbuch-Seite. Bis dahin kann das öffentlic
 
 ### Description
 
-Wachbuch connects iPhone and iPad to a self-hosted Wachbuch server.
+Wachwerk connects iPhone and iPad to a self-hosted Wachwerk server.
 
 Manage day-to-day station operations with handovers, checklists, defects, vehicle and equipment status, pooled inventory and lightweight operational reports. The app also supports defect photos, QR-based server setup and an encrypted offline read cache.
 
 Your organisation controls its server and the data stored there. The app contains no advertising, advertising SDK or cross-app tracking.
 
-Wachbuch is open source under AGPL-3.0-or-later. It is not an official government app and is not an emergency-calling, dispatch, alarm, patient-record or ePCR system.
+Wachwerk is open source under AGPL-3.0-or-later. It is not an official government app and is not an emergency-calling, dispatch, alarm, patient-record or ePCR system.
 
 ### Keywords
 
@@ -89,21 +89,21 @@ Wachbuch is open source under AGPL-3.0-or-later. It is not an official governmen
 
 ### App-Name
 
-`Wachbuch`
+`Wachwerk`
 
 ### Kurzbeschreibung
 
-`Übergaben, Checklisten und Material für selbst gehostete Wachbuch-Server.`
+`Übergaben, Checklisten und Material für selbst gehostete Wachwerk-Server.`
 
 ### Vollständige Beschreibung
 
-Wachbuch ist der mobile Open-Source-Client für selbst gehostete Wachbuch-Server.
+Wachwerk ist der mobile Open-Source-Client für selbst gehostete Wachwerk-Server.
 
 Die App unterstützt den organisatorischen Stations- und Wachalltag: Übergaben, wiederkehrende Checklisten, Mängel, Fahrzeug-/Gerätestatus, Pool-Inventar und Auswertungen. Mängel können optional mit ausdrücklich ausgewählten Fotos dokumentiert werden. Ein QR-Code erleichtert die Servereinrichtung.
 
 Produktive Verbindungen verwenden HTTPS. App-Tokens werden über den sicheren Speicher des Betriebssystems geschützt; Offline-Snapshots sind an Server und Token gebunden. Es gibt keine Werbung und kein Werbe- oder Tracking-SDK.
 
-Wachbuch ist kein offizielles Behördenprodukt und kein Notruf-, Alarmierungs-, Einsatzleit-, Patientenakten- oder ePCR-System. Patienten- und Einsatzdaten gehören nicht in Wachbuch.
+Wachwerk ist kein offizielles Behördenprodukt und kein Notruf-, Alarmierungs-, Einsatzleit-, Patientenakten- oder ePCR-System. Patienten- und Einsatzdaten gehören nicht in Wachwerk.
 
 Quelloffen unter AGPL-3.0-or-later.
 
@@ -129,7 +129,7 @@ Apple verlangt für Login-Apps grundsätzlich einen funktionsfähigen Demo-Accou
 
 Review-Notes-Vorlage:
 
-> Wachbuch is a client for user-selected self-hosted servers. It is not an official government or medical application. A built-in offline demo is available from the first screen via “Try demo mode”. A dedicated review server and reusable credentials are provided in the Sign-In Information fields so App Review can also verify the real network flow. No patient or incident data is part of the product model.
+> Wachwerk is a client for user-selected self-hosted servers. It is not an official government or medical application. A built-in offline demo is available from the first screen via “Try demo mode”. A dedicated review server and reusable credentials are provided in the Sign-In Information fields so App Review can also verify the real network flow. No patient or incident data is part of the product model.
 
 ## Datenschutzangaben – konservativer Entwurf
 

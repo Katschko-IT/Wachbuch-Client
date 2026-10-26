@@ -4,6 +4,12 @@ Alle wesentlichen Änderungen an Wachbuch Mobile werden hier dokumentiert.
 
 ## Unreleased
 
+- Die App heißt jetzt **Wachwerk** wie der Server: App-Name auf dem
+  Homescreen (Android und iOS), Texte und Hinweise zu Berechtigungen,
+  Datenschutzseite, Landingpage und Doku. Bundle-ID, Paketname,
+  Deep-Link-Schema (`wachbuch://`), gespeicherte Anmeldungen und
+  Store-Schlüsselwort „wachbuch“ bleiben unverändert, damit bestehende
+  Installationen und QR-Codes weiter funktionieren.
 - Neues App-Icon statt des Flutter-Standardicons: blaues Feld im Wachwerk-Blau
   (#0D4693) mit weißem kursivem „W“ – iOS, Android (adaptiv inkl. Themen-Icon ab
   Android 13, abgerundet für ältere Versionen) und Favicon der Landingpage.

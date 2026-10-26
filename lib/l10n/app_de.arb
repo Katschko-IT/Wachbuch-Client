@@ -1,7 +1,7 @@
 {
   "@@locale": "de",
 
-  "appName": "Wachbuch",
+  "appName": "Wachwerk",
   "errorSemanticsLabel": "Fehler: {message}",
   "@errorSemanticsLabel": {"placeholders": {"message": {"type": "String"}}},
   "commonCancel": "Abbrechen",
@@ -20,7 +20,7 @@
   "navHandovers": "Übergaben",
   "navAccount": "Konto",
   "refreshTooltip": "Aktualisieren",
-  "stationFallback": "Wachbuch",
+  "stationFallback": "Wachwerk",
   "sessionExpiredError": "Anmeldung abgelaufen oder widerrufen.",
 
   "overviewActiveHandovers": "Aktive Übergaben",
@@ -209,10 +209,10 @@
 
   "qrScanTitle": "Server-QR scannen",
   "qrScanCameraHint": "Die Kamera wird hier nur zum Lesen der Server-Adresse genutzt. Es werden dabei keine Fotos gespeichert oder hochgeladen.",
-  "qrScanInvalid": "Kein gültiger Wachbuch-Server-QR.",
-  "qrScanWebHint": "QR aus dem Wachbuch-Web unter Mein Konto → App-Tokens",
+  "qrScanInvalid": "Kein gültiger Wachwerk-Server-QR.",
+  "qrScanWebHint": "QR aus dem Wachwerk-Web unter Mein Konto → App-Tokens",
   "qrCameraDialogTitle": "Kamera für QR-Code",
-  "qrCameraDialogMessage": "Wachbuch benötigt die Kamera hier ausschließlich, um den QR-Code mit der Server-Adresse Ihrer Wache zu scannen. Ohne Kamera können Sie die Adresse auch manuell eingeben.",
+  "qrCameraDialogMessage": "Wachwerk benötigt die Kamera hier ausschließlich, um den QR-Code mit der Server-Adresse Ihrer Wache zu scannen. Ohne Kamera können Sie die Adresse auch manuell eingeben.",
   "qrCameraContinue": "Weiter",
   "qrCameraDeniedTitle": "Kamera nicht freigegeben",
   "qrCameraDeniedMessage": "Ohne Kamerazugriff können Sie den QR nicht scannen. Geben Sie die Server-Adresse manuell ein oder aktivieren Sie die Kamera in den Systemeinstellungen.",

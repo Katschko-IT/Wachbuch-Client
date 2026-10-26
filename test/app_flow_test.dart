@@ -233,7 +233,7 @@ void main() {
     expect(api.closed, isTrue);
   });
 
-  testWidgets('initial Wachbuch link selects server and clears old token', (
+  testWidgets('initial Wachwerk link selects server and clears old token', (
     tester,
   ) async {
     final store = _MemorySessionStore(url: 'https://alt.example.org')
@@ -254,7 +254,7 @@ void main() {
     expect(store.token, isNull);
   });
 
-  testWidgets('runtime Wachbuch link switches to the linked server', (
+  testWidgets('runtime Wachwerk link switches to the linked server', (
     tester,
   ) async {
     final store = _MemorySessionStore(url: 'https://alt.example.org');

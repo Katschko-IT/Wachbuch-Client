@@ -1,4 +1,4 @@
-# Wachbuch Design System
+# Wachwerk Design System
 
 Stand: 9. August 2026. Systemunabhängiges Design für iOS, Android und Web-PWA.
 

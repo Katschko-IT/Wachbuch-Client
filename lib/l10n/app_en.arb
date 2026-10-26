@@ -1,7 +1,7 @@
 {
   "@@locale": "en",
 
-  "appName": "Wachbuch",
+  "appName": "Wachwerk",
   "errorSemanticsLabel": "Error: {message}",
   "commonCancel": "Cancel",
   "commonSwitch": "Switch",
@@ -18,7 +18,7 @@
   "navHandovers": "Handovers",
   "navAccount": "Account",
   "refreshTooltip": "Refresh",
-  "stationFallback": "Wachbuch",
+  "stationFallback": "Wachwerk",
   "sessionExpiredError": "Login expired or revoked.",
 
   "overviewActiveHandovers": "Active handovers",
@@ -201,10 +201,10 @@
 
   "qrScanTitle": "Scan server QR",
   "qrScanCameraHint": "The camera is used here only to read the server address. No photos are saved or uploaded during QR scanning.",
-  "qrScanInvalid": "Not a valid Wachbuch server QR code.",
-  "qrScanWebHint": "QR from the Wachbuch web under My Account → App Tokens",
+  "qrScanInvalid": "Not a valid Wachwerk server QR code.",
+  "qrScanWebHint": "QR from the Wachwerk web under My Account → App Tokens",
   "qrCameraDialogTitle": "Camera for QR code",
-  "qrCameraDialogMessage": "Wachbuch needs the camera here solely to scan the QR code containing your station's server address. You can also enter the address manually without the camera.",
+  "qrCameraDialogMessage": "Wachwerk needs the camera here solely to scan the QR code containing your station's server address. You can also enter the address manually without the camera.",
   "qrCameraContinue": "Continue",
   "qrCameraDeniedTitle": "Camera not enabled",
   "qrCameraDeniedMessage": "Without camera access you cannot scan the QR code. Enter the server address manually or enable the camera in the system settings.",

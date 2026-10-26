@@ -10,8 +10,8 @@ Für die öffentliche Google-Play-Freigabe gilt zusätzlich
 
 | Variante | Paket-ID | Anzeige | Verwendung |
 | --- | --- | --- | --- |
-| Internal | `de.wachbuch.mobile.internal` | Wachbuch Internal | Entwicklung, CI und kontrolliertes Sideloading |
-| Production | `de.wachbuch.mobile` | Wachbuch | signierte Freigaben und Google Play |
+| Internal | `de.wachbuch.mobile.internal` | Wachwerk Internal | Entwicklung, CI und kontrolliertes Sideloading |
+| Production | `de.wachbuch.mobile` | Wachwerk | signierte Freigaben und Google Play |
 
 Die interne APK ist zwar mit dem Android-Debug-Key signiert, trägt aber eine
 eigene Paket-ID, einen eindeutigen Namen und das Deep-Link-Schema
@@ -21,7 +21,7 @@ bezeichnet.
 ## Voraussetzungen
 
 1. Android 7.0 oder neuer
-2. laufender Wachbuch-Server mit `/api/v1/` oder lokaler Demo-Modus
+2. laufender Wachwerk-Server mit `/api/v1/` oder lokaler Demo-Modus
 3. für nicht debuggbare Serververbindungen eine gültige HTTPS-Adresse
 4. für Sideloading die Installation aus der verwendeten Datei-App erlauben
 
@@ -35,7 +35,7 @@ bezeichnet.
    - `x86_64`: Emulatoren und wenige Spezialgeräte
 4. Den Hash aus `SHA256SUMS` prüfen.
 5. APK übertragen und installieren.
-6. Die App **Wachbuch Internal** starten.
+6. Die App **Wachwerk Internal** starten.
 
 Beispiel:
 

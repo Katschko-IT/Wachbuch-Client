@@ -20,8 +20,8 @@ Ab dem 31. August 2026 müssen neue Apps und Updates Android 16 beziehungsweise 
 
 | Variante | Paket-ID | Name | Signierung | Zweck |
 | --- | --- | --- | --- | --- |
-| `internal` | `de.wachbuch.mobile.internal` | Wachbuch Internal | Android-Debug-Key | CI, Entwicklung und kontrolliertes Sideloading |
-| `production` | `de.wachbuch.mobile` | Wachbuch | eigener Upload-Key | Google Play und produktive APK-Verteilung |
+| `internal` | `de.wachbuch.mobile.internal` | Wachwerk Internal | Android-Debug-Key | CI, Entwicklung und kontrolliertes Sideloading |
+| `production` | `de.wachbuch.mobile` | Wachwerk | eigener Upload-Key | Google Play und produktive APK-Verteilung |
 
 Die interne Variante ist bewusst als eigene App installierbar und verwendet das separate URI-Schema `wachbuch-internal://`.
 
@@ -113,7 +113,7 @@ Das erzeugte `.aab` zunächst **manuell in den internen Play-Test-Track** hochla
 
 | Permission | Zweck | Verhalten ohne Freigabe |
 | --- | --- | --- |
-| `INTERNET` | Verbindung zum selbst gehosteten Wachbuch-Server | Servermodus nicht nutzbar; Demo bleibt lokal |
+| `INTERNET` | Verbindung zum selbst gehosteten Wachwerk-Server | Servermodus nicht nutzbar; Demo bleibt lokal |
 | `CAMERA` | QR-Scan und ausdrücklich ausgelöstes Mängelfoto | Serveradresse manuell; Mangel ohne Kamera möglich |
 | `ACCESS_COARSE_LOCATION` | lokale Sonnenaufgang-/Sonnenuntergangsberechnung | Systemtheme als Fallback |
 | `ACCESS_NETWORK_STATE` | Offline-/Online-Status | technische Netzwerkfunktion |
@@ -137,7 +137,7 @@ Die App zeigt die wesentlichen Datenschutzinformationen zusätzlich **vor dem Lo
 Konservativer Data-Safety-Abgleich für 1.0:
 
 - kein Werbe-/Tracking-SDK und keine externe Analytics-/Crash-Telemetrie,
-- Login-/App-Token-Kommunikation nur mit dem vom Nutzer gewählten Wachbuch-Server,
+- Login-/App-Token-Kommunikation nur mit dem vom Nutzer gewählten Wachwerk-Server,
 - Organisations-/Benutzerkennungen und nutzergenerierte Wachalltag-Inhalte können auf diesem Server für App-Funktion gespeichert werden,
 - ausdrücklich ausgewählte Mängelfotos können auf diesem Server gespeichert werden,
 - QR-Kameraframes lokal,

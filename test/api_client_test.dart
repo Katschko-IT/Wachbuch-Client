@@ -77,7 +77,7 @@ void main() {
           isA<ApiException>().having(
             (error) => error.message,
             'message',
-            contains('Wachbuch-Server'),
+            contains('Wachwerk-Server'),
           ),
         ),
       );
@@ -106,7 +106,7 @@ void main() {
       }
     });
 
-    test('authenticated requests send the Wachbuch token', () async {
+    test('authenticated requests send the Wachwerk token', () async {
       final client = MockClient((request) async {
         expect(request.headers['Authorization'], 'Token wb_test123');
         return http.Response(

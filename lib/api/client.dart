@@ -1,4 +1,4 @@
-/// HTTP client for Wachbuch `/api/v1/` (Paperless/Nextcloud-style token auth).
+/// HTTP client for Wachwerk `/api/v1/` (Paperless/Nextcloud-style token auth).
 library;
 
 import 'dart:async';
@@ -995,7 +995,7 @@ class WachbuchApi {
   }
 }
 
-/// Validates that a discovery payload looks like a Wachbuch API root.
+/// Validates that a discovery payload looks like a Wachwerk API root.
 void ensureWachbuchDiscovery(Map<String, dynamic> body) {
   final endpoints = body['endpoints'];
   final hasTokenEndpoint =
@@ -1009,7 +1009,7 @@ void ensureWachbuchDiscovery(Map<String, dynamic> body) {
   if (!ok && !hasTokenEndpoint && !hasVersion) {
     throw ApiException(
       0,
-      'Die Adresse antwortet nicht wie ein Wachbuch-Server (/api/v1/).',
+      'Die Adresse antwortet nicht wie ein Wachwerk-Server (/api/v1/).',
     );
   }
 }

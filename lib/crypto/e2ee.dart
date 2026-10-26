@@ -1,4 +1,4 @@
-/// End-to-end encryption for Wachbuch messaging.
+/// End-to-end encryption for Wachwerk messaging.
 ///
 /// Byte-compatible with the web client (`core/static/core/app.js`) and the
 /// server envelope format (`A256GCM+ECDH-ES`, see `docs/CRYPTO-BSI.md`):

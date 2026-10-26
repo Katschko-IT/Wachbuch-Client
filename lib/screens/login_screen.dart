@@ -89,7 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
         final auth = await api.obtainToken(
           username: _userCtrl.text.trim(),
           password: _passCtrl.text,
-          label: 'Wachbuch Mobile',
+          label: 'Wachwerk',
         );
         token = auth.value;
         expiresAt = auth.expiresAt;

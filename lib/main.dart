@@ -241,7 +241,7 @@ class _WachbuchAppState extends State<WachbuchApp> with WidgetsBindingObserver {
     }
   }
 
-  /// Liest einen Wachbuch-Link und merkt sich einen mitgelieferten
+  /// Liest einen Wachwerk-Link und merkt sich einen mitgelieferten
   /// Zertifikats-Fingerabdruck für diesen Server.
   Future<ServerLink?> _parseAndTrust(Uri link) async {
     final ServerLink parsed;
@@ -526,7 +526,7 @@ class _WachbuchAppState extends State<WachbuchApp> with WidgetsBindingObserver {
     }
 
     return MaterialApp(
-      title: 'Wachbuch',
+      title: 'Wachwerk',
       navigatorKey: _navigatorKey,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,

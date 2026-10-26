@@ -80,13 +80,13 @@ android {
             dimension = "distribution"
             applicationIdSuffix = ".internal"
             versionNameSuffix = "-internal"
-            manifestPlaceholders["appLabel"] = "Wachbuch Internal"
+            manifestPlaceholders["appLabel"] = "Wachwerk Internal"
             manifestPlaceholders["appScheme"] = "wachbuch-internal"
             signingConfig = signingConfigs.getByName("debug")
         }
         create("production") {
             dimension = "distribution"
-            manifestPlaceholders["appLabel"] = "Wachbuch"
+            manifestPlaceholders["appLabel"] = "Wachwerk"
             manifestPlaceholders["appScheme"] = "wachbuch"
             if (hasReleaseSigning) {
                 signingConfig = signingConfigs.getByName("release")

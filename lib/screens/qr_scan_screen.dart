@@ -5,7 +5,7 @@ import 'package:wachbuch_mobile/api/server_address.dart';
 import 'package:wachbuch_mobile/l10n/generated/app_localizations.dart';
 import 'package:wachbuch_mobile/ui/error_banner.dart';
 
-/// Full-screen QR scanner for the Wachbuch server address.
+/// Full-screen QR scanner for the Wachwerk server address.
 ///
 /// Camera is only used for this setup step (Play User Data / Camera policy:
 /// permission requested just-in-time with an on-screen purpose explanation).

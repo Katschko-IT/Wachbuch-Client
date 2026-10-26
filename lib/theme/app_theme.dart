@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Deterministic, field-readable Wachbuch design system.
+/// Deterministic, field-readable Wachwerk design system.
 ///
 /// The palette follows Material 3 semantics with a calm white/blue identity.
 /// Status colors remain semantic and are never used as low-contrast body text.

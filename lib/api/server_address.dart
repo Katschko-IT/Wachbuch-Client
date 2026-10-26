@@ -1,4 +1,4 @@
-/// Parse and normalize Wachbuch server addresses from typed input or QR payloads.
+/// Parse and normalize Wachwerk server addresses from typed input or QR payloads.
 library;
 
 import 'dart:convert';
@@ -10,7 +10,7 @@ const _wachbuchSchemes = {'wachbuch', 'wachbuch-internal'};
 const _linkKeys = {'url', 'pin', 'pair'};
 final _pinPattern = RegExp(r'^sha256/([0-9a-f]{64})$');
 
-/// Inhalt eines Verbindungs-QR-Codes oder Wachbuch-Links.
+/// Inhalt eines Verbindungs-QR-Codes oder Wachwerk-Links.
 class ServerLink {
   const ServerLink({required this.url, this.certSha256, this.pairingCode});
 
@@ -25,7 +25,7 @@ class ServerLink {
   final String? pairingCode;
 }
 
-/// Extracts a Wachbuch server origin from typed text or QR content.
+/// Extracts a Wachwerk server origin from typed text or QR content.
 ///
 /// Accepted forms (Google Play / Nextcloud-style self-host setup):
 /// - `https://wache.example.org`
@@ -38,7 +38,7 @@ String parseServerAddress(String raw, {bool allowInsecure = kDebugMode}) =>
     parseServerLink(raw, allowInsecure: allowInsecure).url;
 
 /// Wie [parseServerAddress], liefert zusätzlich Zertifikats-Fingerabdruck
-/// (`pin=sha256/<hex>`) und Kopplungscode (`pair=…`) aus Wachbuch-Links.
+/// (`pin=sha256/<hex>`) und Kopplungscode (`pair=…`) aus Wachwerk-Links.
 ServerLink parseServerLink(String raw, {bool allowInsecure = kDebugMode}) {
   String? certSha256;
   String? pairingCode;
@@ -76,32 +76,32 @@ ServerLink parseServerLink(String raw, {bool allowInsecure = kDebugMode}) {
 
   if (_wachbuchSchemes.contains(candidate.scheme)) {
     if (candidate.host != 'connect' || candidate.path.isNotEmpty) {
-      throw ArgumentError('Ungültiger Wachbuch-Link.');
+      throw ArgumentError('Ungültiger Wachwerk-Link.');
     }
     final params = candidate.queryParametersAll;
     if (params.keys.any((key) => !_linkKeys.contains(key)) ||
         params['url']?.length != 1 ||
         params.values.any((values) => values.length != 1)) {
-      throw ArgumentError('Ungültiger Wachbuch-Link.');
+      throw ArgumentError('Ungültiger Wachwerk-Link.');
     }
     final pin = candidate.queryParameters['pin'];
     if (pin != null) {
       final match = _pinPattern.firstMatch(pin.toLowerCase());
       if (match == null) {
-        throw ArgumentError('Ungültiger Zertifikats-Fingerabdruck im Wachbuch-Link.');
+        throw ArgumentError('Ungültiger Zertifikats-Fingerabdruck im Wachwerk-Link.');
       }
       certSha256 = match.group(1);
     }
     final pair = candidate.queryParameters['pair'];
     if (pair != null) {
       if (!RegExp(r'^[A-Za-z0-9_-]{16,64}$').hasMatch(pair)) {
-        throw ArgumentError('Ungültiger Kopplungscode im Wachbuch-Link.');
+        throw ArgumentError('Ungültiger Kopplungscode im Wachwerk-Link.');
       }
       pairingCode = pair;
     }
     final url = candidate.queryParameters['url'];
     if (url == null || url.trim().isEmpty) {
-      throw ArgumentError('Server-Adresse fehlt im Wachbuch-Link.');
+      throw ArgumentError('Server-Adresse fehlt im Wachwerk-Link.');
     }
     value = url.trim();
   }
