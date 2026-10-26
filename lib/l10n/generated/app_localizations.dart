@@ -1831,6 +1831,168 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Status konnte nicht geändert werden.'**
   String get handoverStatusFailed;
+
+  /// No description provided for @kaffeekasseMyStatus.
+  ///
+  /// In de, this message translates to:
+  /// **'Mein Stand'**
+  String get kaffeekasseMyStatus;
+
+  /// No description provided for @kaffeekasseOpen.
+  ///
+  /// In de, this message translates to:
+  /// **'Offen'**
+  String get kaffeekasseOpen;
+
+  /// No description provided for @kaffeekasseCredit.
+  ///
+  /// In de, this message translates to:
+  /// **'Guthaben'**
+  String get kaffeekasseCredit;
+
+  /// No description provided for @kaffeekasseAllPaid.
+  ///
+  /// In de, this message translates to:
+  /// **'Alles bezahlt'**
+  String get kaffeekasseAllPaid;
+
+  /// No description provided for @kaffeekasseNotParticipant.
+  ///
+  /// In de, this message translates to:
+  /// **'Du bist (noch) nicht für den Monatsbeitrag eingetragen. Sprich bitte den Kassenwart an.'**
+  String get kaffeekasseNotParticipant;
+
+  /// No description provided for @kaffeekasseMonthsTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Meine Monate'**
+  String get kaffeekasseMonthsTitle;
+
+  /// No description provided for @kaffeekasseMonthPaid.
+  ///
+  /// In de, this message translates to:
+  /// **'bezahlt'**
+  String get kaffeekasseMonthPaid;
+
+  /// No description provided for @kaffeekasseMonthOpen.
+  ///
+  /// In de, this message translates to:
+  /// **'offen {amount}'**
+  String kaffeekasseMonthOpen(String amount);
+
+  /// No description provided for @kaffeekasseMonthWaived.
+  ///
+  /// In de, this message translates to:
+  /// **'befreit'**
+  String get kaffeekasseMonthWaived;
+
+  /// No description provided for @kaffeekasseIPaid.
+  ///
+  /// In de, this message translates to:
+  /// **'Ich habe bezahlt'**
+  String get kaffeekasseIPaid;
+
+  /// No description provided for @kaffeekassePayHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Wie das Kreuz in der Mappe: Trag ein, was du in die Kasse gelegt oder überwiesen hast.'**
+  String get kaffeekassePayHint;
+
+  /// No description provided for @kaffeekassePayMethod.
+  ///
+  /// In de, this message translates to:
+  /// **'Wie hast du bezahlt?'**
+  String get kaffeekassePayMethod;
+
+  /// No description provided for @kaffeekasseMethodCash.
+  ///
+  /// In de, this message translates to:
+  /// **'Bar in die Kasse'**
+  String get kaffeekasseMethodCash;
+
+  /// No description provided for @kaffeekasseMethodTransfer.
+  ///
+  /// In de, this message translates to:
+  /// **'Überweisung'**
+  String get kaffeekasseMethodTransfer;
+
+  /// No description provided for @kaffeekasseAmount.
+  ///
+  /// In de, this message translates to:
+  /// **'Betrag'**
+  String get kaffeekasseAmount;
+
+  /// No description provided for @kaffeekasseAmountInvalid.
+  ///
+  /// In de, this message translates to:
+  /// **'Bitte einen Betrag zwischen 0,01 und 500 € eingeben.'**
+  String get kaffeekasseAmountInvalid;
+
+  /// No description provided for @kaffeekasseNote.
+  ///
+  /// In de, this message translates to:
+  /// **'Notiz (optional)'**
+  String get kaffeekasseNote;
+
+  /// No description provided for @kaffeekassePaySubmit.
+  ///
+  /// In de, this message translates to:
+  /// **'Zahlung eintragen'**
+  String get kaffeekassePaySubmit;
+
+  /// No description provided for @kaffeekassePaid.
+  ///
+  /// In de, this message translates to:
+  /// **'Danke! Deine Zahlung ist eingetragen.'**
+  String get kaffeekassePaid;
+
+  /// No description provided for @kaffeekassePayFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Zahlung konnte nicht eingetragen werden.'**
+  String get kaffeekassePayFailed;
+
+  /// No description provided for @kaffeekasseTransferTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Überweisen'**
+  String get kaffeekasseTransferTitle;
+
+  /// No description provided for @kaffeekasseRecipient.
+  ///
+  /// In de, this message translates to:
+  /// **'Empfänger'**
+  String get kaffeekasseRecipient;
+
+  /// No description provided for @kaffeekasseIban.
+  ///
+  /// In de, this message translates to:
+  /// **'IBAN'**
+  String get kaffeekasseIban;
+
+  /// No description provided for @kaffeekasseSuggested.
+  ///
+  /// In de, this message translates to:
+  /// **'Betrag'**
+  String get kaffeekasseSuggested;
+
+  /// No description provided for @kaffeekasseReference.
+  ///
+  /// In de, this message translates to:
+  /// **'Verwendungszweck'**
+  String get kaffeekasseReference;
+
+  /// No description provided for @kaffeekasseOpenPaypal.
+  ///
+  /// In de, this message translates to:
+  /// **'PayPal öffnen'**
+  String get kaffeekasseOpenPaypal;
+
+  /// No description provided for @kaffeekasseOpenWero.
+  ///
+  /// In de, this message translates to:
+  /// **'Wero öffnen'**
+  String get kaffeekasseOpenWero;
 }
 
 class _AppLocalizationsDelegate

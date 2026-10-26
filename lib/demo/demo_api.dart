@@ -257,9 +257,64 @@ class DemoWachbuchApi extends WachbuchApi {
         .toList(growable: false);
   }
 
+  /// Demo-Monatsbeitrag: 5 € seit zwei Monaten, 10 € schon bezahlt.
+  static const _demoFee = 5.0;
+  final List<Map<String, dynamic>> _coffeePayments = [];
+
   @override
   Future<Kaffeekasse> kaffeekasse() async {
-    return Kaffeekasse.fromJson(Map<String, dynamic>.from(profile.coffee));
+    final now = DateTime.now();
+    final months = [for (var back = 0; back < 3; back++) DateTime(now.year, now.month - back)];
+    var pool = 10.0 + _coffeePayments.fold<double>(0, (sum, p) => sum + (p['amount'] as double));
+    final statuses = <Map<String, dynamic>>[];
+    for (final month in months.reversed) {
+      final paid = pool >= _demoFee;
+      pool = paid ? pool - _demoFee : 0;
+      statuses.insert(0, {
+        'month': '${month.year}-${month.month.toString().padLeft(2, '0')}',
+        'status': paid ? 'paid' : 'open',
+        'open_euros': paid ? 0 : _demoFee,
+      });
+    }
+    final open = statuses.fold<double>(0, (sum, m) => sum + (m['open_euros'] as num).toDouble());
+    final base = Map<String, dynamic>.from(profile.coffee);
+    return Kaffeekasse.fromJson({
+      ...base,
+      'ledger': [
+        ..._coffeePayments.reversed.map((p) => {
+              'amount': p['amount'],
+              'description': p['description'],
+              'created_at': p['created_at'],
+              'user': profile.username,
+            }),
+        ...(base['ledger'] as List? ?? const []),
+      ],
+      'scope': 'own',
+      'monthly_fee_euros': _demoFee,
+      'own': {'participant': true, 'open_euros': open, 'credit_euros': pool, 'months': statuses},
+      'payment': {
+        'methods': ['cash', 'transfer'],
+        'suggested_euros': open > 0 ? open : _demoFee,
+        'iban': 'DE89370400440532013000',
+        'account_holder': 'Kaffeekasse ${profile.stationName}',
+        'transfer_text': 'Kaffeekasse ${profile.stationName} ${profile.username}',
+        'note': base['payment_hint'] ?? '',
+      },
+    });
+  }
+
+  @override
+  Future<void> reportCoffeePayment({
+    required String method,
+    required num amountEuros,
+    String note = '',
+  }) async {
+    _coffeePayments.add({
+      'amount': amountEuros.toDouble(),
+      'description': 'Selbst eingetragen: ${method == 'cash' ? 'Bar in die Kasse' : 'Überweisung'}'
+          '${note.isNotEmpty ? ' – $note' : ''}',
+      'created_at': DateTime.now().toUtc().toIso8601String(),
+    });
   }
 
   @override

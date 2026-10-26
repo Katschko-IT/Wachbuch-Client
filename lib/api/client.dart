@@ -456,6 +456,27 @@ class WachbuchApi {
         cacheKey: 'handover_$id',
       );
 
+  /// POST /api/v1/kaffeekasse/bezahlt/ – „Ich habe bezahlt“ (eigene Zahlung).
+  /// Nicht wiederholen: eine doppelte Meldung wäre eine doppelte Buchung.
+  Future<void> reportCoffeePayment({
+    required String method,
+    required num amountEuros,
+    String note = '',
+  }) async {
+    final response = await _send(
+      _client.post(
+        _uri('/api/v1/kaffeekasse/bezahlt/'),
+        headers: _headers(),
+        body: jsonEncode({
+          'method': method,
+          'amount_euros': amountEuros.toStringAsFixed(2),
+          if (note.isNotEmpty) 'note': note,
+        }),
+      ),
+    );
+    _decode(_requireModule(response, 'Kaffeekasse'));
+  }
+
   /// GET /api/v1/kalender/
   Future<List<KalenderEntry>> kalender() async {
     final body = await _getJson('/api/v1/kalender/', cacheKey: 'calendar');

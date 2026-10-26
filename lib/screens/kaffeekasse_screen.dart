@@ -3,6 +3,8 @@ import 'package:wachbuch_mobile/l10n/generated/app_localizations.dart';
 import 'package:wachbuch_mobile/api/client.dart';
 import 'package:wachbuch_mobile/models/kaffeekasse.dart';
 import 'package:wachbuch_mobile/state/coffee_state.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:wachbuch_mobile/ui/copy_button.dart';
 import 'package:wachbuch_mobile/ui/error_banner.dart';
 import 'package:wachbuch_mobile/ui/layout.dart';
 
@@ -52,6 +54,21 @@ class _KaffeekasseScreenState extends State<KaffeekasseScreen> {
 
   Future<void> _reload() => _state.reload();
 
+  Future<void> _openPaySheet(CoffeePayment payment) async {
+    final l = AppLocalizations.of(context)!;
+    final paid = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (context) => CoffeePaySheet(state: _state, payment: payment),
+    );
+    if (paid == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.kaffeekassePaid)),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
@@ -84,8 +101,34 @@ class _KaffeekasseScreenState extends State<KaffeekasseScreen> {
             const SizedBox(height: 16),
           ],
           if (kasse != null) ...[
-            _BalanceCard(kasse: kasse),
+            if (kasse.hasMonthlyFee)
+              _OwnStatusCard(own: kasse.own!)
+            else
+              _BalanceCard(kasse: kasse),
             const SizedBox(height: 16),
+            if (kasse.monthlyFee > 0 && kasse.own?.participant == false) ...[
+              Text(AppLocalizations.of(context)!.kaffeekasseNotParticipant),
+              const SizedBox(height: 16),
+            ],
+            if (kasse.hasMonthlyFee && kasse.own!.months.isNotEmpty) ...[
+              _MonthsCard(months: kasse.own!.months),
+              const SizedBox(height: 16),
+            ],
+            if (kasse.payment != null) ...[
+              FilledButton.icon(
+                key: const Key('coffee-i-paid'),
+                onPressed: () => _openPaySheet(kasse.payment!),
+                icon: const Icon(Icons.check_circle_outline),
+                label: Text(AppLocalizations.of(context)!.kaffeekasseIPaid),
+              ),
+              const SizedBox(height: 16),
+              if (kasse.payment!.iban.isNotEmpty ||
+                  kasse.payment!.paypalUrl.isNotEmpty ||
+                  kasse.payment!.weroUrl.isNotEmpty) ...[
+                _TransferCard(payment: kasse.payment!),
+                const SizedBox(height: 16),
+              ],
+            ],
             if (kasse.paymentHint.isNotEmpty) ...[
               _PaymentHintCard(hint: kasse.paymentHint),
               const SizedBox(height: 16),
@@ -293,6 +336,332 @@ class _EmptyState extends StatelessWidget {
           const SizedBox(height: 12),
           Text(message, style: Theme.of(context).textTheme.bodyLarge),
         ],
+      ),
+    );
+  }
+}
+
+class _OwnStatusCard extends StatelessWidget {
+  const _OwnStatusCard({required this.own});
+
+  final CoffeeOwnStatus own;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final scheme = Theme.of(context).colorScheme;
+    final open = own.openEuros > 0;
+    final background = open ? scheme.errorContainer : scheme.primaryContainer;
+    final foreground = open ? scheme.onErrorContainer : scheme.onPrimaryContainer;
+    final (label, value) = open
+        ? (l.kaffeekasseOpen, own.formattedOpen)
+        : own.creditEuros > 0
+            ? (l.kaffeekasseCredit, own.formattedCredit)
+            : (l.kaffeekasseMyStatus, l.kaffeekasseAllPaid);
+    return Material(
+      key: const Key('coffee-own-status'),
+      color: background,
+      borderRadius: BorderRadius.circular(18),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.coffee_outlined, color: foreground, size: 28),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(color: foreground),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Text(
+              value,
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    color: foreground,
+                    fontWeight: FontWeight.w700,
+                  ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MonthsCard extends StatelessWidget {
+  const _MonthsCard({required this.months});
+
+  final List<CoffeeMonth> months;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final scheme = Theme.of(context).colorScheme;
+    final material = MaterialLocalizations.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(l.kaffeekasseMonthsTitle, style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final month in months)
+              Chip(
+                avatar: Icon(
+                  switch (month.status) {
+                    'paid' => Icons.check_circle,
+                    'open' => Icons.schedule,
+                    _ => Icons.beach_access_outlined,
+                  },
+                  size: 18,
+                  color: month.status == 'open' ? scheme.error : scheme.primary,
+                ),
+                label: Text(
+                  '${month.month != null ? material.formatMonthYear(month.month!) : '?'} · '
+                  '${switch (month.status) {
+                    'paid' => l.kaffeekasseMonthPaid,
+                    'open' => l.kaffeekasseMonthOpen(month.formattedOpen),
+                    _ => l.kaffeekasseMonthWaived,
+                  }}',
+                ),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _TransferCard extends StatelessWidget {
+  const _TransferCard({required this.payment});
+
+  final CoffeePayment payment;
+
+  Future<void> _open(String url) async {
+    final uri = Uri.tryParse(url);
+    if (uri != null) await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final text = Theme.of(context).textTheme;
+    Widget row(String label, String value, {bool copy = false}) => Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(label, style: text.labelMedium),
+                  SelectableText(value, style: text.bodyLarge),
+                ],
+              ),
+            ),
+            if (copy) CopyIconButton(text: value.replaceAll(' ', ''), label: label),
+          ],
+        );
+    return Card(
+      key: const Key('coffee-transfer'),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l.kaffeekasseTransferTitle, style: text.titleMedium),
+            const SizedBox(height: 8),
+            if (payment.iban.isNotEmpty) ...[
+              row(l.kaffeekasseRecipient, payment.accountHolder),
+              row(l.kaffeekasseIban, payment.formattedIban, copy: true),
+              if (payment.suggestedEuros > 0)
+                row(
+                  l.kaffeekasseSuggested,
+                  '${payment.suggestedEuros.toStringAsFixed(2).replaceAll('.', ',')} €',
+                ),
+              if (payment.transferText.isNotEmpty)
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(l.kaffeekasseReference, style: text.labelMedium),
+                          SelectableText(payment.transferText, style: text.bodyLarge),
+                        ],
+                      ),
+                    ),
+                    CopyIconButton(text: payment.transferText, label: l.kaffeekasseReference),
+                  ],
+                ),
+            ],
+            if (payment.paypalUrl.isNotEmpty || payment.weroUrl.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                children: [
+                  if (payment.paypalUrl.isNotEmpty)
+                    OutlinedButton.icon(
+                      onPressed: () => _open(payment.paypalUrl),
+                      icon: const Icon(Icons.open_in_new),
+                      label: Text(l.kaffeekasseOpenPaypal),
+                    ),
+                  if (payment.weroUrl.isNotEmpty)
+                    OutlinedButton.icon(
+                      onPressed: () => _open(payment.weroUrl),
+                      icon: const Icon(Icons.open_in_new),
+                      label: Text(l.kaffeekasseOpenWero),
+                    ),
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// „Ich habe bezahlt“ – wie das Kreuz in der Mappe.
+class CoffeePaySheet extends StatefulWidget {
+  const CoffeePaySheet({super.key, required this.state, required this.payment});
+
+  final CoffeeState state;
+  final CoffeePayment payment;
+
+  @override
+  State<CoffeePaySheet> createState() => _CoffeePaySheetState();
+}
+
+class _CoffeePaySheetState extends State<CoffeePaySheet> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _amount;
+  final _note = TextEditingController();
+  late String _method;
+  bool _saving = false;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _method = widget.payment.methods.first;
+    final suggested = widget.payment.suggestedEuros;
+    _amount = TextEditingController(
+      text: suggested > 0 ? suggested.toStringAsFixed(2).replaceAll('.', ',') : '',
+    );
+  }
+
+  @override
+  void dispose() {
+    _amount.dispose();
+    _note.dispose();
+    super.dispose();
+  }
+
+  num? _parsedAmount() => num.tryParse(_amount.text.trim().replaceAll(',', '.'));
+
+  String _methodLabel(AppLocalizations l, String method) => switch (method) {
+        'cash' => l.kaffeekasseMethodCash,
+        'transfer' => l.kaffeekasseMethodTransfer,
+        'paypal' => 'PayPal',
+        'wero' => 'Wero',
+        _ => method,
+      };
+
+  Future<void> _submit(AppLocalizations l) async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    setState(() {
+      _saving = true;
+      _error = null;
+    });
+    try {
+      await widget.state.reportPayment(
+        method: _method,
+        amountEuros: _parsedAmount()!,
+        note: _note.text.trim(),
+      );
+      if (!mounted) return;
+      Navigator.of(context).pop(true);
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _saving = false;
+        _error = error.message;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _saving = false;
+        _error = l.kaffeekassePayFailed;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(24, 0, 24, 24 + MediaQuery.viewInsetsOf(context).bottom),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(l.kaffeekasseIPaid, style: Theme.of(context).textTheme.headlineSmall),
+              const SizedBox(height: 8),
+              Text(l.kaffeekassePayHint),
+              const SizedBox(height: 16),
+              Text(l.kaffeekassePayMethod, style: Theme.of(context).textTheme.labelLarge),
+              const SizedBox(height: 8),
+              SegmentedButton<String>(
+                key: const Key('coffee-pay-method'),
+                segments: [
+                  for (final method in widget.payment.methods)
+                    ButtonSegment(value: method, label: Text(_methodLabel(l, method))),
+                ],
+                selected: {_method},
+                onSelectionChanged: (selection) => setState(() => _method = selection.first),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                key: const Key('coffee-pay-amount'),
+                controller: _amount,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                decoration: InputDecoration(labelText: l.kaffeekasseAmount, suffixText: '€'),
+                validator: (_) {
+                  final value = _parsedAmount();
+                  return value == null || value < 0.01 || value > 500 ? l.kaffeekasseAmountInvalid : null;
+                },
+              ),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _note,
+                maxLength: 120,
+                decoration: InputDecoration(labelText: l.kaffeekasseNote),
+              ),
+              if (_error != null) ...[
+                const SizedBox(height: 8),
+                Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+              ],
+              const SizedBox(height: 16),
+              FilledButton.icon(
+                key: const Key('coffee-pay-submit'),
+                onPressed: _saving ? null : () => _submit(l),
+                icon: _saving
+                    ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                    : const Icon(Icons.check),
+                label: Text(l.kaffeekassePaySubmit),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

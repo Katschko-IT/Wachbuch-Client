@@ -950,4 +950,90 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get handoverStatusFailed => 'Status could not be changed.';
+
+  @override
+  String get kaffeekasseMyStatus => 'My balance';
+
+  @override
+  String get kaffeekasseOpen => 'Outstanding';
+
+  @override
+  String get kaffeekasseCredit => 'Credit';
+
+  @override
+  String get kaffeekasseAllPaid => 'All paid';
+
+  @override
+  String get kaffeekasseNotParticipant =>
+      'You are not (yet) registered for the monthly fee. Please talk to the treasurer.';
+
+  @override
+  String get kaffeekasseMonthsTitle => 'My months';
+
+  @override
+  String get kaffeekasseMonthPaid => 'paid';
+
+  @override
+  String kaffeekasseMonthOpen(String amount) {
+    return '$amount open';
+  }
+
+  @override
+  String get kaffeekasseMonthWaived => 'waived';
+
+  @override
+  String get kaffeekasseIPaid => 'I have paid';
+
+  @override
+  String get kaffeekassePayHint =>
+      'Like the tick in the ledger book: record what you put in the cash box or transferred.';
+
+  @override
+  String get kaffeekassePayMethod => 'How did you pay?';
+
+  @override
+  String get kaffeekasseMethodCash => 'Cash into the box';
+
+  @override
+  String get kaffeekasseMethodTransfer => 'Bank transfer';
+
+  @override
+  String get kaffeekasseAmount => 'Amount';
+
+  @override
+  String get kaffeekasseAmountInvalid =>
+      'Please enter an amount between €0.01 and €500.';
+
+  @override
+  String get kaffeekasseNote => 'Note (optional)';
+
+  @override
+  String get kaffeekassePaySubmit => 'Record payment';
+
+  @override
+  String get kaffeekassePaid => 'Thank you! Your payment has been recorded.';
+
+  @override
+  String get kaffeekassePayFailed => 'Payment could not be recorded.';
+
+  @override
+  String get kaffeekasseTransferTitle => 'Bank transfer';
+
+  @override
+  String get kaffeekasseRecipient => 'Recipient';
+
+  @override
+  String get kaffeekasseIban => 'IBAN';
+
+  @override
+  String get kaffeekasseSuggested => 'Amount';
+
+  @override
+  String get kaffeekasseReference => 'Reference';
+
+  @override
+  String get kaffeekasseOpenPaypal => 'Open PayPal';
+
+  @override
+  String get kaffeekasseOpenWero => 'Open Wero';
 }
