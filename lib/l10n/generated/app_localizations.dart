@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// No description provided for @appName.
   ///
   /// In de, this message translates to:
-  /// **'Wachbuch'**
+  /// **'Wachwerk'**
   String get appName;
 
   /// No description provided for @errorSemanticsLabel.
@@ -191,7 +191,7 @@ abstract class AppLocalizations {
   /// No description provided for @stationFallback.
   ///
   /// In de, this message translates to:
-  /// **'Wachbuch'**
+  /// **'Wachwerk'**
   String get stationFallback;
 
   /// No description provided for @sessionExpiredError.
@@ -1199,13 +1199,13 @@ abstract class AppLocalizations {
   /// No description provided for @qrScanInvalid.
   ///
   /// In de, this message translates to:
-  /// **'Kein gültiger Wachbuch-Server-QR.'**
+  /// **'Kein gültiger Wachwerk-Server-QR.'**
   String get qrScanInvalid;
 
   /// No description provided for @qrScanWebHint.
   ///
   /// In de, this message translates to:
-  /// **'QR aus dem Wachbuch-Web unter Mein Konto → App-Tokens'**
+  /// **'QR aus dem Wachwerk-Web unter Mein Konto → App-Tokens'**
   String get qrScanWebHint;
 
   /// No description provided for @qrCameraDialogTitle.
@@ -1217,7 +1217,7 @@ abstract class AppLocalizations {
   /// No description provided for @qrCameraDialogMessage.
   ///
   /// In de, this message translates to:
-  /// **'Wachbuch benötigt die Kamera hier ausschließlich, um den QR-Code mit der Server-Adresse Ihrer Wache zu scannen. Ohne Kamera können Sie die Adresse auch manuell eingeben.'**
+  /// **'Wachwerk benötigt die Kamera hier ausschließlich, um den QR-Code mit der Server-Adresse Ihrer Wache zu scannen. Ohne Kamera können Sie die Adresse auch manuell eingeben.'**
   String get qrCameraDialogMessage;
 
   /// No description provided for @qrCameraContinue.

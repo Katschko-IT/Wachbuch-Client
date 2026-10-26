@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appName => 'Wachbuch';
+  String get appName => 'Wachwerk';
 
   @override
   String errorSemanticsLabel(String message) {
@@ -59,7 +59,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get refreshTooltip => 'Refresh';
 
   @override
-  String get stationFallback => 'Wachbuch';
+  String get stationFallback => 'Wachwerk';
 
   @override
   String get sessionExpiredError => 'Login expired or revoked.';
@@ -593,18 +593,18 @@ class AppLocalizationsEn extends AppLocalizations {
       'The camera is used here only to read the server address. No photos are saved or uploaded during QR scanning.';
 
   @override
-  String get qrScanInvalid => 'Not a valid Wachbuch server QR code.';
+  String get qrScanInvalid => 'Not a valid Wachwerk server QR code.';
 
   @override
   String get qrScanWebHint =>
-      'QR from the Wachbuch web under My Account → App Tokens';
+      'QR from the Wachwerk web under My Account → App Tokens';
 
   @override
   String get qrCameraDialogTitle => 'Camera for QR code';
 
   @override
   String get qrCameraDialogMessage =>
-      'Wachbuch needs the camera here solely to scan the QR code containing your station\'s server address. You can also enter the address manually without the camera.';
+      'Wachwerk needs the camera here solely to scan the QR code containing your station\'s server address. You can also enter the address manually without the camera.';
 
   @override
   String get qrCameraContinue => 'Continue';

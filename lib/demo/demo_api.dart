@@ -144,7 +144,7 @@ class DemoWachbuchApi extends WachbuchApi {
     return {
       'ok': true,
       'api_version': 'v1',
-      'name': 'Wachbuch Demo',
+      'name': 'Wachwerk Demo',
       'demo': true,
       'service': profile.service.id,
       'capabilities': {

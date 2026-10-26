@@ -3,7 +3,7 @@
 Stand: 9. August 2026
 
 Ziel: Funktionen liefern, die **weder typische Einsatzsysteme** (ELS,
-Alarmierung, Vorgang, eProtokoll) **noch das heutige Wachbuch** abdecken —
+Alarmierung, Vorgang, eProtokoll) **noch das heutige Wachwerk** abdecken —
 ohne die Produktgrenze zu verletzen.
 
 ## Produktgrenze (unverändert)

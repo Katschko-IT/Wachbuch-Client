@@ -134,8 +134,8 @@ class _PolicySection {
 const _de = _PolicyCopy(
   title: 'Datenschutz',
   intro:
-      'Wachbuch ist ein Open-Source-Client für selbst gehostete '
-      'Wachbuch-Server. Die App betreibt keine zentrale Wachbuch-Cloud und ist '
+      'Wachwerk ist ein Open-Source-Client für selbst gehostete '
+      'Wachwerk-Server. Die App betreibt keine zentrale Wachwerk-Cloud und ist '
       'keine offizielle Behörden-, Notruf-, Einsatzleit-, Patientenakten- oder '
       'ePCR-App.',
   sections: [
@@ -176,7 +176,7 @@ const _de = _PolicyCopy(
     _PolicySection(
       'Konten und Löschung',
       'Benutzerkonten und serverseitige Daten werden vom Betreiber des '
-          'verbundenen Wachbuch-Servers verwaltet. Auskunfts-, Berichtigungs- '
+          'verbundenen Wachwerk-Servers verwaltet. Auskunfts-, Berichtigungs- '
           'oder Löschanfragen zu diesen Daten sind an diesen Betreiber zu '
           'richten.',
     ),
@@ -190,8 +190,8 @@ const _de = _PolicyCopy(
 const _en = _PolicyCopy(
   title: 'Privacy',
   intro:
-      'Wachbuch is an open-source client for self-hosted Wachbuch servers. '
-      'The app does not operate a central Wachbuch cloud and is not an official '
+      'Wachwerk is an open-source client for self-hosted Wachwerk servers. '
+      'The app does not operate a central Wachwerk cloud and is not an official '
       'government, emergency-calling, dispatch, patient-record or ePCR app.',
   sections: [
     _PolicySection(
@@ -229,7 +229,7 @@ const _en = _PolicyCopy(
     _PolicySection(
       'Accounts and deletion',
       'User accounts and server-side data are managed by the operator of the '
-          'Wachbuch server you connect to. Requests to access, correct or '
+          'Wachwerk server you connect to. Requests to access, correct or '
           'delete that data must be directed to that server operator.',
     ),
   ],

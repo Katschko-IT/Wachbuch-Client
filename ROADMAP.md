@@ -1,4 +1,4 @@
-# Wachbuch Client Roadmap
+# Wachwerk Client Roadmap
 
 Stand: 9. August 2026
 
@@ -62,7 +62,7 @@ Konten, Schlüssel, Angaben und Freigaben außerhalb des Quellcodes.
 
 - [x] ~~Varianten `internal` und `production` einführen.~~
 - [x] ~~Interne App mit Paket-ID `de.wachbuch.mobile.internal` kennzeichnen.~~
-- [x] ~~Interne App als „Wachbuch Internal“ sichtbar machen.~~
+- [x] ~~Interne App als „Wachwerk Internal“ sichtbar machen.~~
 - [x] ~~Internes Deep-Link-Schema `wachbuch-internal://` vom Produktionsschema trennen.~~
 - [x] ~~Produktionssignierung aus `key.properties` oder geschützten Umgebungsvariablen laden.~~
 - [x] ~~Debug-Key-Fallback aus dem Produktionsbuild entfernen.~~

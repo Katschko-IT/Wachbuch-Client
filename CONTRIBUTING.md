@@ -1,12 +1,12 @@
-# Mitwirken am Wachbuch Client
+# Mitwirken am Wachwerk Client
 
 *Letzte Aktualisierung: August 2026 | Version: 0.5.1+*
 
 ---
 
-**Danke für dein Interesse am Wachbuch Client!** 🎉
+**Danke für dein Interesse am Wachwerk Client!** 🎉
 
-Der **Wachbuch Client** ist die offizielle Mobile-App für das [Rettungswache-Wachbuch](https://github.com/Katschko-IT/Rettungswache-Wachbuch). Beiträge sind herzlich willkommen – egal ob du Code beisteuern, Bugs melden, die Dokumentation verbessern oder Feature-Ideen einbringen möchtest.
+Der **Wachwerk Client** ist die offizielle Mobile-App für das [Rettungswache-Wachbuch](https://github.com/Katschko-IT/Rettungswache-Wachbuch). Beiträge sind herzlich willkommen – egal ob du Code beisteuern, Bugs melden, die Dokumentation verbessern oder Feature-Ideen einbringen möchtest.
 
 ---
 
@@ -557,7 +557,7 @@ Signed-off-by: Dein Name <deine@email.com>
 
 ## 🙏 **Danke!**
 
-Vielen Dank, dass du zum Wachbuch Client beiträgst! 🎉
+Vielen Dank, dass du zum Wachwerk Client beiträgst! 🎉
 
 Deine Beiträge helfen, die App besser zu machen und Rettungswachen bei ihrer wichtigen Arbeit zu unterstützen. Gemeinsam können wir eine **sichere, zuverlässige und benutzfreundliche** Lösung für die interne Organisation von Rettungswachen schaffen.
 

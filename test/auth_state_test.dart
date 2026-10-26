@@ -68,7 +68,7 @@ void main() {
     final state = AuthState(api: api);
     await state.reload();
 
-    expect(state.stationName('Wachbuch'), 'Wache Nord');
+    expect(state.stationName('Wachwerk'), 'Wache Nord');
     expect(state.roleLabel, 'Schichtleitung');
     expect(state.modules['coffee'], isTrue);
     expect(state.username, 'michael');
@@ -97,7 +97,7 @@ void main() {
     final state = AuthState(api: api);
     await state.reload();
 
-    expect(state.stationName('Wachbuch'), 'Wachbuch');
+    expect(state.stationName('Wachwerk'), 'Wachwerk');
     expect(state.roleLabel, '');
     expect(state.modules, isEmpty);
     state.dispose();

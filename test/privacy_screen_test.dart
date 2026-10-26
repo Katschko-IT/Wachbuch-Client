@@ -12,7 +12,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Datenschutz'), findsOneWidget);
-    expect(find.textContaining('keine zentrale Wachbuch-Cloud'), findsOneWidget);
+    expect(find.textContaining('keine zentrale Wachwerk-Cloud'), findsOneWidget);
 
     await tester.scrollUntilVisible(
       find.byKey(const Key('open-privacy-policy')),

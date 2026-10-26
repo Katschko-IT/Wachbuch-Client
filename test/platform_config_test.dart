@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('Android registers isolated Wachbuch connect URI schemes', () async {
+  test('Android registers isolated Wachwerk connect URI schemes', () async {
     final manifest = await File(
       'android/app/src/main/AndroidManifest.xml',
     ).readAsString();
@@ -39,7 +39,7 @@ void main() {
     expect(gradle, contains('applicationIdSuffix = ".internal"'));
     expect(
       gradle,
-      contains('manifestPlaceholders["appLabel"] = "Wachbuch Internal"'),
+      contains('manifestPlaceholders["appLabel"] = "Wachwerk Internal"'),
     );
     expect(gradle, contains('warningsAsErrors = true'));
     expect(gradle, contains('REQUIRE_RELEASE_SIGNING'));

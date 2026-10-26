@@ -1,6 +1,6 @@
-# Wachbuch Client (AGPL)
+# Wachwerk Client (AGPL)
 
-Open-Source-Begleit-App für das selbst gehostete **[Wachbuch](https://github.com/Katschko-IT/Rettungswache-Wachbuch)** auf iOS und Android.
+Open-Source-Begleit-App für das selbst gehostete **[Wachwerk](https://github.com/Katschko-IT/Rettungswache-Wachbuch)** auf iOS und Android.
 
 | | |
 | --- | --- |
@@ -44,7 +44,7 @@ Dieses Repository ist die **kanonische Quelle** für den Flutter-/iOS-/Android-C
 
 ## Produktgrenze
 
-Wachbuch ist ein Werkzeug für den **Stations-/Wachalltag**. Nicht Teil des Modells sind insbesondere Patienten-, ePCR-, Einsatz-, Alarmierungs-, ELS-, Personalakten- oder vergleichbare sensible Fachdaten. Wachbuch ist keine offizielle Behörden-App und kein Notrufsystem.
+Wachwerk ist ein Werkzeug für den **Stations-/Wachalltag**. Nicht Teil des Modells sind insbesondere Patienten-, ePCR-, Einsatz-, Alarmierungs-, ELS-, Personalakten- oder vergleichbare sensible Fachdaten. Wachwerk ist keine offizielle Behörden-App und kein Notrufsystem.
 
 ## Landingpage & Web-Demo
 

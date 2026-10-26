@@ -9,7 +9,7 @@ class AppLocalizationsDe extends AppLocalizations {
   AppLocalizationsDe([String locale = 'de']) : super(locale);
 
   @override
-  String get appName => 'Wachbuch';
+  String get appName => 'Wachwerk';
 
   @override
   String errorSemanticsLabel(String message) {
@@ -59,7 +59,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get refreshTooltip => 'Aktualisieren';
 
   @override
-  String get stationFallback => 'Wachbuch';
+  String get stationFallback => 'Wachwerk';
 
   @override
   String get sessionExpiredError => 'Anmeldung abgelaufen oder widerrufen.';
@@ -593,18 +593,18 @@ class AppLocalizationsDe extends AppLocalizations {
       'Die Kamera wird hier nur zum Lesen der Server-Adresse genutzt. Es werden dabei keine Fotos gespeichert oder hochgeladen.';
 
   @override
-  String get qrScanInvalid => 'Kein gültiger Wachbuch-Server-QR.';
+  String get qrScanInvalid => 'Kein gültiger Wachwerk-Server-QR.';
 
   @override
   String get qrScanWebHint =>
-      'QR aus dem Wachbuch-Web unter Mein Konto → App-Tokens';
+      'QR aus dem Wachwerk-Web unter Mein Konto → App-Tokens';
 
   @override
   String get qrCameraDialogTitle => 'Kamera für QR-Code';
 
   @override
   String get qrCameraDialogMessage =>
-      'Wachbuch benötigt die Kamera hier ausschließlich, um den QR-Code mit der Server-Adresse Ihrer Wache zu scannen. Ohne Kamera können Sie die Adresse auch manuell eingeben.';
+      'Wachwerk benötigt die Kamera hier ausschließlich, um den QR-Code mit der Server-Adresse Ihrer Wache zu scannen. Ohne Kamera können Sie die Adresse auch manuell eingeben.';
 
   @override
   String get qrCameraContinue => 'Weiter';

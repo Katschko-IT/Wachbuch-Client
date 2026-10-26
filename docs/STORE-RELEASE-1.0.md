@@ -45,7 +45,7 @@ AndroidOptions(
 )
 ```
 
-Vor öffentlichem Rollout muss die Upgrade-Testmatrix in [`SECURE-STORAGE-MIGRATION-1.0.md`](SECURE-STORAGE-MIGRATION-1.0.md) auf echten Geräten bestanden sein. Ein direkter Sprung einer bestehenden 9.x-Installation auf eine spätere 11.x-Linie ist für Wachbuch nicht freigegeben.
+Vor öffentlichem Rollout muss die Upgrade-Testmatrix in [`SECURE-STORAGE-MIGRATION-1.0.md`](SECURE-STORAGE-MIGRATION-1.0.md) auf echten Geräten bestanden sein. Ein direkter Sprung einer bestehenden 9.x-Installation auf eine spätere 11.x-Linie ist für Wachwerk nicht freigegeben.
 
 Die iOS-Keychain-Policy wird in diesem Schritt bewusst nicht gleichzeitig auf Secure Enclave oder andere Accessibility-Attribute umgestellt. Das reduziert die Zahl gleichzeitig migrierter Sicherheitsmechanismen.
 

@@ -57,11 +57,11 @@ void main() {
     );
   });
 
-  test('parseServerAddress rejects incomplete Wachbuch deep links', () {
+  test('parseServerAddress rejects incomplete Wachwerk deep links', () {
     expect(() => parseServerAddress('wachbuch://connect'), throwsArgumentError);
   });
 
-  test('parseServerAddress rejects ambiguous Wachbuch deep links', () {
+  test('parseServerAddress rejects ambiguous Wachwerk deep links', () {
     expect(
       () => parseServerAddress(
         'wachbuch://connect?url=https%3A%2F%2Fwache.example.org&next=evil',

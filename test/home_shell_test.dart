@@ -539,10 +539,10 @@ void main() {
     await tester.pumpAndSettle();
   });
 
-  testWidgets('station named Wachbuch keeps content visible during reload', (
+  testWidgets('station named Wachwerk keeps content visible during reload', (
     tester,
   ) async {
-    final api = _ReloadApi(stationName: 'Wachbuch');
+    final api = _ReloadApi(stationName: 'Wachwerk');
     await tester.pumpWidget(
       localizedApp(
         home: HomeShell(
@@ -560,7 +560,7 @@ void main() {
 
     expect(find.text('Aktive Übergaben'), findsOneWidget);
 
-    api.secondMe.complete(_mePayload(stationName: 'Wachbuch'));
+    api.secondMe.complete(_mePayload(stationName: 'Wachwerk'));
     await tester.pumpAndSettle();
   });
 

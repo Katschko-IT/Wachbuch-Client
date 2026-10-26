@@ -4,7 +4,7 @@ Stand: 10. August 2026
 
 ## Ziel
 
-Wachbuch migriert `flutter_secure_storage` kontrolliert von 9.2.4 auf **10.3.1**, bevor ein späterer Wechsel auf 11.x erfolgt. Der Schritt betrifft App-Token, Token-Ablaufzeit und den server-/tokengebundenen Offline-Lesecache.
+Wachwerk migriert `flutter_secure_storage` kontrolliert von 9.2.4 auf **10.3.1**, bevor ein späterer Wechsel auf 11.x erfolgt. Der Schritt betrifft App-Token, Token-Ablaufzeit und den server-/tokengebundenen Offline-Lesecache.
 
 ## Warum nicht direkt 11.x?
 
@@ -29,9 +29,9 @@ Mit `flutter_secure_storage` 10.3.1 verwendet die Standardkonfiguration:
 - AES-GCM für Storage-Verschlüsselung,
 - Android Keystore für Schlüsselmaterial,
 - `migrateOnAlgorithmChange=true`,
-- `migrateWithBackup=true` in Wachbuch.
+- `migrateWithBackup=true` in Wachwerk.
 
-Wachbuch hat Android-App-Backups im Produktionsmanifest deaktiviert. Diese Einstellung bleibt verpflichtend.
+Wachwerk hat Android-App-Backups im Produktionsmanifest deaktiviert. Diese Einstellung bleibt verpflichtend.
 
 In 10.x gilt zusätzlich der Android-Default `resetOnError=true`: Tritt ein Entschlüsselungsfehler auf, den auch die Migration nicht auflösen kann, wird der Secure Storage zurückgesetzt, damit die App nicht mit inkonsistentem Kryptomaterial weiterläuft. Das betroffene Gerät verliert dann seine Sitzung und der Nutzer muss sich neu anmelden. `migrateWithBackup` sichert genau diesen Migrationspfad mit Backup-Markern ab; ein Reset ist daher durch das Upgrade selbst nicht zu erwarten und wird in der Testmatrix über Schritt 11 abgedeckt.
 
