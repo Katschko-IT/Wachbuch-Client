@@ -910,4 +910,50 @@ class AppLocalizationsDe extends AppLocalizations {
     );
     return '$_temp0. Mögliche Server-Manipulation – nicht verifizieren.';
   }
+
+  @override
+  String get handoverCreate => 'Neue Übergabe';
+
+  @override
+  String get handoverCreateHeading => 'Übergabe anlegen';
+
+  @override
+  String get handoverFieldTitle => 'Titel';
+
+  @override
+  String get handoverFieldDetails => 'Was ist zu übergeben?';
+
+  @override
+  String get handoverFieldCategory => 'Bereich';
+
+  @override
+  String get handoverFieldPriority => 'Dringlichkeit';
+
+  @override
+  String get handoverTitleRequired => 'Bitte einen Titel eingeben.';
+
+  @override
+  String get handoverDetailsRequired =>
+      'Bitte kurz beschreiben, worum es geht.';
+
+  @override
+  String get handoverSave => 'Übergabe speichern';
+
+  @override
+  String get handoverCreated => 'Übergabe gespeichert.';
+
+  @override
+  String get handoverCreateFailed =>
+      'Übergabe konnte nicht gespeichert werden.';
+
+  @override
+  String get handoverStatusTitle => 'Status';
+
+  @override
+  String handoverStatusChanged(String status) {
+    return 'Status: $status';
+  }
+
+  @override
+  String get handoverStatusFailed => 'Status konnte nicht geändert werden.';
 }

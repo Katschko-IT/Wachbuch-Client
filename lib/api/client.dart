@@ -366,10 +366,88 @@ class WachbuchApi {
     return _decode(response);
   }
 
+  /// Höchstzahl an Folgeseiten, die eine Liste nachlädt (Schutz vor Endlosschleifen).
+  static const int maxFollowPages = 10;
+
+  /// Liest `next` aus einer Listenantwort – nur relative Pfade unter
+  /// `/api/v1/` oder absolute Adressen desselben Servers. Fremde Hosts
+  /// bekämen sonst das Token.
+  String? nextPagePath(Map<String, dynamic> body) {
+    final raw = body['next'];
+    if (raw is! String || raw.trim().isEmpty) return null;
+    final next = raw.trim();
+    if (next.startsWith('/api/v1/')) return next;
+    final parsed = Uri.tryParse(next);
+    final base = Uri.tryParse(baseUrl);
+    if (parsed == null || base == null || !parsed.hasScheme) return null;
+    if (parsed.scheme != base.scheme ||
+        parsed.host != base.host ||
+        parsed.port != base.port ||
+        !parsed.path.startsWith('/api/v1/')) {
+      return null;
+    }
+    return parsed.hasQuery ? '${parsed.path}?${parsed.query}' : parsed.path;
+  }
+
+  /// Erste Seite (mit Offline-Cache) plus alle Folgeseiten über `next`.
+  Future<List<Map<String, dynamic>>> _getAllPages(
+    String path, {
+    required String cacheKey,
+    String? moduleLabel,
+  }) async {
+    var body = await _getJson(path, cacheKey: cacheKey, moduleLabel: moduleLabel);
+    final items = [..._readList(body)];
+    final seen = <String>{path};
+    for (var page = 0; page < maxFollowPages; page++) {
+      final next = nextPagePath(body);
+      if (next == null || !seen.add(next)) break;
+      body = await _getJson(next, moduleLabel: moduleLabel);
+      items.addAll(_readList(body));
+    }
+    return items;
+  }
+
   /// GET /api/v1/handovers/ with encrypted offline fallback.
   Future<List<Map<String, dynamic>>> handovers() async {
-    final body = await _getJson('/api/v1/handovers/', cacheKey: 'handovers');
-    return _readList(body);
+    return _getAllPages('/api/v1/handovers/', cacheKey: 'handovers');
+  }
+
+  /// POST /api/v1/handovers/ – neue Übergabe (alle Rollen mit Inhaltszugriff).
+  Future<Map<String, dynamic>> createHandover({
+    required String title,
+    required String details,
+    String category = 'station',
+    String priority = 'normal',
+  }) async {
+    return _withRetry(() async {
+      final response = await _send(
+        _client.post(
+          _uri('/api/v1/handovers/'),
+          headers: _headers(),
+          body: jsonEncode({
+            'title': title,
+            'details': details,
+            'category': category,
+            'priority': priority,
+          }),
+        ),
+      );
+      return _decode(response);
+    }, maxAttempts: 1);
+  }
+
+  /// POST /api/v1/handovers/{id}/status/ – nur Schichtleitung und Admin.
+  Future<Map<String, dynamic>> setHandoverStatus(int id, String status) async {
+    return _withRetry(() async {
+      final response = await _send(
+        _client.post(
+          _uri('/api/v1/handovers/$id/status/'),
+          headers: _headers(),
+          body: jsonEncode({'status': status}),
+        ),
+      );
+      return _decode(response);
+    });
   }
 
   /// GET /api/v1/handovers/{id}/
@@ -474,12 +552,12 @@ class WachbuchApi {
 
   /// GET /api/v1/defects/
   Future<List<Defect>> defects() async {
-    final body = await _getJson(
+    final items = await _getAllPages(
       '/api/v1/defects/',
       cacheKey: 'defects',
       moduleLabel: 'Mängel',
     );
-    return _readList(body).map(Defect.fromJson).toList(growable: false);
+    return items.map(Defect.fromJson).toList(growable: false);
   }
 
   Future<Defect> createDefect({

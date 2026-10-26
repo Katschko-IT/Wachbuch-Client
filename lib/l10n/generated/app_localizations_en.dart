@@ -905,4 +905,49 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0. Possible server tampering – do not verify.';
   }
+
+  @override
+  String get handoverCreate => 'New handover';
+
+  @override
+  String get handoverCreateHeading => 'Create handover';
+
+  @override
+  String get handoverFieldTitle => 'Title';
+
+  @override
+  String get handoverFieldDetails => 'What needs to be handed over?';
+
+  @override
+  String get handoverFieldCategory => 'Area';
+
+  @override
+  String get handoverFieldPriority => 'Urgency';
+
+  @override
+  String get handoverTitleRequired => 'Please enter a title.';
+
+  @override
+  String get handoverDetailsRequired =>
+      'Please briefly describe what it is about.';
+
+  @override
+  String get handoverSave => 'Save handover';
+
+  @override
+  String get handoverCreated => 'Handover saved.';
+
+  @override
+  String get handoverCreateFailed => 'Handover could not be saved.';
+
+  @override
+  String get handoverStatusTitle => 'Status';
+
+  @override
+  String handoverStatusChanged(String status) {
+    return 'Status: $status';
+  }
+
+  @override
+  String get handoverStatusFailed => 'Status could not be changed.';
 }

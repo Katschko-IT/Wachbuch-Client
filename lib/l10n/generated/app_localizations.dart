@@ -1747,6 +1747,90 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'{count, plural, one {{count} vom Server gemeldeter Fingerprint weicht vom Schlüssel ab} other {{count} vom Server gemeldete Fingerprints weichen vom Schlüssel ab}}. Mögliche Server-Manipulation – nicht verifizieren.'**
   String keyVerifyServerMismatch(num count);
+
+  /// No description provided for @handoverCreate.
+  ///
+  /// In de, this message translates to:
+  /// **'Neue Übergabe'**
+  String get handoverCreate;
+
+  /// No description provided for @handoverCreateHeading.
+  ///
+  /// In de, this message translates to:
+  /// **'Übergabe anlegen'**
+  String get handoverCreateHeading;
+
+  /// No description provided for @handoverFieldTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Titel'**
+  String get handoverFieldTitle;
+
+  /// No description provided for @handoverFieldDetails.
+  ///
+  /// In de, this message translates to:
+  /// **'Was ist zu übergeben?'**
+  String get handoverFieldDetails;
+
+  /// No description provided for @handoverFieldCategory.
+  ///
+  /// In de, this message translates to:
+  /// **'Bereich'**
+  String get handoverFieldCategory;
+
+  /// No description provided for @handoverFieldPriority.
+  ///
+  /// In de, this message translates to:
+  /// **'Dringlichkeit'**
+  String get handoverFieldPriority;
+
+  /// No description provided for @handoverTitleRequired.
+  ///
+  /// In de, this message translates to:
+  /// **'Bitte einen Titel eingeben.'**
+  String get handoverTitleRequired;
+
+  /// No description provided for @handoverDetailsRequired.
+  ///
+  /// In de, this message translates to:
+  /// **'Bitte kurz beschreiben, worum es geht.'**
+  String get handoverDetailsRequired;
+
+  /// No description provided for @handoverSave.
+  ///
+  /// In de, this message translates to:
+  /// **'Übergabe speichern'**
+  String get handoverSave;
+
+  /// No description provided for @handoverCreated.
+  ///
+  /// In de, this message translates to:
+  /// **'Übergabe gespeichert.'**
+  String get handoverCreated;
+
+  /// No description provided for @handoverCreateFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Übergabe konnte nicht gespeichert werden.'**
+  String get handoverCreateFailed;
+
+  /// No description provided for @handoverStatusTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Status'**
+  String get handoverStatusTitle;
+
+  /// No description provided for @handoverStatusChanged.
+  ///
+  /// In de, this message translates to:
+  /// **'Status: {status}'**
+  String handoverStatusChanged(String status);
+
+  /// No description provided for @handoverStatusFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Status konnte nicht geändert werden.'**
+  String get handoverStatusFailed;
 }
 
 class _AppLocalizationsDelegate

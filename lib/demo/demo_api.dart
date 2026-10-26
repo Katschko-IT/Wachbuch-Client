@@ -186,21 +186,68 @@ class DemoWachbuchApi extends WachbuchApi {
   @override
   Future<Map<String, dynamic>> me() async => Map<String, dynamic>.from(profile.me);
 
+  /// Veränderbare Kopie der Demo-Übergaben (anlegen, Status ändern).
+  late final List<Map<String, dynamic>> _handovers = profile.handovers
+      .map((entry) => Map<String, dynamic>.from(entry))
+      .toList();
+
   @override
   Future<List<Map<String, dynamic>>> handovers() async {
-    return profile.handovers
+    // Wie der Server: erledigte Übergaben gehören nicht zur aktiven Liste.
+    return _handovers
+        .where((entry) => entry['status'] != 'done')
         .map((entry) => Map<String, dynamic>.from(entry))
         .toList(growable: false);
   }
 
   @override
   Future<Map<String, dynamic>> handoverDetail(int id) async {
-    for (final entry in profile.handovers) {
+    for (final entry in _handovers) {
       if (entry['id'] == id) {
         return Map<String, dynamic>.from(entry);
       }
     }
     throw ApiException(404, 'Übergabe nicht gefunden.');
+  }
+
+  @override
+  Future<Map<String, dynamic>> createHandover({
+    required String title,
+    required String details,
+    String category = 'station',
+    String priority = 'normal',
+  }) async {
+    final id = _handovers.fold<int>(
+          0,
+          (maxId, item) => (item['id'] as int? ?? 0) > maxId ? item['id'] as int : maxId,
+        ) +
+        1;
+    final entry = <String, dynamic>{
+      'id': id,
+      'title': title,
+      'details': details,
+      'description': details,
+      'category': category,
+      'priority': priority,
+      'status': 'open',
+      'author': profile.username,
+      'updated_at': DateTime.now().toUtc().toIso8601String(),
+      'version': 1,
+    };
+    _handovers.insert(0, entry);
+    return Map<String, dynamic>.from(entry);
+  }
+
+  @override
+  Future<Map<String, dynamic>> setHandoverStatus(int id, String status) async {
+    final index = _handovers.indexWhere((entry) => entry['id'] == id);
+    if (index < 0) throw ApiException(404, 'Übergabe nicht gefunden.');
+    _handovers[index] = {
+      ..._handovers[index],
+      'status': status,
+      'updated_at': DateTime.now().toUtc().toIso8601String(),
+    };
+    return Map<String, dynamic>.from(_handovers[index]);
   }
 
   @override

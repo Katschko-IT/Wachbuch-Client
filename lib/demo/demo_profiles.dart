@@ -64,6 +64,8 @@ class DemoProfile {
         'username': username,
         'user': {'username': username},
         'membership': {
+          // Alle Demo-Profile sind Leitungsrollen (Status ändern, Termine anlegen).
+          'role': 'shift_lead',
           'role_label': roleLabel,
           'station': {
             'name': stationName,

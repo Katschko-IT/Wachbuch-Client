@@ -295,5 +295,20 @@
   "keyVerifyReverified": "Changed key of {name} verified again.",
   "keyVerifyChangedTag": "Key changed!",
   "keyVerifyChangedWarning": "{count, plural, one {{count} verified key has changed} other {{count} verified keys have changed}}. Please compare again in person.",
-  "keyVerifyServerMismatch": "{count, plural, one {{count} server-reported fingerprint disagrees with the key} other {{count} server-reported fingerprints disagree with the key}}. Possible server tampering \u2013 do not verify."
+  "keyVerifyServerMismatch": "{count, plural, one {{count} server-reported fingerprint disagrees with the key} other {{count} server-reported fingerprints disagree with the key}}. Possible server tampering \u2013 do not verify.",
+  "handoverCreate": "New handover",
+  "handoverCreateHeading": "Create handover",
+  "handoverFieldTitle": "Title",
+  "handoverFieldDetails": "What needs to be handed over?",
+  "handoverFieldCategory": "Area",
+  "handoverFieldPriority": "Urgency",
+  "handoverTitleRequired": "Please enter a title.",
+  "handoverDetailsRequired": "Please briefly describe what it is about.",
+  "handoverSave": "Save handover",
+  "handoverCreated": "Handover saved.",
+  "handoverCreateFailed": "Handover could not be saved.",
+  "handoverStatusTitle": "Status",
+  "handoverStatusChanged": "Status: {status}",
+  "@handoverStatusChanged": {"placeholders": {"status": {"type": "String"}}},
+  "handoverStatusFailed": "Status could not be changed."
 }

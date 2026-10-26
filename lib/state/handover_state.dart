@@ -52,6 +52,42 @@ class HandoverState extends ChangeNotifier {
     }
   }
 
+  /// Legt eine Übergabe an und lädt die Liste neu. Fehler gehen an den Aufrufer.
+  Future<Map<String, dynamic>> create({
+    required String title,
+    required String details,
+    required String category,
+    required String priority,
+  }) async {
+    final created = await api.createHandover(
+      title: title,
+      details: details,
+      category: category,
+      priority: priority,
+    );
+    await reload();
+    return created;
+  }
+
+  /// Ändert den Status; erledigte Übergaben verschwinden wie auf dem Server
+  /// aus der aktiven Liste.
+  Future<Map<String, dynamic>> setStatus(int id, String status) async {
+    final updated = await api.setHandoverStatus(id, status);
+    if (status == 'done') {
+      _items = [
+        for (final item in _items)
+          if (item['id'] != id) item,
+      ];
+    } else {
+      _items = [
+        for (final item in _items)
+          if (item['id'] == id) {...item, ...updated, 'status': status} else item,
+      ];
+    }
+    _notify();
+    return updated;
+  }
+
   void setSearchQuery(String query) {
     _searchQuery = query;
     _notify();

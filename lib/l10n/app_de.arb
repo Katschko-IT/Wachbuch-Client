@@ -303,5 +303,20 @@
   "keyVerifyReverified": "Ge\u00e4nderter Schl\u00fcssel von {name} erneut verifiziert.",
   "keyVerifyChangedTag": "Schl\u00fcssel ge\u00e4ndert!",
   "keyVerifyChangedWarning": "{count, plural, one {{count} verifizierter Schl\u00fcssel hat sich ge\u00e4ndert} other {{count} verifizierte Schl\u00fcssel haben sich ge\u00e4ndert}}. Bitte pers\u00f6nlich erneut pr\u00fcfen.",
-  "keyVerifyServerMismatch": "{count, plural, one {{count} vom Server gemeldeter Fingerprint weicht vom Schl\u00fcssel ab} other {{count} vom Server gemeldete Fingerprints weichen vom Schl\u00fcssel ab}}. M\u00f6gliche Server-Manipulation \u2013 nicht verifizieren."
+  "keyVerifyServerMismatch": "{count, plural, one {{count} vom Server gemeldeter Fingerprint weicht vom Schl\u00fcssel ab} other {{count} vom Server gemeldete Fingerprints weichen vom Schl\u00fcssel ab}}. M\u00f6gliche Server-Manipulation \u2013 nicht verifizieren.",
+  "handoverCreate": "Neue Übergabe",
+  "handoverCreateHeading": "Übergabe anlegen",
+  "handoverFieldTitle": "Titel",
+  "handoverFieldDetails": "Was ist zu übergeben?",
+  "handoverFieldCategory": "Bereich",
+  "handoverFieldPriority": "Dringlichkeit",
+  "handoverTitleRequired": "Bitte einen Titel eingeben.",
+  "handoverDetailsRequired": "Bitte kurz beschreiben, worum es geht.",
+  "handoverSave": "Übergabe speichern",
+  "handoverCreated": "Übergabe gespeichert.",
+  "handoverCreateFailed": "Übergabe konnte nicht gespeichert werden.",
+  "handoverStatusTitle": "Status",
+  "handoverStatusChanged": "Status: {status}",
+  "@handoverStatusChanged": {"placeholders": {"status": {"type": "String"}}},
+  "handoverStatusFailed": "Status konnte nicht geändert werden."
 }
