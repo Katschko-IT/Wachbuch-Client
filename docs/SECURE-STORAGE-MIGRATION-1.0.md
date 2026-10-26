@@ -88,3 +88,12 @@ Ein Wechsel auf `flutter_secure_storage` 11.x ist ein eigener Change und darf er
 - OS-/SDK-Anforderungen geprüft sind,
 - Dependency Security/OSV grün ist,
 - Store-Builds erneut vollständig validiert sind.
+
+### Vorprüfung 11.2.0 (26. Oktober 2026)
+
+Der Quelltext von 11.2.0 ist gegen Wachwerk geprüft. Ergebnis:
+
+- `AndroidOptions(migrateOnAlgorithmChange:, migrateWithBackup:)` gibt es weiter. Wachwerk nutzt keine der entfernten Optionen (`encryptedSharedPreferences`, `sharedPreferencesName`, alte Cipher).
+- `minSdk 24` hat Wachwerk schon. Ab 11.1.0 folgt das Plugin wieder `flutter.compileSdkVersion`.
+
+Die Umstellung bleibt trotzdem zurückgestellt. Der Grund ist die oben verlangte Abnahme des 10.x-Builds auf echten Geräten, nicht die Programmierschnittstelle. Bis dahin bleibt die Linie 10.x; der Lock steht auf 10.3.4.
