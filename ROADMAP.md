@@ -18,10 +18,12 @@ Checks → Schlüssel/Pools → Offline-Cache → Auswertung. Prototyp Phase A�
 - [x] ~~Checklisten verarbeiten Text-Prüfpunkte und `last_completed_at`/`_by`.~~
 - [x] ~~Abschluss einer Checkliste ergänzt die Karte statt sie zu leeren.~~
 - [x] ~~Modul-Chips kennen alle Schlüssel aus `/api/v1/me/`.~~
-- [ ] Schreibende Server-Endpunkte nutzen: Übergabe anlegen/Status,
-  `PATCH /defects/{id}/`, Kalender- und Kassen-Einträge.
-- [ ] `next`-Paginierung auswerten, sobald der Server sie liefert.
-- [ ] Upload-Grenze mit dem Server vereinheitlichen (Client 2 MiB, Server 5 MiB).
+- [x] ~~Schreibende Server-Endpunkte nutzen: Übergabe anlegen/Status,
+  `PATCH /defects/{id}/`, Kalendertermin anlegen, Kaffeekasse „Ich habe bezahlt“.~~
+- [x] ~~`next`-Paginierung auswerten (Übergaben, Mängel; nur gleicher Server, höchstens 10 Seiten).~~
+- [x] ~~Upload-Grenze mit dem Server vereinheitlichen (5 MiB je Foto).~~
+- [ ] `flutter_secure_storage` 11: API geprüft und kompatibel. Umstellung erst nach der
+  Geräteabnahme des 10.x-Builds (`docs/SECURE-STORAGE-MIGRATION-1.0.md`).
 - [x] ~~Lokale Erinnerung „Einwirkzeit abgelaufen“ für die Fahrzeugbesatzung.~~
 - [ ] Echter Push (APNs/FCM): Apple-Developer-Konto, Firebase-Projekt, Push-Relay
   betreiben, Token über `POST /api/v1/push/geraete/` registrieren.

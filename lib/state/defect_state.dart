@@ -78,6 +78,44 @@ class DefectState extends ChangeNotifier {
     }
   }
 
+  /// Beschreibung, Bezug, Priorität oder Frist ändern; null bei Fehler (siehe [error]).
+  Future<Defect?> update(
+    int id, {
+    String? description,
+    String? assetRef,
+    String? priority,
+    DateTime? dueAt,
+    bool clearDue = false,
+  }) async {
+    _error = null;
+    _lastError = null;
+    try {
+      final updated = await api.updateDefect(
+        id,
+        description: description,
+        assetRef: assetRef,
+        priority: priority,
+        dueAt: dueAt,
+        clearDue: clearDue,
+      );
+      _items = [
+        for (final item in _items)
+          if (item.id == id) updated else item,
+      ];
+      _notify();
+      return updated;
+    } on ApiException catch (error) {
+      _lastError = error;
+      _error = error.message;
+      _notify();
+      return null;
+    } catch (error) {
+      _error = error.toString();
+      _notify();
+      return null;
+    }
+  }
+
   Future<bool> setStatus(int id, String status) async {
     _error = null;
     _lastError = null;

@@ -195,7 +195,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get defectPhotoUploadFailed => 'Photo could not be uploaded.';
 
   @override
-  String get defectPhotoTooLarge => 'The image may be at most 2 MiB.';
+  String get defectPhotoTooLarge => 'The image may be at most 5 MiB.';
 
   @override
   String get defectPhotoUploaded => 'Photo uploaded.';
@@ -905,4 +905,177 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0. Possible server tampering – do not verify.';
   }
+
+  @override
+  String get handoverCreate => 'New handover';
+
+  @override
+  String get handoverCreateHeading => 'Create handover';
+
+  @override
+  String get handoverFieldTitle => 'Title';
+
+  @override
+  String get handoverFieldDetails => 'What needs to be handed over?';
+
+  @override
+  String get handoverFieldCategory => 'Area';
+
+  @override
+  String get handoverFieldPriority => 'Urgency';
+
+  @override
+  String get handoverTitleRequired => 'Please enter a title.';
+
+  @override
+  String get handoverDetailsRequired =>
+      'Please briefly describe what it is about.';
+
+  @override
+  String get handoverSave => 'Save handover';
+
+  @override
+  String get handoverCreated => 'Handover saved.';
+
+  @override
+  String get handoverCreateFailed => 'Handover could not be saved.';
+
+  @override
+  String get handoverStatusTitle => 'Status';
+
+  @override
+  String handoverStatusChanged(String status) {
+    return 'Status: $status';
+  }
+
+  @override
+  String get handoverStatusFailed => 'Status could not be changed.';
+
+  @override
+  String get kaffeekasseMyStatus => 'My balance';
+
+  @override
+  String get kaffeekasseOpen => 'Outstanding';
+
+  @override
+  String get kaffeekasseCredit => 'Credit';
+
+  @override
+  String get kaffeekasseAllPaid => 'All paid';
+
+  @override
+  String get kaffeekasseNotParticipant =>
+      'You are not (yet) registered for the monthly fee. Please talk to the treasurer.';
+
+  @override
+  String get kaffeekasseMonthsTitle => 'My months';
+
+  @override
+  String get kaffeekasseMonthPaid => 'paid';
+
+  @override
+  String kaffeekasseMonthOpen(String amount) {
+    return '$amount open';
+  }
+
+  @override
+  String get kaffeekasseMonthWaived => 'waived';
+
+  @override
+  String get kaffeekasseIPaid => 'I have paid';
+
+  @override
+  String get kaffeekassePayHint =>
+      'Like the tick in the ledger book: record what you put in the cash box or transferred.';
+
+  @override
+  String get kaffeekassePayMethod => 'How did you pay?';
+
+  @override
+  String get kaffeekasseMethodCash => 'Cash into the box';
+
+  @override
+  String get kaffeekasseMethodTransfer => 'Bank transfer';
+
+  @override
+  String get kaffeekasseAmount => 'Amount';
+
+  @override
+  String get kaffeekasseAmountInvalid =>
+      'Please enter an amount between €0.01 and €500.';
+
+  @override
+  String get kaffeekasseNote => 'Note (optional)';
+
+  @override
+  String get kaffeekassePaySubmit => 'Record payment';
+
+  @override
+  String get kaffeekassePaid => 'Thank you! Your payment has been recorded.';
+
+  @override
+  String get kaffeekassePayFailed => 'Payment could not be recorded.';
+
+  @override
+  String get kaffeekasseTransferTitle => 'Bank transfer';
+
+  @override
+  String get kaffeekasseRecipient => 'Recipient';
+
+  @override
+  String get kaffeekasseIban => 'IBAN';
+
+  @override
+  String get kaffeekasseSuggested => 'Amount';
+
+  @override
+  String get kaffeekasseReference => 'Reference';
+
+  @override
+  String get kaffeekasseOpenPaypal => 'Open PayPal';
+
+  @override
+  String get kaffeekasseOpenWero => 'Open Wero';
+
+  @override
+  String get kalenderCreate => 'Add event';
+
+  @override
+  String get kalenderFieldTitle => 'Title';
+
+  @override
+  String get kalenderFieldDescription => 'Description (optional)';
+
+  @override
+  String get kalenderFieldStart => 'Start';
+
+  @override
+  String get kalenderFieldEnd => 'End';
+
+  @override
+  String get kalenderTitleRequired => 'Please enter a title.';
+
+  @override
+  String get kalenderEndBeforeStart => 'The end must not be before the start.';
+
+  @override
+  String get kalenderSave => 'Save event';
+
+  @override
+  String get kalenderCreated => 'Event saved.';
+
+  @override
+  String get kalenderCreateFailed => 'Event could not be saved.';
+
+  @override
+  String get defectEdit => 'Edit';
+
+  @override
+  String get defectUpdated => 'Defect updated.';
+
+  @override
+  String get defectUpdateFailed => 'Defect could not be updated.';
+
+  @override
+  String get defectDueClear => 'Remove deadline';
 }

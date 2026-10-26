@@ -29,7 +29,7 @@ Dieses Repository ist die **kanonische Quelle** für den Flutter-/iOS-/Android-C
 - Übergabe direkt als echten Mangel übernehmen
 - Mängel anlegen, priorisieren, zuordnen, terminieren und Status ändern
 - authentifizierte Mängelfotos aus Kamera/Mediathek hoch- und herunterladen
-- Foto-Schutz: JPEG/PNG/WebP, 2 MiB je Datei; aktueller Server normalisiert gespeicherte Mängelfotos zusätzlich metadata-frei
+- Foto-Schutz: JPEG/PNG/WebP, 5 MiB je Datei; aktueller Server normalisiert gespeicherte Mängelfotos zusätzlich metadata-frei
 - Fahrzeug-/Gerätestatus anzeigen und bei berechtigter Rolle ändern
 - Schlüssel-/Poolgeräte ausgeben und zurückgeben
 - wiederkehrende Checklisten mit täglicher/wöchentlicher/monatlicher Fälligkeit

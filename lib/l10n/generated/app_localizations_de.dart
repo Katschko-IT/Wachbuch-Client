@@ -195,7 +195,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get defectPhotoUploadFailed => 'Foto konnte nicht hochgeladen werden.';
 
   @override
-  String get defectPhotoTooLarge => 'Das Bild darf maximal 2 MiB groß sein.';
+  String get defectPhotoTooLarge => 'Das Bild darf maximal 5 MiB groß sein.';
 
   @override
   String get defectPhotoUploaded => 'Foto wurde hochgeladen.';
@@ -910,4 +910,179 @@ class AppLocalizationsDe extends AppLocalizations {
     );
     return '$_temp0. Mögliche Server-Manipulation – nicht verifizieren.';
   }
+
+  @override
+  String get handoverCreate => 'Neue Übergabe';
+
+  @override
+  String get handoverCreateHeading => 'Übergabe anlegen';
+
+  @override
+  String get handoverFieldTitle => 'Titel';
+
+  @override
+  String get handoverFieldDetails => 'Was ist zu übergeben?';
+
+  @override
+  String get handoverFieldCategory => 'Bereich';
+
+  @override
+  String get handoverFieldPriority => 'Dringlichkeit';
+
+  @override
+  String get handoverTitleRequired => 'Bitte einen Titel eingeben.';
+
+  @override
+  String get handoverDetailsRequired =>
+      'Bitte kurz beschreiben, worum es geht.';
+
+  @override
+  String get handoverSave => 'Übergabe speichern';
+
+  @override
+  String get handoverCreated => 'Übergabe gespeichert.';
+
+  @override
+  String get handoverCreateFailed =>
+      'Übergabe konnte nicht gespeichert werden.';
+
+  @override
+  String get handoverStatusTitle => 'Status';
+
+  @override
+  String handoverStatusChanged(String status) {
+    return 'Status: $status';
+  }
+
+  @override
+  String get handoverStatusFailed => 'Status konnte nicht geändert werden.';
+
+  @override
+  String get kaffeekasseMyStatus => 'Mein Stand';
+
+  @override
+  String get kaffeekasseOpen => 'Offen';
+
+  @override
+  String get kaffeekasseCredit => 'Guthaben';
+
+  @override
+  String get kaffeekasseAllPaid => 'Alles bezahlt';
+
+  @override
+  String get kaffeekasseNotParticipant =>
+      'Du bist (noch) nicht für den Monatsbeitrag eingetragen. Sprich bitte den Kassenwart an.';
+
+  @override
+  String get kaffeekasseMonthsTitle => 'Meine Monate';
+
+  @override
+  String get kaffeekasseMonthPaid => 'bezahlt';
+
+  @override
+  String kaffeekasseMonthOpen(String amount) {
+    return 'offen $amount';
+  }
+
+  @override
+  String get kaffeekasseMonthWaived => 'befreit';
+
+  @override
+  String get kaffeekasseIPaid => 'Ich habe bezahlt';
+
+  @override
+  String get kaffeekassePayHint =>
+      'Wie das Kreuz in der Mappe: Trag ein, was du in die Kasse gelegt oder überwiesen hast.';
+
+  @override
+  String get kaffeekassePayMethod => 'Wie hast du bezahlt?';
+
+  @override
+  String get kaffeekasseMethodCash => 'Bar in die Kasse';
+
+  @override
+  String get kaffeekasseMethodTransfer => 'Überweisung';
+
+  @override
+  String get kaffeekasseAmount => 'Betrag';
+
+  @override
+  String get kaffeekasseAmountInvalid =>
+      'Bitte einen Betrag zwischen 0,01 und 500 € eingeben.';
+
+  @override
+  String get kaffeekasseNote => 'Notiz (optional)';
+
+  @override
+  String get kaffeekassePaySubmit => 'Zahlung eintragen';
+
+  @override
+  String get kaffeekassePaid => 'Danke! Deine Zahlung ist eingetragen.';
+
+  @override
+  String get kaffeekassePayFailed => 'Zahlung konnte nicht eingetragen werden.';
+
+  @override
+  String get kaffeekasseTransferTitle => 'Überweisen';
+
+  @override
+  String get kaffeekasseRecipient => 'Empfänger';
+
+  @override
+  String get kaffeekasseIban => 'IBAN';
+
+  @override
+  String get kaffeekasseSuggested => 'Betrag';
+
+  @override
+  String get kaffeekasseReference => 'Verwendungszweck';
+
+  @override
+  String get kaffeekasseOpenPaypal => 'PayPal öffnen';
+
+  @override
+  String get kaffeekasseOpenWero => 'Wero öffnen';
+
+  @override
+  String get kalenderCreate => 'Termin anlegen';
+
+  @override
+  String get kalenderFieldTitle => 'Titel';
+
+  @override
+  String get kalenderFieldDescription => 'Beschreibung (optional)';
+
+  @override
+  String get kalenderFieldStart => 'Beginn';
+
+  @override
+  String get kalenderFieldEnd => 'Ende';
+
+  @override
+  String get kalenderTitleRequired => 'Bitte einen Titel eingeben.';
+
+  @override
+  String get kalenderEndBeforeStart =>
+      'Das Ende darf nicht vor dem Beginn liegen.';
+
+  @override
+  String get kalenderSave => 'Termin speichern';
+
+  @override
+  String get kalenderCreated => 'Termin gespeichert.';
+
+  @override
+  String get kalenderCreateFailed => 'Termin konnte nicht gespeichert werden.';
+
+  @override
+  String get defectEdit => 'Bearbeiten';
+
+  @override
+  String get defectUpdated => 'Mangel aktualisiert.';
+
+  @override
+  String get defectUpdateFailed => 'Mangel konnte nicht aktualisiert werden.';
+
+  @override
+  String get defectDueClear => 'Frist entfernen';
 }

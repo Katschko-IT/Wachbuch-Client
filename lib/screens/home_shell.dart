@@ -16,6 +16,7 @@ import 'package:wachbuch_mobile/screens/pinnwand_screen.dart';
 import 'package:wachbuch_mobile/screens/reports_screen.dart';
 import 'package:wachbuch_mobile/services/connectivity_service.dart';
 import 'package:wachbuch_mobile/state/auth_state.dart';
+import 'package:wachbuch_mobile/screens/handover_create_sheet.dart';
 import 'package:wachbuch_mobile/state/handover_state.dart';
 import 'package:wachbuch_mobile/ui/asset_status_board.dart';
 import 'package:wachbuch_mobile/ui/demo_banner.dart';
@@ -150,6 +151,7 @@ class _HomeShellState extends State<HomeShell> {
               api: widget.api,
               stationName: stationName,
               roleLabel: _authState.roleLabel,
+              canLead: _authState.canLead,
               modules: _authState.modules,
               handovers: _handoverState.items,
               loading: loading,
@@ -161,6 +163,7 @@ class _HomeShellState extends State<HomeShell> {
               api: widget.api,
               handoverState: _handoverState,
               currentUsername: _authState.username,
+              canLead: _authState.canLead,
               error: error,
               onRefresh: _reload,
             ),
@@ -279,6 +282,7 @@ class _OverviewTab extends StatelessWidget {
     required this.api,
     required this.stationName,
     required this.roleLabel,
+    this.canLead = false,
     required this.modules,
     required this.handovers,
     required this.loading,
@@ -290,6 +294,7 @@ class _OverviewTab extends StatelessWidget {
   final WachbuchApi api;
   final String stationName;
   final String roleLabel;
+  final bool canLead;
   final Map<String, dynamic> modules;
   final List<Map<String, dynamic>> handovers;
   final bool loading;
@@ -406,7 +411,7 @@ class _OverviewTab extends StatelessWidget {
                 }).toList(),
               ),
               const SizedBox(height: 24),
-              _ModuleTiles(api: api, modules: modules),
+              _ModuleTiles(api: api, modules: modules, canLead: canLead),
               const SizedBox(height: 24),
               Material(
                 color: Theme.of(context).colorScheme.primaryContainer,
@@ -578,8 +583,9 @@ class _DashboardMetric extends StatelessWidget {
 }
 
 class _ModuleTiles extends StatelessWidget {
-  const _ModuleTiles({required this.api, required this.modules});
+  const _ModuleTiles({required this.api, required this.modules, this.canLead = false});
 
+  final bool canLead;
   final WachbuchApi api;
   final Map<String, dynamic> modules;
 
@@ -678,7 +684,7 @@ class _ModuleTiles extends StatelessWidget {
     final Widget screen;
     switch (destination.key) {
       case 'module-tile-calendar':
-        screen = KalenderScreen(api: api);
+        screen = KalenderScreen(api: api, canCreate: canLead);
       case 'module-tile-coffee':
         screen = KaffeekasseScreen(api: api);
       case 'module-tile-checklists':
@@ -836,6 +842,7 @@ class _HandoversTab extends StatefulWidget {
     required this.api,
     required this.handoverState,
     required this.currentUsername,
+    required this.canLead,
     required this.error,
     required this.onRefresh,
   });
@@ -843,6 +850,7 @@ class _HandoversTab extends StatefulWidget {
   final WachbuchApi api;
   final HandoverState handoverState;
   final String? currentUsername;
+  final bool canLead;
   final String? error;
   final Future<void> Function() onRefresh;
 
@@ -874,10 +882,27 @@ class _HandoversTabState extends State<_HandoversTab> {
         api: widget.api,
         handoverId: id,
         currentUsername: widget.currentUsername,
+        canLead: widget.canLead,
+        state: widget.handoverState,
         future: detailFuture,
         fallback: item,
       ),
     );
+  }
+
+  Future<void> _openCreate() async {
+    final l = AppLocalizations.of(context)!;
+    final created = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (context) => HandoverCreateSheet(state: widget.handoverState),
+    );
+    if (created == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.handoverCreated)),
+      );
+    }
   }
 
   @override
@@ -914,6 +939,18 @@ class _HandoversTabState extends State<_HandoversTab> {
         constraints: BoxConstraints(maxWidth: maxW),
         child: Column(
           children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: FilledButton.icon(
+                  key: const Key('handover-create'),
+                  onPressed: _openCreate,
+                  icon: const Icon(Icons.add),
+                  label: Text(l.handoverCreate),
+                ),
+              ),
+            ),
             if (items.isNotEmpty) ...[
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
@@ -1221,6 +1258,8 @@ class _HandoverDetailSheet extends StatefulWidget {
     required this.api,
     required this.handoverId,
     required this.currentUsername,
+    required this.canLead,
+    required this.state,
     required this.future,
     required this.fallback,
   });
@@ -1228,6 +1267,8 @@ class _HandoverDetailSheet extends StatefulWidget {
   final WachbuchApi api;
   final int handoverId;
   final String? currentUsername;
+  final bool canLead;
+  final HandoverState state;
   final Future<Map<String, dynamic>> future;
   final Map<String, dynamic> fallback;
 
@@ -1241,6 +1282,35 @@ class _HandoverDetailSheetState extends State<_HandoverDetailSheet> {
   bool _acking = false;
   bool _creatingDefect = false;
   String? _ackError;
+  String? _status;
+  bool _changingStatus = false;
+
+  Future<void> _changeStatus(AppLocalizations l, String status) async {
+    setState(() => _changingStatus = true);
+    try {
+      await widget.state.setStatus(widget.handoverId, status);
+      if (!mounted) return;
+      setState(() {
+        _status = status;
+        _changingStatus = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.handoverStatusChanged(handoverStatusLabel(status, l)))),
+      );
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      setState(() => _changingStatus = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error.message)),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _changingStatus = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.handoverStatusFailed)),
+      );
+    }
+  }
 
   @override
   void initState() {
@@ -1365,7 +1435,11 @@ class _HandoverDetailSheetState extends State<_HandoverDetailSheet> {
               child: ErrorBanner(message: message),
             );
           }
-          final item = {...widget.fallback, ...?snapshot.data};
+          final item = {
+            ...widget.fallback,
+            ...?snapshot.data,
+            if (_status != null) 'status': _status,
+          };
           final rawAuthor = item['author'];
           final author = rawAuthor is Map ? rawAuthor : null;
           final authorName = author?['display_name']?.toString();
@@ -1422,6 +1496,30 @@ class _HandoverDetailSheetState extends State<_HandoverDetailSheet> {
                       : l.detailsNoFurtherInfo,
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
+                if (widget.canLead) ...[
+                  const SizedBox(height: 20),
+                  Text(
+                    l.handoverStatusTitle,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                  ),
+                  const SizedBox(height: 8),
+                  SegmentedButton<String>(
+                    key: const Key('handover-status'),
+                    segments: [
+                      for (final value in const ['open', 'in_progress', 'done'])
+                        ButtonSegment(
+                          value: value,
+                          label: Text(handoverStatusLabel(value, l)),
+                        ),
+                    ],
+                    selected: {item['status']?.toString() ?? 'open'},
+                    onSelectionChanged: _changingStatus
+                        ? null
+                        : (selection) => _changeStatus(l, selection.first),
+                  ),
+                ],
                 const SizedBox(height: 20),
                 if (authorName?.isNotEmpty == true)
                   _DetailRow(icon: Icons.person_outline, value: authorName!),

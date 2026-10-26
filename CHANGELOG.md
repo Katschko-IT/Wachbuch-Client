@@ -4,6 +4,23 @@ Alle wesentlichen Änderungen an Wachbuch Mobile werden hier dokumentiert.
 
 ## Unreleased
 
+- Übergaben in der App anlegen (Titel, Text, Bereich, Dringlichkeit).
+  Schichtleitung und Admin ändern den Status im Detail; erledigte Übergaben
+  verschwinden aus der aktiven Liste.
+- Kaffeekasse mit Monatsbeitrag: eigener Stand mit offenen und bezahlten
+  Monaten, „Ich habe bezahlt“ (bar, Überweisung, PayPal; braucht den aktuellen
+  Server-Stand mit `POST /api/v1/kaffeekasse/bezahlt/`) und Zahlungswege mit IBAN zum
+  Kopieren. Zahlungslinks werden nur als https geöffnet. Die Meldung wird nicht
+  automatisch wiederholt, damit nichts doppelt gebucht wird.
+- Kalender: Schichtleitung und Admin legen Termine an.
+- Mängel bearbeiten: Beschreibung, Ort/Gerät, Dringlichkeit und Frist.
+- Foto-Grenze 5 MiB je Datei wie auf dem Server (vorher 2 MiB).
+- Listen für Übergaben und Mängel folgen den `next`-Seiten des Servers, aber
+  nur auf demselben Server und höchstens zehn Seiten.
+- Abhängigkeiten aktualisiert, u. a. `permission_handler` 13 (Android
+  kompiliert dafür gegen API 37; `targetSdk` bleibt beim Flutter-Standard).
+  `flutter_secure_storage` bleibt bewusst bei 10.x (siehe
+  `docs/SECURE-STORAGE-MIGRATION-1.0.md`).
 - Die App heißt jetzt **Wachwerk** wie der Server: App-Name auf dem
   Homescreen (Android und iOS), Texte und Hinweise zu Berechtigungen,
   Datenschutzseite, Landingpage und Doku. Bundle-ID, Paketname,

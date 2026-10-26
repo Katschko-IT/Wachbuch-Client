@@ -366,10 +366,88 @@ class WachbuchApi {
     return _decode(response);
   }
 
+  /// Höchstzahl an Folgeseiten, die eine Liste nachlädt (Schutz vor Endlosschleifen).
+  static const int maxFollowPages = 10;
+
+  /// Liest `next` aus einer Listenantwort – nur relative Pfade unter
+  /// `/api/v1/` oder absolute Adressen desselben Servers. Fremde Hosts
+  /// bekämen sonst das Token.
+  String? nextPagePath(Map<String, dynamic> body) {
+    final raw = body['next'];
+    if (raw is! String || raw.trim().isEmpty) return null;
+    final next = raw.trim();
+    if (next.startsWith('/api/v1/')) return next;
+    final parsed = Uri.tryParse(next);
+    final base = Uri.tryParse(baseUrl);
+    if (parsed == null || base == null || !parsed.hasScheme) return null;
+    if (parsed.scheme != base.scheme ||
+        parsed.host != base.host ||
+        parsed.port != base.port ||
+        !parsed.path.startsWith('/api/v1/')) {
+      return null;
+    }
+    return parsed.hasQuery ? '${parsed.path}?${parsed.query}' : parsed.path;
+  }
+
+  /// Erste Seite (mit Offline-Cache) plus alle Folgeseiten über `next`.
+  Future<List<Map<String, dynamic>>> _getAllPages(
+    String path, {
+    required String cacheKey,
+    String? moduleLabel,
+  }) async {
+    var body = await _getJson(path, cacheKey: cacheKey, moduleLabel: moduleLabel);
+    final items = [..._readList(body)];
+    final seen = <String>{path};
+    for (var page = 0; page < maxFollowPages; page++) {
+      final next = nextPagePath(body);
+      if (next == null || !seen.add(next)) break;
+      body = await _getJson(next, moduleLabel: moduleLabel);
+      items.addAll(_readList(body));
+    }
+    return items;
+  }
+
   /// GET /api/v1/handovers/ with encrypted offline fallback.
   Future<List<Map<String, dynamic>>> handovers() async {
-    final body = await _getJson('/api/v1/handovers/', cacheKey: 'handovers');
-    return _readList(body);
+    return _getAllPages('/api/v1/handovers/', cacheKey: 'handovers');
+  }
+
+  /// POST /api/v1/handovers/ – neue Übergabe (alle Rollen mit Inhaltszugriff).
+  Future<Map<String, dynamic>> createHandover({
+    required String title,
+    required String details,
+    String category = 'station',
+    String priority = 'normal',
+  }) async {
+    return _withRetry(() async {
+      final response = await _send(
+        _client.post(
+          _uri('/api/v1/handovers/'),
+          headers: _headers(),
+          body: jsonEncode({
+            'title': title,
+            'details': details,
+            'category': category,
+            'priority': priority,
+          }),
+        ),
+      );
+      return _decode(response);
+    }, maxAttempts: 1);
+  }
+
+  /// POST /api/v1/handovers/{id}/status/ – nur Schichtleitung und Admin.
+  Future<Map<String, dynamic>> setHandoverStatus(int id, String status) async {
+    return _withRetry(() async {
+      final response = await _send(
+        _client.post(
+          _uri('/api/v1/handovers/$id/status/'),
+          headers: _headers(),
+          body: jsonEncode({'status': status}),
+        ),
+      );
+      return _decode(response);
+    });
   }
 
   /// GET /api/v1/handovers/{id}/
@@ -378,10 +456,55 @@ class WachbuchApi {
         cacheKey: 'handover_$id',
       );
 
+  /// POST /api/v1/kaffeekasse/bezahlt/ – „Ich habe bezahlt“ (eigene Zahlung).
+  /// Nicht wiederholen: eine doppelte Meldung wäre eine doppelte Buchung.
+  Future<void> reportCoffeePayment({
+    required String method,
+    required num amountEuros,
+    String note = '',
+  }) async {
+    final response = await _send(
+      _client.post(
+        _uri('/api/v1/kaffeekasse/bezahlt/'),
+        headers: _headers(),
+        body: jsonEncode({
+          'method': method,
+          'amount_euros': amountEuros.toStringAsFixed(2),
+          if (note.isNotEmpty) 'note': note,
+        }),
+      ),
+    );
+    _decode(_requireModule(response, 'Kaffeekasse'));
+  }
+
   /// GET /api/v1/kalender/
   Future<List<KalenderEntry>> kalender() async {
     final body = await _getJson('/api/v1/kalender/', cacheKey: 'calendar');
     return _readList(body).map(KalenderEntry.fromJson).toList(growable: false);
+  }
+
+  /// POST /api/v1/kalender/ – Termin anlegen (Schichtleitung und Admin).
+  Future<KalenderEntry> createKalenderEntry({
+    required String title,
+    String description = '',
+    required DateTime startsAt,
+    required DateTime endsAt,
+  }) async {
+    return _withRetry(() async {
+      final response = await _send(
+        _client.post(
+          _uri('/api/v1/kalender/'),
+          headers: _headers(),
+          body: jsonEncode({
+            'title': title,
+            'description': description,
+            'starts_at': startsAt.toUtc().toIso8601String(),
+            'ends_at': endsAt.toUtc().toIso8601String(),
+          }),
+        ),
+      );
+      return KalenderEntry.fromJson(_decode(_requireModule(response, 'Kalender')));
+    }, maxAttempts: 1);
   }
 
   /// GET /api/v1/kaffeekasse/
@@ -474,12 +597,12 @@ class WachbuchApi {
 
   /// GET /api/v1/defects/
   Future<List<Defect>> defects() async {
-    final body = await _getJson(
+    final items = await _getAllPages(
       '/api/v1/defects/',
       cacheKey: 'defects',
       moduleLabel: 'Mängel',
     );
-    return _readList(body).map(Defect.fromJson).toList(growable: false);
+    return items.map(Defect.fromJson).toList(growable: false);
   }
 
   Future<Defect> createDefect({
@@ -509,6 +632,31 @@ class WachbuchApi {
       );
       return Defect.fromJson(_decode(_requireModule(response, 'Mängel')));
     }, maxAttempts: 1);
+  }
+
+  /// PATCH /api/v1/defects/{id}/ – Beschreibung, Bezug, Priorität, Frist.
+  /// Der Titel bleibt auf dem Server unveränderlich.
+  Future<Defect> updateDefect(
+    int id, {
+    String? description,
+    String? assetRef,
+    String? priority,
+    DateTime? dueAt,
+    bool clearDue = false,
+  }) async {
+    final body = <String, dynamic>{
+      'description': ?description,
+      'asset_ref': ?assetRef,
+      'priority': ?priority,
+      if (dueAt != null) 'due_at': dueAt.toUtc().toIso8601String(),
+      if (clearDue && dueAt == null) 'due_at': null,
+    };
+    return _withRetry(() async {
+      final response = await _send(
+        _client.patch(_uri('/api/v1/defects/$id/'), headers: _headers(), body: jsonEncode(body)),
+      );
+      return Defect.fromJson(_decode(_requireModule(response, 'Mängel')));
+    });
   }
 
   /// POST /api/v1/defects/{id}/status/
@@ -544,8 +692,9 @@ class WachbuchApi {
     required String contentType,
     required Uint8List bytes,
   }) async {
-    if (bytes.length > 2 * 1024 * 1024) {
-      throw ApiException(413, 'Bild darf maximal 2 MiB groß sein.');
+    // Grenze wie der Server (core/api/wachalltag.py: MAX_ATTACHMENT_BYTES).
+    if (bytes.length > 5 * 1024 * 1024) {
+      throw ApiException(413, 'Bild darf maximal 5 MiB groß sein.');
     }
     return _withRetry(() async {
       final response = await _send(

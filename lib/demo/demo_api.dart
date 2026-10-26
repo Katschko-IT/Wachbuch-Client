@@ -21,7 +21,7 @@ import 'package:wachbuch_mobile/models/station_asset.dart';
 import 'package:wachbuch_mobile/api/server_trust.dart';
 
 const demoTokenPrefix = 'wb_demo_';
-const _maxAttachmentBytes = 2 * 1024 * 1024;
+const _maxAttachmentBytes = 5 * 1024 * 1024;
 const _maxAttachmentsPerDefect = 8;
 const _maxAttachmentTotalBytes = 12 * 1024 * 1024;
 
@@ -186,16 +186,23 @@ class DemoWachbuchApi extends WachbuchApi {
   @override
   Future<Map<String, dynamic>> me() async => Map<String, dynamic>.from(profile.me);
 
+  /// Veränderbare Kopie der Demo-Übergaben (anlegen, Status ändern).
+  late final List<Map<String, dynamic>> _handovers = profile.handovers
+      .map((entry) => Map<String, dynamic>.from(entry))
+      .toList();
+
   @override
   Future<List<Map<String, dynamic>>> handovers() async {
-    return profile.handovers
+    // Wie der Server: erledigte Übergaben gehören nicht zur aktiven Liste.
+    return _handovers
+        .where((entry) => entry['status'] != 'done')
         .map((entry) => Map<String, dynamic>.from(entry))
         .toList(growable: false);
   }
 
   @override
   Future<Map<String, dynamic>> handoverDetail(int id) async {
-    for (final entry in profile.handovers) {
+    for (final entry in _handovers) {
       if (entry['id'] == id) {
         return Map<String, dynamic>.from(entry);
       }
@@ -204,15 +211,132 @@ class DemoWachbuchApi extends WachbuchApi {
   }
 
   @override
-  Future<List<KalenderEntry>> kalender() async {
-    return profile.calendar
-        .map(KalenderEntry.fromJson)
-        .toList(growable: false);
+  Future<Map<String, dynamic>> createHandover({
+    required String title,
+    required String details,
+    String category = 'station',
+    String priority = 'normal',
+  }) async {
+    final id = _handovers.fold<int>(
+          0,
+          (maxId, item) => (item['id'] as int? ?? 0) > maxId ? item['id'] as int : maxId,
+        ) +
+        1;
+    final entry = <String, dynamic>{
+      'id': id,
+      'title': title,
+      'details': details,
+      'description': details,
+      'category': category,
+      'priority': priority,
+      'status': 'open',
+      'author': profile.username,
+      'updated_at': DateTime.now().toUtc().toIso8601String(),
+      'version': 1,
+    };
+    _handovers.insert(0, entry);
+    return Map<String, dynamic>.from(entry);
   }
 
   @override
+  Future<Map<String, dynamic>> setHandoverStatus(int id, String status) async {
+    final index = _handovers.indexWhere((entry) => entry['id'] == id);
+    if (index < 0) throw ApiException(404, 'Übergabe nicht gefunden.');
+    _handovers[index] = {
+      ..._handovers[index],
+      'status': status,
+      'updated_at': DateTime.now().toUtc().toIso8601String(),
+    };
+    return Map<String, dynamic>.from(_handovers[index]);
+  }
+
+  final List<KalenderEntry> _createdEvents = [];
+
+  @override
+  Future<List<KalenderEntry>> kalender() async {
+    final entries = [
+      ...profile.calendar.map(KalenderEntry.fromJson),
+      ..._createdEvents,
+    ]..sort((a, b) => (a.startsAt ?? DateTime(0)).compareTo(b.startsAt ?? DateTime(0)));
+    return List.unmodifiable(entries);
+  }
+
+  @override
+  Future<KalenderEntry> createKalenderEntry({
+    required String title,
+    String description = '',
+    required DateTime startsAt,
+    required DateTime endsAt,
+  }) async {
+    final entry = KalenderEntry(
+      id: 1000 + _createdEvents.length,
+      title: title,
+      description: description,
+      startsAt: startsAt,
+      endsAt: endsAt,
+    );
+    _createdEvents.add(entry);
+    return entry;
+  }
+
+  /// Demo-Monatsbeitrag: 5 € seit zwei Monaten, 10 € schon bezahlt.
+  static const _demoFee = 5.0;
+  final List<Map<String, dynamic>> _coffeePayments = [];
+
+  @override
   Future<Kaffeekasse> kaffeekasse() async {
-    return Kaffeekasse.fromJson(Map<String, dynamic>.from(profile.coffee));
+    final now = DateTime.now();
+    final months = [for (var back = 0; back < 3; back++) DateTime(now.year, now.month - back)];
+    var pool = 10.0 + _coffeePayments.fold<double>(0, (sum, p) => sum + (p['amount'] as double));
+    final statuses = <Map<String, dynamic>>[];
+    for (final month in months.reversed) {
+      final paid = pool >= _demoFee;
+      pool = paid ? pool - _demoFee : 0;
+      statuses.insert(0, {
+        'month': '${month.year}-${month.month.toString().padLeft(2, '0')}',
+        'status': paid ? 'paid' : 'open',
+        'open_euros': paid ? 0 : _demoFee,
+      });
+    }
+    final open = statuses.fold<double>(0, (sum, m) => sum + (m['open_euros'] as num).toDouble());
+    final base = Map<String, dynamic>.from(profile.coffee);
+    return Kaffeekasse.fromJson({
+      ...base,
+      'ledger': [
+        ..._coffeePayments.reversed.map((p) => {
+              'amount': p['amount'],
+              'description': p['description'],
+              'created_at': p['created_at'],
+              'user': profile.username,
+            }),
+        ...(base['ledger'] as List? ?? const []),
+      ],
+      'scope': 'own',
+      'monthly_fee_euros': _demoFee,
+      'own': {'participant': true, 'open_euros': open, 'credit_euros': pool, 'months': statuses},
+      'payment': {
+        'methods': ['cash', 'transfer'],
+        'suggested_euros': open > 0 ? open : _demoFee,
+        'iban': 'DE89370400440532013000',
+        'account_holder': 'Kaffeekasse ${profile.stationName}',
+        'transfer_text': 'Kaffeekasse ${profile.stationName} ${profile.username}',
+        'note': base['payment_hint'] ?? '',
+      },
+    });
+  }
+
+  @override
+  Future<void> reportCoffeePayment({
+    required String method,
+    required num amountEuros,
+    String note = '',
+  }) async {
+    _coffeePayments.add({
+      'amount': amountEuros.toDouble(),
+      'description': 'Selbst eingetragen: ${method == 'cash' ? 'Bar in die Kasse' : 'Überweisung'}'
+          '${note.isNotEmpty ? ' – $note' : ''}',
+      'created_at': DateTime.now().toUtc().toIso8601String(),
+    });
   }
 
   @override
@@ -293,6 +417,33 @@ class DemoWachbuchApi extends WachbuchApi {
   }
 
   @override
+  Future<Defect> updateDefect(
+    int id, {
+    String? description,
+    String? assetRef,
+    String? priority,
+    DateTime? dueAt,
+    bool clearDue = false,
+  }) async {
+    final index = _defects.indexWhere((defect) => defect.id == id);
+    if (index < 0) throw ApiException(404, 'Mangel nicht gefunden.');
+    final json = {
+      ..._defects[index].toJson(),
+      'description': ?description,
+      'asset_ref': ?assetRef,
+      'priority': ?priority,
+      if (dueAt != null) 'due_at': dueAt.toUtc().toIso8601String(),
+    };
+    if (clearDue && dueAt == null) {
+      json.remove('due_at');
+      json.remove('due_label');
+    }
+    final updated = Defect.fromJson(json);
+    _defects[index] = updated;
+    return updated;
+  }
+
+  @override
   Future<Defect> updateDefectStatus(int id, String status) async {
     final index = _defects.indexWhere((defect) => defect.id == id);
     if (index < 0) throw ApiException(404, 'Mangel nicht gefunden.');
@@ -322,7 +473,7 @@ class DemoWachbuchApi extends WachbuchApi {
       throw ApiException(404, 'Mangel nicht gefunden.');
     }
     if (bytes.isEmpty || bytes.length > _maxAttachmentBytes) {
-      throw ApiException(413, 'Bild darf maximal 2 MiB groß sein.');
+      throw ApiException(413, 'Bild darf maximal 5 MiB groß sein.');
     }
 
     final normalizedType = contentType.toLowerCase() == 'image/jpg'

@@ -40,7 +40,9 @@ if (requireReleaseSigning && !hasReleaseSigning) {
 
 android {
     namespace = "de.wachbuch.wachbuch_mobile"
-    compileSdk = flutter.compileSdkVersion
+    // permission_handler_android 14 kompiliert gegen API 37; Flutter setzt noch 36.
+    // targetSdk bleibt beim Flutter-Standard, das Laufzeitverhalten ändert sich nicht.
+    compileSdk = maxOf(37, flutter.compileSdkVersion)
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

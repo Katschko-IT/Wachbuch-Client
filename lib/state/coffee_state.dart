@@ -15,6 +15,16 @@ class CoffeeState extends ChangeNotifier {
   bool get loading => _loading;
   String? get error => _error;
 
+  /// „Ich habe bezahlt“ melden und danach neu laden. Fehler gehen an den Aufrufer.
+  Future<void> reportPayment({
+    required String method,
+    required num amountEuros,
+    String note = '',
+  }) async {
+    await api.reportCoffeePayment(method: method, amountEuros: amountEuros, note: note);
+    await reload();
+  }
+
   Future<void> reload() async {
     _loading = true;
     _error = null;

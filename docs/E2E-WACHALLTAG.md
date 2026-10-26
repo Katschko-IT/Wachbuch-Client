@@ -18,7 +18,7 @@ Diese Checkliste prüft **denselben fachlichen Ablauf in Demo und gegen einen ec
 | 2 | Echten Server verbinden und anmelden | `/api/v1/`, Token und `/me/` funktionieren; kein Demo-Banner |
 | 3 | Mängel öffnen und Mangel anlegen | Eintrag wird serverseitig gespeichert und nach Reload erneut geladen |
 | 4 | Mangelstatus ändern | Status wird gespeichert; Verlauf/Audit erzeugt keinen doppelten Eintrag bei identischem Status |
-| 5 | Foto per Kamera oder Mediathek hinzufügen | JPEG/PNG/WebP wird authentifiziert gespeichert und wieder geladen; >2 MiB wird abgewiesen |
+| 5 | Foto per Kamera oder Mediathek hinzufügen | JPEG/PNG/WebP wird authentifiziert gespeichert und wieder geladen; >5 MiB wird abgewiesen |
 | 6 | Foto-Kontingent prüfen | Maximal 8 Fotos bzw. 12 MiB Gesamtmenge pro Mangel; weiterer Upload wird abgewiesen |
 | 7 | Geräte & Status öffnen und Asset antippen | Status/Notiz lässt sich bei berechtigter Rolle ändern und bleibt nach Reload erhalten |
 | 8 | Schlüssel/Pool ausgeben und zurückgeben | Holder/Since wechseln korrekt; konkurrierende Ausgabe wird nicht überschrieben |

@@ -455,7 +455,7 @@ abstract class AppLocalizations {
   /// No description provided for @defectPhotoTooLarge.
   ///
   /// In de, this message translates to:
-  /// **'Das Bild darf maximal 2 MiB groß sein.'**
+  /// **'Das Bild darf maximal 5 MiB groß sein.'**
   String get defectPhotoTooLarge;
 
   /// No description provided for @defectPhotoUploaded.
@@ -1747,6 +1747,336 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'{count, plural, one {{count} vom Server gemeldeter Fingerprint weicht vom Schlüssel ab} other {{count} vom Server gemeldete Fingerprints weichen vom Schlüssel ab}}. Mögliche Server-Manipulation – nicht verifizieren.'**
   String keyVerifyServerMismatch(num count);
+
+  /// No description provided for @handoverCreate.
+  ///
+  /// In de, this message translates to:
+  /// **'Neue Übergabe'**
+  String get handoverCreate;
+
+  /// No description provided for @handoverCreateHeading.
+  ///
+  /// In de, this message translates to:
+  /// **'Übergabe anlegen'**
+  String get handoverCreateHeading;
+
+  /// No description provided for @handoverFieldTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Titel'**
+  String get handoverFieldTitle;
+
+  /// No description provided for @handoverFieldDetails.
+  ///
+  /// In de, this message translates to:
+  /// **'Was ist zu übergeben?'**
+  String get handoverFieldDetails;
+
+  /// No description provided for @handoverFieldCategory.
+  ///
+  /// In de, this message translates to:
+  /// **'Bereich'**
+  String get handoverFieldCategory;
+
+  /// No description provided for @handoverFieldPriority.
+  ///
+  /// In de, this message translates to:
+  /// **'Dringlichkeit'**
+  String get handoverFieldPriority;
+
+  /// No description provided for @handoverTitleRequired.
+  ///
+  /// In de, this message translates to:
+  /// **'Bitte einen Titel eingeben.'**
+  String get handoverTitleRequired;
+
+  /// No description provided for @handoverDetailsRequired.
+  ///
+  /// In de, this message translates to:
+  /// **'Bitte kurz beschreiben, worum es geht.'**
+  String get handoverDetailsRequired;
+
+  /// No description provided for @handoverSave.
+  ///
+  /// In de, this message translates to:
+  /// **'Übergabe speichern'**
+  String get handoverSave;
+
+  /// No description provided for @handoverCreated.
+  ///
+  /// In de, this message translates to:
+  /// **'Übergabe gespeichert.'**
+  String get handoverCreated;
+
+  /// No description provided for @handoverCreateFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Übergabe konnte nicht gespeichert werden.'**
+  String get handoverCreateFailed;
+
+  /// No description provided for @handoverStatusTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Status'**
+  String get handoverStatusTitle;
+
+  /// No description provided for @handoverStatusChanged.
+  ///
+  /// In de, this message translates to:
+  /// **'Status: {status}'**
+  String handoverStatusChanged(String status);
+
+  /// No description provided for @handoverStatusFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Status konnte nicht geändert werden.'**
+  String get handoverStatusFailed;
+
+  /// No description provided for @kaffeekasseMyStatus.
+  ///
+  /// In de, this message translates to:
+  /// **'Mein Stand'**
+  String get kaffeekasseMyStatus;
+
+  /// No description provided for @kaffeekasseOpen.
+  ///
+  /// In de, this message translates to:
+  /// **'Offen'**
+  String get kaffeekasseOpen;
+
+  /// No description provided for @kaffeekasseCredit.
+  ///
+  /// In de, this message translates to:
+  /// **'Guthaben'**
+  String get kaffeekasseCredit;
+
+  /// No description provided for @kaffeekasseAllPaid.
+  ///
+  /// In de, this message translates to:
+  /// **'Alles bezahlt'**
+  String get kaffeekasseAllPaid;
+
+  /// No description provided for @kaffeekasseNotParticipant.
+  ///
+  /// In de, this message translates to:
+  /// **'Du bist (noch) nicht für den Monatsbeitrag eingetragen. Sprich bitte den Kassenwart an.'**
+  String get kaffeekasseNotParticipant;
+
+  /// No description provided for @kaffeekasseMonthsTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Meine Monate'**
+  String get kaffeekasseMonthsTitle;
+
+  /// No description provided for @kaffeekasseMonthPaid.
+  ///
+  /// In de, this message translates to:
+  /// **'bezahlt'**
+  String get kaffeekasseMonthPaid;
+
+  /// No description provided for @kaffeekasseMonthOpen.
+  ///
+  /// In de, this message translates to:
+  /// **'offen {amount}'**
+  String kaffeekasseMonthOpen(String amount);
+
+  /// No description provided for @kaffeekasseMonthWaived.
+  ///
+  /// In de, this message translates to:
+  /// **'befreit'**
+  String get kaffeekasseMonthWaived;
+
+  /// No description provided for @kaffeekasseIPaid.
+  ///
+  /// In de, this message translates to:
+  /// **'Ich habe bezahlt'**
+  String get kaffeekasseIPaid;
+
+  /// No description provided for @kaffeekassePayHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Wie das Kreuz in der Mappe: Trag ein, was du in die Kasse gelegt oder überwiesen hast.'**
+  String get kaffeekassePayHint;
+
+  /// No description provided for @kaffeekassePayMethod.
+  ///
+  /// In de, this message translates to:
+  /// **'Wie hast du bezahlt?'**
+  String get kaffeekassePayMethod;
+
+  /// No description provided for @kaffeekasseMethodCash.
+  ///
+  /// In de, this message translates to:
+  /// **'Bar in die Kasse'**
+  String get kaffeekasseMethodCash;
+
+  /// No description provided for @kaffeekasseMethodTransfer.
+  ///
+  /// In de, this message translates to:
+  /// **'Überweisung'**
+  String get kaffeekasseMethodTransfer;
+
+  /// No description provided for @kaffeekasseAmount.
+  ///
+  /// In de, this message translates to:
+  /// **'Betrag'**
+  String get kaffeekasseAmount;
+
+  /// No description provided for @kaffeekasseAmountInvalid.
+  ///
+  /// In de, this message translates to:
+  /// **'Bitte einen Betrag zwischen 0,01 und 500 € eingeben.'**
+  String get kaffeekasseAmountInvalid;
+
+  /// No description provided for @kaffeekasseNote.
+  ///
+  /// In de, this message translates to:
+  /// **'Notiz (optional)'**
+  String get kaffeekasseNote;
+
+  /// No description provided for @kaffeekassePaySubmit.
+  ///
+  /// In de, this message translates to:
+  /// **'Zahlung eintragen'**
+  String get kaffeekassePaySubmit;
+
+  /// No description provided for @kaffeekassePaid.
+  ///
+  /// In de, this message translates to:
+  /// **'Danke! Deine Zahlung ist eingetragen.'**
+  String get kaffeekassePaid;
+
+  /// No description provided for @kaffeekassePayFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Zahlung konnte nicht eingetragen werden.'**
+  String get kaffeekassePayFailed;
+
+  /// No description provided for @kaffeekasseTransferTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Überweisen'**
+  String get kaffeekasseTransferTitle;
+
+  /// No description provided for @kaffeekasseRecipient.
+  ///
+  /// In de, this message translates to:
+  /// **'Empfänger'**
+  String get kaffeekasseRecipient;
+
+  /// No description provided for @kaffeekasseIban.
+  ///
+  /// In de, this message translates to:
+  /// **'IBAN'**
+  String get kaffeekasseIban;
+
+  /// No description provided for @kaffeekasseSuggested.
+  ///
+  /// In de, this message translates to:
+  /// **'Betrag'**
+  String get kaffeekasseSuggested;
+
+  /// No description provided for @kaffeekasseReference.
+  ///
+  /// In de, this message translates to:
+  /// **'Verwendungszweck'**
+  String get kaffeekasseReference;
+
+  /// No description provided for @kaffeekasseOpenPaypal.
+  ///
+  /// In de, this message translates to:
+  /// **'PayPal öffnen'**
+  String get kaffeekasseOpenPaypal;
+
+  /// No description provided for @kaffeekasseOpenWero.
+  ///
+  /// In de, this message translates to:
+  /// **'Wero öffnen'**
+  String get kaffeekasseOpenWero;
+
+  /// No description provided for @kalenderCreate.
+  ///
+  /// In de, this message translates to:
+  /// **'Termin anlegen'**
+  String get kalenderCreate;
+
+  /// No description provided for @kalenderFieldTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Titel'**
+  String get kalenderFieldTitle;
+
+  /// No description provided for @kalenderFieldDescription.
+  ///
+  /// In de, this message translates to:
+  /// **'Beschreibung (optional)'**
+  String get kalenderFieldDescription;
+
+  /// No description provided for @kalenderFieldStart.
+  ///
+  /// In de, this message translates to:
+  /// **'Beginn'**
+  String get kalenderFieldStart;
+
+  /// No description provided for @kalenderFieldEnd.
+  ///
+  /// In de, this message translates to:
+  /// **'Ende'**
+  String get kalenderFieldEnd;
+
+  /// No description provided for @kalenderTitleRequired.
+  ///
+  /// In de, this message translates to:
+  /// **'Bitte einen Titel eingeben.'**
+  String get kalenderTitleRequired;
+
+  /// No description provided for @kalenderEndBeforeStart.
+  ///
+  /// In de, this message translates to:
+  /// **'Das Ende darf nicht vor dem Beginn liegen.'**
+  String get kalenderEndBeforeStart;
+
+  /// No description provided for @kalenderSave.
+  ///
+  /// In de, this message translates to:
+  /// **'Termin speichern'**
+  String get kalenderSave;
+
+  /// No description provided for @kalenderCreated.
+  ///
+  /// In de, this message translates to:
+  /// **'Termin gespeichert.'**
+  String get kalenderCreated;
+
+  /// No description provided for @kalenderCreateFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Termin konnte nicht gespeichert werden.'**
+  String get kalenderCreateFailed;
+
+  /// No description provided for @defectEdit.
+  ///
+  /// In de, this message translates to:
+  /// **'Bearbeiten'**
+  String get defectEdit;
+
+  /// No description provided for @defectUpdated.
+  ///
+  /// In de, this message translates to:
+  /// **'Mangel aktualisiert.'**
+  String get defectUpdated;
+
+  /// No description provided for @defectUpdateFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Mangel konnte nicht aktualisiert werden.'**
+  String get defectUpdateFailed;
+
+  /// No description provided for @defectDueClear.
+  ///
+  /// In de, this message translates to:
+  /// **'Frist entfernen'**
+  String get defectDueClear;
 }
 
 class _AppLocalizationsDelegate
