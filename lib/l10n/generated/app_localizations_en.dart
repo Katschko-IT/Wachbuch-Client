@@ -195,7 +195,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get defectPhotoUploadFailed => 'Photo could not be uploaded.';
 
   @override
-  String get defectPhotoTooLarge => 'The image may be at most 2 MiB.';
+  String get defectPhotoTooLarge => 'The image may be at most 5 MiB.';
 
   @override
   String get defectPhotoUploaded => 'Photo uploaded.';
@@ -1036,4 +1036,46 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get kaffeekasseOpenWero => 'Open Wero';
+
+  @override
+  String get kalenderCreate => 'Add event';
+
+  @override
+  String get kalenderFieldTitle => 'Title';
+
+  @override
+  String get kalenderFieldDescription => 'Description (optional)';
+
+  @override
+  String get kalenderFieldStart => 'Start';
+
+  @override
+  String get kalenderFieldEnd => 'End';
+
+  @override
+  String get kalenderTitleRequired => 'Please enter a title.';
+
+  @override
+  String get kalenderEndBeforeStart => 'The end must not be before the start.';
+
+  @override
+  String get kalenderSave => 'Save event';
+
+  @override
+  String get kalenderCreated => 'Event saved.';
+
+  @override
+  String get kalenderCreateFailed => 'Event could not be saved.';
+
+  @override
+  String get defectEdit => 'Edit';
+
+  @override
+  String get defectUpdated => 'Defect updated.';
+
+  @override
+  String get defectUpdateFailed => 'Defect could not be updated.';
+
+  @override
+  String get defectDueClear => 'Remove deadline';
 }

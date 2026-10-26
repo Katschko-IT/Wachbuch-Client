@@ -66,7 +66,7 @@
   "defectTakePhoto": "Kamera",
   "defectChoosePhoto": "Fotomediathek",
   "defectPhotoUploadFailed": "Foto konnte nicht hochgeladen werden.",
-  "defectPhotoTooLarge": "Das Bild darf maximal 2 MiB groß sein.",
+  "defectPhotoTooLarge": "Das Bild darf maximal 5 MiB groß sein.",
   "defectPhotoUploaded": "Foto wurde hochgeladen.",
 
   "assetsBoardTitle": "Fahrzeug- & Gerätestatus",
@@ -346,5 +346,19 @@
   "kaffeekasseSuggested": "Betrag",
   "kaffeekasseReference": "Verwendungszweck",
   "kaffeekasseOpenPaypal": "PayPal öffnen",
-  "kaffeekasseOpenWero": "Wero öffnen"
+  "kaffeekasseOpenWero": "Wero öffnen",
+  "kalenderCreate": "Termin anlegen",
+  "kalenderFieldTitle": "Titel",
+  "kalenderFieldDescription": "Beschreibung (optional)",
+  "kalenderFieldStart": "Beginn",
+  "kalenderFieldEnd": "Ende",
+  "kalenderTitleRequired": "Bitte einen Titel eingeben.",
+  "kalenderEndBeforeStart": "Das Ende darf nicht vor dem Beginn liegen.",
+  "kalenderSave": "Termin speichern",
+  "kalenderCreated": "Termin gespeichert.",
+  "kalenderCreateFailed": "Termin konnte nicht gespeichert werden.",
+  "defectEdit": "Bearbeiten",
+  "defectUpdated": "Mangel aktualisiert.",
+  "defectUpdateFailed": "Mangel konnte nicht aktualisiert werden.",
+  "defectDueClear": "Frist entfernen"
 }

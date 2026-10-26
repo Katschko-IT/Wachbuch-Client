@@ -80,6 +80,15 @@ class _DefectsScreenState extends State<DefectsScreen> {
         api: widget.api,
         defect: defect,
         onSetStatus: _state.setStatus,
+        onEdit: (current, edit) => _state.update(
+          current.id,
+          description: edit.description,
+          assetRef: edit.assetRef,
+          priority: edit.priority,
+          dueAt: edit.dueAt,
+          clearDue: edit.clearDue,
+        ),
+        errorText: () => _state.error,
       ),
     );
   }
@@ -395,11 +404,15 @@ class _DefectDetailSheet extends StatefulWidget {
     required this.api,
     required this.defect,
     required this.onSetStatus,
+    required this.onEdit,
+    required this.errorText,
   });
 
   final WachbuchApi api;
   final Defect defect;
   final Future<bool> Function(int id, String status) onSetStatus;
+  final Future<Defect?> Function(Defect current, _DefectEdit edit) onEdit;
+  final String? Function() errorText;
 
   @override
   State<_DefectDetailSheet> createState() => _DefectDetailSheetState();
@@ -440,6 +453,27 @@ class _DefectDetailSheetState extends State<_DefectDetailSheet> {
         _attachmentsLoading = false;
         _attachmentError = error.toString();
       });
+    }
+  }
+
+  Future<void> _edit() async {
+    final l = AppLocalizations.of(context)!;
+    final edit = await showModalBottomSheet<_DefectEdit>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => _DefectEditSheet(defect: _defect),
+    );
+    if (edit == null || !mounted) return;
+    final updated = await widget.onEdit(_defect, edit);
+    if (!mounted) return;
+    if (updated != null) {
+      setState(() => _defect = updated);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.defectUpdated)));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(widget.errorText() ?? l.defectUpdateFailed)),
+      );
     }
   }
 
@@ -629,6 +663,16 @@ class _DefectDetailSheetState extends State<_DefectDetailSheet> {
               Text('${l.defectOwnerLabel}: ${_defect.owner.isEmpty ? "—" : _defect.owner}'),
               if (_defect.dueDisplay.isNotEmpty)
                 Text('${l.defectDueLabel}: ${_defect.dueDisplay}'),
+              const SizedBox(height: 12),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: OutlinedButton.icon(
+                  key: const Key('defect-edit'),
+                  onPressed: _edit,
+                  icon: const Icon(Icons.edit_outlined),
+                  label: Text(l.defectEdit),
+                ),
+              ),
               const SizedBox(height: 24),
               Text(l.defectSetStatus, style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
@@ -779,4 +823,155 @@ String _categoryLabel(AppLocalizations l, String locale, String category) {
     'key' => locale == 'en' ? 'Key' : 'Schlüssel',
     _ => l.handoverEnumUnknown,
   };
+}
+
+class _DefectEdit {
+  const _DefectEdit({
+    required this.description,
+    required this.assetRef,
+    required this.priority,
+    this.dueAt,
+    this.clearDue = false,
+  });
+
+  final String description;
+  final String assetRef;
+  final String priority;
+  final DateTime? dueAt;
+  final bool clearDue;
+}
+
+/// Mangel bearbeiten (PATCH /api/v1/defects/{id}/). Der Titel bleibt fest.
+class _DefectEditSheet extends StatefulWidget {
+  const _DefectEditSheet({required this.defect});
+
+  final Defect defect;
+
+  @override
+  State<_DefectEditSheet> createState() => _DefectEditSheetState();
+}
+
+class _DefectEditSheetState extends State<_DefectEditSheet> {
+  late final TextEditingController _description;
+  late final TextEditingController _asset;
+  late String _priority;
+  DateTime? _dueAt;
+  bool _dueCleared = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _description = TextEditingController(text: widget.defect.description);
+    _asset = TextEditingController(text: widget.defect.assetRef);
+    _priority = const ['normal', 'important', 'urgent'].contains(widget.defect.priority)
+        ? widget.defect.priority
+        : 'normal';
+    _dueAt = widget.defect.dueAt;
+  }
+
+  @override
+  void dispose() {
+    _description.dispose();
+    _asset.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickDue() async {
+    final now = DateTime.now();
+    final initial = _dueAt ?? now;
+    final date = await showDatePicker(
+      context: context,
+      firstDate: DateTime(now.year - 1),
+      lastDate: DateTime(now.year + 3),
+      initialDate: initial,
+    );
+    if (date == null || !mounted) return;
+    final time = await showTimePicker(context: context, initialTime: TimeOfDay.fromDateTime(initial));
+    if (time == null) return;
+    setState(() {
+      _dueAt = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+      _dueCleared = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final material = MaterialLocalizations.of(context);
+    return Padding(
+      padding: EdgeInsets.fromLTRB(24, 0, 24, 24 + MediaQuery.viewInsetsOf(context).bottom),
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(widget.defect.title, style: Theme.of(context).textTheme.headlineSmall),
+            const SizedBox(height: 16),
+            TextField(
+              key: const Key('defect-edit-description'),
+              controller: _description,
+              minLines: 3,
+              maxLines: 6,
+              maxLength: 3000,
+              decoration: InputDecoration(labelText: l.defectDescriptionLabel, border: const OutlineInputBorder()),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _asset,
+              maxLength: 160,
+              decoration: InputDecoration(labelText: l.defectAssetLabel, border: const OutlineInputBorder()),
+            ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(
+              key: const Key('defect-edit-priority'),
+              initialValue: _priority,
+              decoration: InputDecoration(labelText: l.defectPriorityLabel, border: const OutlineInputBorder()),
+              items: [
+                for (final value in const ['normal', 'important', 'urgent'])
+                  DropdownMenuItem(value: value, child: Text(_priorityLabel(l, value))),
+              ],
+              onChanged: (value) => setState(() => _priority = value ?? _priority),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: _pickDue,
+                    icon: const Icon(Icons.event_outlined),
+                    label: Text(
+                      _dueAt == null
+                          ? l.defectDueLabel
+                          : '${l.defectDueLabel}: ${material.formatMediumDate(_dueAt!)} · '
+                              '${material.formatTimeOfDay(TimeOfDay.fromDateTime(_dueAt!), alwaysUse24HourFormat: true)}',
+                    ),
+                  ),
+                ),
+                if (_dueAt != null)
+                  IconButton(
+                    tooltip: l.defectDueClear,
+                    onPressed: () => setState(() {
+                      _dueAt = null;
+                      _dueCleared = true;
+                    }),
+                    icon: const Icon(Icons.clear),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            FilledButton(
+              key: const Key('defect-edit-save'),
+              onPressed: () => Navigator.of(context).pop(_DefectEdit(
+                description: _description.text.trim(),
+                assetRef: _asset.text.trim(),
+                priority: _priority,
+                dueAt: _dueAt,
+                clearDue: _dueCleared,
+              )),
+              child: Text(l.commonSave),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

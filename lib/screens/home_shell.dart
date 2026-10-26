@@ -151,6 +151,7 @@ class _HomeShellState extends State<HomeShell> {
               api: widget.api,
               stationName: stationName,
               roleLabel: _authState.roleLabel,
+              canLead: _authState.canLead,
               modules: _authState.modules,
               handovers: _handoverState.items,
               loading: loading,
@@ -281,6 +282,7 @@ class _OverviewTab extends StatelessWidget {
     required this.api,
     required this.stationName,
     required this.roleLabel,
+    this.canLead = false,
     required this.modules,
     required this.handovers,
     required this.loading,
@@ -292,6 +294,7 @@ class _OverviewTab extends StatelessWidget {
   final WachbuchApi api;
   final String stationName;
   final String roleLabel;
+  final bool canLead;
   final Map<String, dynamic> modules;
   final List<Map<String, dynamic>> handovers;
   final bool loading;
@@ -408,7 +411,7 @@ class _OverviewTab extends StatelessWidget {
                 }).toList(),
               ),
               const SizedBox(height: 24),
-              _ModuleTiles(api: api, modules: modules),
+              _ModuleTiles(api: api, modules: modules, canLead: canLead),
               const SizedBox(height: 24),
               Material(
                 color: Theme.of(context).colorScheme.primaryContainer,
@@ -580,8 +583,9 @@ class _DashboardMetric extends StatelessWidget {
 }
 
 class _ModuleTiles extends StatelessWidget {
-  const _ModuleTiles({required this.api, required this.modules});
+  const _ModuleTiles({required this.api, required this.modules, this.canLead = false});
 
+  final bool canLead;
   final WachbuchApi api;
   final Map<String, dynamic> modules;
 
@@ -680,7 +684,7 @@ class _ModuleTiles extends StatelessWidget {
     final Widget screen;
     switch (destination.key) {
       case 'module-tile-calendar':
-        screen = KalenderScreen(api: api);
+        screen = KalenderScreen(api: api, canCreate: canLead);
       case 'module-tile-coffee':
         screen = KaffeekasseScreen(api: api);
       case 'module-tile-checklists':

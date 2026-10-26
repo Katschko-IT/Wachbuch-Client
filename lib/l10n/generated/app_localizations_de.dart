@@ -195,7 +195,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get defectPhotoUploadFailed => 'Foto konnte nicht hochgeladen werden.';
 
   @override
-  String get defectPhotoTooLarge => 'Das Bild darf maximal 2 MiB groß sein.';
+  String get defectPhotoTooLarge => 'Das Bild darf maximal 5 MiB groß sein.';
 
   @override
   String get defectPhotoUploaded => 'Foto wurde hochgeladen.';
@@ -1042,4 +1042,47 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get kaffeekasseOpenWero => 'Wero öffnen';
+
+  @override
+  String get kalenderCreate => 'Termin anlegen';
+
+  @override
+  String get kalenderFieldTitle => 'Titel';
+
+  @override
+  String get kalenderFieldDescription => 'Beschreibung (optional)';
+
+  @override
+  String get kalenderFieldStart => 'Beginn';
+
+  @override
+  String get kalenderFieldEnd => 'Ende';
+
+  @override
+  String get kalenderTitleRequired => 'Bitte einen Titel eingeben.';
+
+  @override
+  String get kalenderEndBeforeStart =>
+      'Das Ende darf nicht vor dem Beginn liegen.';
+
+  @override
+  String get kalenderSave => 'Termin speichern';
+
+  @override
+  String get kalenderCreated => 'Termin gespeichert.';
+
+  @override
+  String get kalenderCreateFailed => 'Termin konnte nicht gespeichert werden.';
+
+  @override
+  String get defectEdit => 'Bearbeiten';
+
+  @override
+  String get defectUpdated => 'Mangel aktualisiert.';
+
+  @override
+  String get defectUpdateFailed => 'Mangel konnte nicht aktualisiert werden.';
+
+  @override
+  String get defectDueClear => 'Frist entfernen';
 }

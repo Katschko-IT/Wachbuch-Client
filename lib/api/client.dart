@@ -483,6 +483,30 @@ class WachbuchApi {
     return _readList(body).map(KalenderEntry.fromJson).toList(growable: false);
   }
 
+  /// POST /api/v1/kalender/ – Termin anlegen (Schichtleitung und Admin).
+  Future<KalenderEntry> createKalenderEntry({
+    required String title,
+    String description = '',
+    required DateTime startsAt,
+    required DateTime endsAt,
+  }) async {
+    return _withRetry(() async {
+      final response = await _send(
+        _client.post(
+          _uri('/api/v1/kalender/'),
+          headers: _headers(),
+          body: jsonEncode({
+            'title': title,
+            'description': description,
+            'starts_at': startsAt.toUtc().toIso8601String(),
+            'ends_at': endsAt.toUtc().toIso8601String(),
+          }),
+        ),
+      );
+      return KalenderEntry.fromJson(_decode(_requireModule(response, 'Kalender')));
+    }, maxAttempts: 1);
+  }
+
   /// GET /api/v1/kaffeekasse/
   Future<Kaffeekasse> kaffeekasse() async {
     final body = await _getJson('/api/v1/kaffeekasse/', cacheKey: 'coffee');
@@ -610,6 +634,31 @@ class WachbuchApi {
     }, maxAttempts: 1);
   }
 
+  /// PATCH /api/v1/defects/{id}/ – Beschreibung, Bezug, Priorität, Frist.
+  /// Der Titel bleibt auf dem Server unveränderlich.
+  Future<Defect> updateDefect(
+    int id, {
+    String? description,
+    String? assetRef,
+    String? priority,
+    DateTime? dueAt,
+    bool clearDue = false,
+  }) async {
+    final body = <String, dynamic>{
+      'description': ?description,
+      'asset_ref': ?assetRef,
+      'priority': ?priority,
+      if (dueAt != null) 'due_at': dueAt.toUtc().toIso8601String(),
+      if (clearDue && dueAt == null) 'due_at': null,
+    };
+    return _withRetry(() async {
+      final response = await _send(
+        _client.patch(_uri('/api/v1/defects/$id/'), headers: _headers(), body: jsonEncode(body)),
+      );
+      return Defect.fromJson(_decode(_requireModule(response, 'Mängel')));
+    });
+  }
+
   /// POST /api/v1/defects/{id}/status/
   /// The server suppresses duplicate status events, so retry is safe.
   Future<Defect> updateDefectStatus(int id, String status) async {
@@ -643,8 +692,9 @@ class WachbuchApi {
     required String contentType,
     required Uint8List bytes,
   }) async {
-    if (bytes.length > 2 * 1024 * 1024) {
-      throw ApiException(413, 'Bild darf maximal 2 MiB groß sein.');
+    // Grenze wie der Server (core/api/wachalltag.py: MAX_ATTACHMENT_BYTES).
+    if (bytes.length > 5 * 1024 * 1024) {
+      throw ApiException(413, 'Bild darf maximal 5 MiB groß sein.');
     }
     return _withRetry(() async {
       final response = await _send(

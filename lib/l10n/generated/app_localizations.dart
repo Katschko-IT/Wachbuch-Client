@@ -455,7 +455,7 @@ abstract class AppLocalizations {
   /// No description provided for @defectPhotoTooLarge.
   ///
   /// In de, this message translates to:
-  /// **'Das Bild darf maximal 2 MiB groß sein.'**
+  /// **'Das Bild darf maximal 5 MiB groß sein.'**
   String get defectPhotoTooLarge;
 
   /// No description provided for @defectPhotoUploaded.
@@ -1993,6 +1993,90 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Wero öffnen'**
   String get kaffeekasseOpenWero;
+
+  /// No description provided for @kalenderCreate.
+  ///
+  /// In de, this message translates to:
+  /// **'Termin anlegen'**
+  String get kalenderCreate;
+
+  /// No description provided for @kalenderFieldTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Titel'**
+  String get kalenderFieldTitle;
+
+  /// No description provided for @kalenderFieldDescription.
+  ///
+  /// In de, this message translates to:
+  /// **'Beschreibung (optional)'**
+  String get kalenderFieldDescription;
+
+  /// No description provided for @kalenderFieldStart.
+  ///
+  /// In de, this message translates to:
+  /// **'Beginn'**
+  String get kalenderFieldStart;
+
+  /// No description provided for @kalenderFieldEnd.
+  ///
+  /// In de, this message translates to:
+  /// **'Ende'**
+  String get kalenderFieldEnd;
+
+  /// No description provided for @kalenderTitleRequired.
+  ///
+  /// In de, this message translates to:
+  /// **'Bitte einen Titel eingeben.'**
+  String get kalenderTitleRequired;
+
+  /// No description provided for @kalenderEndBeforeStart.
+  ///
+  /// In de, this message translates to:
+  /// **'Das Ende darf nicht vor dem Beginn liegen.'**
+  String get kalenderEndBeforeStart;
+
+  /// No description provided for @kalenderSave.
+  ///
+  /// In de, this message translates to:
+  /// **'Termin speichern'**
+  String get kalenderSave;
+
+  /// No description provided for @kalenderCreated.
+  ///
+  /// In de, this message translates to:
+  /// **'Termin gespeichert.'**
+  String get kalenderCreated;
+
+  /// No description provided for @kalenderCreateFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Termin konnte nicht gespeichert werden.'**
+  String get kalenderCreateFailed;
+
+  /// No description provided for @defectEdit.
+  ///
+  /// In de, this message translates to:
+  /// **'Bearbeiten'**
+  String get defectEdit;
+
+  /// No description provided for @defectUpdated.
+  ///
+  /// In de, this message translates to:
+  /// **'Mangel aktualisiert.'**
+  String get defectUpdated;
+
+  /// No description provided for @defectUpdateFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Mangel konnte nicht aktualisiert werden.'**
+  String get defectUpdateFailed;
+
+  /// No description provided for @defectDueClear.
+  ///
+  /// In de, this message translates to:
+  /// **'Frist entfernen'**
+  String get defectDueClear;
 }
 
 class _AppLocalizationsDelegate

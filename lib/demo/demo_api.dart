@@ -21,7 +21,7 @@ import 'package:wachbuch_mobile/models/station_asset.dart';
 import 'package:wachbuch_mobile/api/server_trust.dart';
 
 const demoTokenPrefix = 'wb_demo_';
-const _maxAttachmentBytes = 2 * 1024 * 1024;
+const _maxAttachmentBytes = 5 * 1024 * 1024;
 const _maxAttachmentsPerDefect = 8;
 const _maxAttachmentTotalBytes = 12 * 1024 * 1024;
 
@@ -250,11 +250,33 @@ class DemoWachbuchApi extends WachbuchApi {
     return Map<String, dynamic>.from(_handovers[index]);
   }
 
+  final List<KalenderEntry> _createdEvents = [];
+
   @override
   Future<List<KalenderEntry>> kalender() async {
-    return profile.calendar
-        .map(KalenderEntry.fromJson)
-        .toList(growable: false);
+    final entries = [
+      ...profile.calendar.map(KalenderEntry.fromJson),
+      ..._createdEvents,
+    ]..sort((a, b) => (a.startsAt ?? DateTime(0)).compareTo(b.startsAt ?? DateTime(0)));
+    return List.unmodifiable(entries);
+  }
+
+  @override
+  Future<KalenderEntry> createKalenderEntry({
+    required String title,
+    String description = '',
+    required DateTime startsAt,
+    required DateTime endsAt,
+  }) async {
+    final entry = KalenderEntry(
+      id: 1000 + _createdEvents.length,
+      title: title,
+      description: description,
+      startsAt: startsAt,
+      endsAt: endsAt,
+    );
+    _createdEvents.add(entry);
+    return entry;
   }
 
   /// Demo-Monatsbeitrag: 5 € seit zwei Monaten, 10 € schon bezahlt.
@@ -395,6 +417,33 @@ class DemoWachbuchApi extends WachbuchApi {
   }
 
   @override
+  Future<Defect> updateDefect(
+    int id, {
+    String? description,
+    String? assetRef,
+    String? priority,
+    DateTime? dueAt,
+    bool clearDue = false,
+  }) async {
+    final index = _defects.indexWhere((defect) => defect.id == id);
+    if (index < 0) throw ApiException(404, 'Mangel nicht gefunden.');
+    final json = {
+      ..._defects[index].toJson(),
+      'description': ?description,
+      'asset_ref': ?assetRef,
+      'priority': ?priority,
+      if (dueAt != null) 'due_at': dueAt.toUtc().toIso8601String(),
+    };
+    if (clearDue && dueAt == null) {
+      json.remove('due_at');
+      json.remove('due_label');
+    }
+    final updated = Defect.fromJson(json);
+    _defects[index] = updated;
+    return updated;
+  }
+
+  @override
   Future<Defect> updateDefectStatus(int id, String status) async {
     final index = _defects.indexWhere((defect) => defect.id == id);
     if (index < 0) throw ApiException(404, 'Mangel nicht gefunden.');
@@ -424,7 +473,7 @@ class DemoWachbuchApi extends WachbuchApi {
       throw ApiException(404, 'Mangel nicht gefunden.');
     }
     if (bytes.isEmpty || bytes.length > _maxAttachmentBytes) {
-      throw ApiException(413, 'Bild darf maximal 2 MiB groß sein.');
+      throw ApiException(413, 'Bild darf maximal 5 MiB groß sein.');
     }
 
     final normalizedType = contentType.toLowerCase() == 'image/jpg'

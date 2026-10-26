@@ -64,7 +64,7 @@
   "defectTakePhoto": "Camera",
   "defectChoosePhoto": "Photo library",
   "defectPhotoUploadFailed": "Photo could not be uploaded.",
-  "defectPhotoTooLarge": "The image may be at most 2 MiB.",
+  "defectPhotoTooLarge": "The image may be at most 5 MiB.",
   "defectPhotoUploaded": "Photo uploaded.",
 
   "assetsBoardTitle": "Vehicle & equipment status",
@@ -338,5 +338,19 @@
   "kaffeekasseSuggested": "Amount",
   "kaffeekasseReference": "Reference",
   "kaffeekasseOpenPaypal": "Open PayPal",
-  "kaffeekasseOpenWero": "Open Wero"
+  "kaffeekasseOpenWero": "Open Wero",
+  "kalenderCreate": "Add event",
+  "kalenderFieldTitle": "Title",
+  "kalenderFieldDescription": "Description (optional)",
+  "kalenderFieldStart": "Start",
+  "kalenderFieldEnd": "End",
+  "kalenderTitleRequired": "Please enter a title.",
+  "kalenderEndBeforeStart": "The end must not be before the start.",
+  "kalenderSave": "Save event",
+  "kalenderCreated": "Event saved.",
+  "kalenderCreateFailed": "Event could not be saved.",
+  "defectEdit": "Edit",
+  "defectUpdated": "Defect updated.",
+  "defectUpdateFailed": "Defect could not be updated.",
+  "defectDueClear": "Remove deadline"
 }
