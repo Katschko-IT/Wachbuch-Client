@@ -76,6 +76,7 @@
   "assetStatusLimited": "Eingeschränkt",
   "assetStatusOob": "Außer Betrieb",
   "assetStatusWorkshop": "Werkstatt",
+  "assetStatusUnknown": "Status unbekannt",
 
   "inventoryTitle": "Schlüssel & Pools",
   "inventoryHint": "Checkout / Checkin für Pool-Geräte und Schlüssel.",

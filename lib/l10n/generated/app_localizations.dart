@@ -506,6 +506,12 @@ abstract class AppLocalizations {
   /// **'Werkstatt'**
   String get assetStatusWorkshop;
 
+  /// No description provided for @assetStatusUnknown.
+  ///
+  /// In de, this message translates to:
+  /// **'Status unbekannt'**
+  String get assetStatusUnknown;
+
   /// No description provided for @inventoryTitle.
   ///
   /// In de, this message translates to:

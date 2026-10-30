@@ -160,7 +160,11 @@ class _AssetsScreenState extends State<AssetsScreen> {
                     ),
                     const SizedBox(height: 8),
                     FilledButton(
-                      onPressed: () => Navigator.of(sheetContext).pop(true),
+                      // Ein unbekannter Status wird nie zurückgeschrieben;
+                      // erst einen der vier bekannten Werte wählen.
+                      onPressed: selectedStatus == 'unknown'
+                          ? null
+                          : () => Navigator.of(sheetContext).pop(true),
                       child: Text(l.commonSave),
                     ),
                   ],

@@ -38,8 +38,31 @@ void main() {
 
       expect(asset.label, '');
       expect(asset.kind, 'device');
+      // Fehlender Status ist nicht „Einsatzklar“ (fail closed).
+      expect(asset.status, 'unknown');
+      expect(asset.isReady, isFalse);
+      expect(asset.needsAttention, isTrue);
+    });
+
+    test('unbekannter Status ist nie einsatzklar', () {
+      final asset = StationAsset.fromJson({
+        'id': 'rtw-2',
+        'label': 'RTW 2',
+        'kind': 'vehicle',
+        'status': 'disinfection',
+      });
+
+      expect(asset.status, 'unknown');
+      expect(asset.isReady, isFalse);
+      expect(asset.needsAttention, isTrue);
+    });
+
+    test('ausdrückliches ready bleibt einsatzklar', () {
+      final asset = StationAsset.fromJson({'id': 'rtw-1', 'status': 'READY'});
+
       expect(asset.status, 'ready');
       expect(asset.isReady, isTrue);
+      expect(asset.needsAttention, isFalse);
     });
 
     test('equality is id-based', () {

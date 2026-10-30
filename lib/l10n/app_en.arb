@@ -74,6 +74,7 @@
   "assetStatusLimited": "Limited",
   "assetStatusOob": "Out of service",
   "assetStatusWorkshop": "Workshop",
+  "assetStatusUnknown": "Status unknown",
 
   "inventoryTitle": "Keys & pools",
   "inventoryHint": "Checkout / check-in for pooled devices and keys.",

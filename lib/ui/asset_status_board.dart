@@ -68,13 +68,15 @@ class _AssetCard extends StatelessWidget {
     final tone = WachbuchColors.of(context).tone(switch (asset.status) {
       'ready' => WachbuchTone.success,
       'limited' => WachbuchTone.warning,
-      _ => WachbuchTone.danger,
+      'workshop' || 'oob' => WachbuchTone.danger,
+      _ => WachbuchTone.neutral,
     });
     final statusLabel = switch (asset.status) {
       'ready' => l.assetStatusReady,
       'limited' => l.assetStatusLimited,
       'workshop' => l.assetStatusWorkshop,
-      _ => l.assetStatusOob,
+      'oob' => l.assetStatusOob,
+      _ => l.assetStatusUnknown,
     };
 
     final content = Padding(

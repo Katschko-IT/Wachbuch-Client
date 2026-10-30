@@ -222,6 +222,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get assetStatusWorkshop => 'Werkstatt';
 
   @override
+  String get assetStatusUnknown => 'Status unbekannt';
+
+  @override
   String get inventoryTitle => 'Schlüssel & Pools';
 
   @override
