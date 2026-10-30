@@ -4,7 +4,7 @@ Stand: 10. August 2026
 
 ## Ziel
 
-Wachwerk migriert `flutter_secure_storage` kontrolliert von 9.2.4 auf **10.3.1**, bevor ein späterer Wechsel auf 11.x erfolgt. Der Schritt betrifft App-Token, Token-Ablaufzeit und den server-/tokengebundenen Offline-Lesecache.
+Wachwerk migriert `flutter_secure_storage` kontrolliert von 9.2.4 auf **10.3.4**, bevor ein späterer Wechsel auf 11.x erfolgt. Der Schritt betrifft App-Token, Token-Ablaufzeit und den server-/tokengebundenen Offline-Lesecache.
 
 ## Warum nicht direkt 11.x?
 
@@ -23,7 +23,7 @@ Damit wird die Algorithmusmigration ausdrücklich aktiviert und mit crash-resist
 
 ## Android-Zielzustand
 
-Mit `flutter_secure_storage` 10.3.1 verwendet die Standardkonfiguration:
+Mit `flutter_secure_storage` 10.3.4 verwendet die Standardkonfiguration:
 
 - RSA-OAEP mit SHA-256 für Key-Wrapping,
 - AES-GCM für Storage-Verschlüsselung,
@@ -76,7 +76,7 @@ Empfohlene Reihenfolge:
 
 ## Rollback
 
-Nach erfolgreicher Migration darf nicht ungeprüft auf einen 9.x-Build zurückgegangen werden. Ein Rollback muss auf Testgeräten mit bereits migriertem Storage verifiziert werden. Bei einem App-Fehler ist ein 10.3.1-basierter Hotfix einem Downgrade auf 9.x vorzuziehen.
+Nach erfolgreicher Migration darf nicht ungeprüft auf einen 9.x-Build zurückgegangen werden. Ein Rollback muss auf Testgeräten mit bereits migriertem Storage verifiziert werden. Bei einem App-Fehler ist ein 10.3.x-basierter Hotfix einem Downgrade auf 9.x vorzuziehen.
 
 ## v11-Freigabe
 
@@ -97,3 +97,7 @@ Der Quelltext von 11.2.0 ist gegen Wachwerk geprüft. Ergebnis:
 - `minSdk 24` hat Wachwerk schon. Ab 11.1.0 folgt das Plugin wieder `flutter.compileSdkVersion`.
 
 Die Umstellung bleibt trotzdem zurückgestellt. Der Grund ist die oben verlangte Abnahme des 10.x-Builds auf echten Geräten, nicht die Programmierschnittstelle. Bis dahin bleibt die Linie 10.x; der Lock steht auf 10.3.4.
+
+## App 1.1 (Build 1.1.0+13)
+
+1.1.0+13 bleibt auf `flutter_secure_storage` 10.x (10.3.4). Es gibt **keine** neue Speicher-Migration: `migrateOnAlgorithmChange: true` und `migrateWithBackup: true` bleiben unverändert. Ein Gerät mit 9.x-Speicher (Build ≤ 1.0.0+11) durchläuft beim Update auf 1.1.0+13 denselben Pfad wie beim Update auf 1.0.0+12; einen direkten Sprung auf 11.x gibt es nicht. Upgrade-Matrix und Prüfungen für 1.1: [`STORE-RELEASE-1.1.md`](STORE-RELEASE-1.1.md).

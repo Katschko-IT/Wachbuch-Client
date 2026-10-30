@@ -117,7 +117,7 @@ Das erzeugte `.aab` zunächst **manuell in den internen Play-Test-Track** hochla
 | `CAMERA` | QR-Scan und ausdrücklich ausgelöstes Mängelfoto | Serveradresse manuell; Mangel ohne Kamera möglich |
 | `ACCESS_COARSE_LOCATION` | lokale Sonnenaufgang-/Sonnenuntergangsberechnung | Systemtheme als Fallback |
 | `ACCESS_NETWORK_STATE` | Offline-/Online-Status | technische Netzwerkfunktion |
-| `POST_NOTIFICATIONS` | Erinnerung an die Besatzung, wenn die Desinfektions-Einwirkzeit abläuft | ohne Erlaubnis: Hinweis nur in der App und im Web |
+| `POST_NOTIFICATIONS` | Erinnerung an die Besatzung, wenn ein Fahrzeug nach der Desinfektion freigegeben werden kann | ohne Erlaubnis: Hinweis nur in der App und im Web |
 | `VIBRATE` | Vibration bei dieser Erinnerung | stumme Anzeige |
 
 Nicht vorgesehen sind Hintergrundstandort, Kontakte, Mikrofon, SMS/Anruflisten oder breite Datei-/Medienspeicherberechtigungen.
@@ -162,6 +162,8 @@ Texte, Positionierung und Screenshotplan liegen in [`STORE-METADATA.md`](STORE-M
 - keine echten Namen, Tokens, Serveradressen, Patienten- oder Einsatzdaten.
 
 ## Upload-Reihenfolge
+
+Für 1.1 (`1.1.0+13`) gilt [`STORE-RELEASE-1.1.md`](STORE-RELEASE-1.1.md): interner Test → geschlossener Test → gestaffelte Produktion. Die folgende Liste beschreibt die Ersteinrichtung mit 1.0.
 
 1. App `de.wachbuch.mobile` in Play Console anlegen.
 2. Play App Signing aktivieren.

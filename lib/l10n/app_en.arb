@@ -74,6 +74,7 @@
   "assetStatusLimited": "Limited",
   "assetStatusOob": "Out of service",
   "assetStatusWorkshop": "Workshop",
+  "assetStatusUnknown": "Status unknown",
 
   "inventoryTitle": "Keys & pools",
   "inventoryHint": "Checkout / check-in for pooled devices and keys.",
@@ -99,8 +100,6 @@
   "reportsUnacked": "Unacknowledged handovers",
   "reportsOldestOpen": "Oldest open defect",
   "reportsDays": "days",
-  "reportsByOwner": "Open defects by owner",
-  "reportsNoOwner": "No owner",
   "reportsPrivacyHint": "This report supports station organisation and is not intended for individual employee performance scoring.",
 
   "handoverAckButton": "Acknowledged",
@@ -135,6 +134,7 @@
 
   "kalenderTitle": "Calendar",
   "kalenderEmpty": "No upcoming appointments.",
+  "kalenderEmptyTitle": "No appointments",
   "kalenderEntryFallback": "Appointment",
   "kalenderTimeTbd": "Time to be announced",
   "kalenderAllDay": "All day",
@@ -144,10 +144,12 @@
   "kaffeekasseNegative": "The fund is in the negative – please top up.",
   "kaffeekasseLastTransactions": "Recent transactions",
   "kaffeekasseEmptyLedger": "No transactions yet.",
+  "kaffeekasseEmptyLedgerTitle": "No transactions",
   "kaffeekasseEntryFallback": "Transaction",
 
   "checklistenTitle": "Checklists",
   "checklistenEmpty": "No checklists available.",
+  "checklistenEmptyTitle": "No checklists",
   "checklistFallback": "Checklist",
   "checklistNoItems": "No items.",
   "checklistCompleteButton": "Complete checklist",
@@ -352,5 +354,16 @@
   "defectEdit": "Edit",
   "defectUpdated": "Defect updated.",
   "defectUpdateFailed": "Defect could not be updated.",
-  "defectDueClear": "Remove deadline"
+  "defectDueClear": "Remove deadline",
+  "attachmentPreviewUnavailable": "Preview not available",
+  "attachmentFileInfo": "{filename} ({contentType})",
+  "sessionInvalidNotice": "Your sign-in expired or was revoked. Please sign in again.",
+  "sessionNoMembershipNotice": "This account has no active station access. Please contact your station management.",
+  "freeTextBoundaryHint": "Do not enter patient or mission data.",
+  "handoverNoAutoRetryHint": "Sent once. If an error occurs, please check the list before sending again.",
+  "defectsShowDone": "Show completed",
+  "defectsLoadMore": "Load more",
+  "defectsShownOfTotal": "{shown} of {total} defects",
+  "kaffeekasseBalanceStation": "Station fund balance",
+  "kaffeekasseBalanceOwn": "My balance"
 }

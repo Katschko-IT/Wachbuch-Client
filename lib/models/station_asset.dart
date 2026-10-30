@@ -26,8 +26,13 @@ class StationAsset {
 
   bool get isReady => status == 'ready';
 
+  /// `unknown` zählt mit: ein Zustand, den die App nicht kennt, ist nie
+  /// „Einsatzklar“.
   bool get needsAttention =>
-      status == 'limited' || status == 'oob' || status == 'workshop';
+      status == 'limited' ||
+      status == 'oob' ||
+      status == 'workshop' ||
+      status == 'unknown';
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -73,12 +78,16 @@ String _readKind(Object? value) {
   };
 }
 
+/// Fail closed: Nur ausdrückliches `ready` ist einsatzklar. Fehlende oder
+/// unbekannte Werte (z. B. neue Zustände eines späteren Servers) werden zu
+/// `unknown` und erscheinen als „Status unbekannt“.
 String _readStatus(Object? value) {
   final raw = value?.toString().trim().toLowerCase() ?? '';
   return switch (raw) {
+    'ready' => 'ready',
     'limited' => 'limited',
     'oob' || 'out_of_order' || 'außer_betrieb' => 'oob',
     'workshop' || 'werkstatt' => 'workshop',
-    _ => 'ready',
+    _ => 'unknown',
   };
 }

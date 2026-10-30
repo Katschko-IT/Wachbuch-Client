@@ -51,3 +51,6 @@ app.*.map.json
 
 # Local release outputs
 /dist/
+
+# Kotlin-Compiler-Cache
+/android/.kotlin/

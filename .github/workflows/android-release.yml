@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       build_name:
-        description: Semantic version from pubspec.yaml, for example 1.0.0
+        description: Semantic version from pubspec.yaml, for example 1.1.0
         required: true
-        default: 1.0.0
+        default: 1.1.0
       build_number:
         description: Unique and strictly increasing Play version code
         required: true
-        default: "12"
+        default: "13"
 
 permissions:
   contents: read
@@ -29,7 +29,7 @@ jobs:
       RELEASE_BUILD_NUMBER: ${{ inputs.build_number }}
 
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Validate store release source and version
         shell: bash
@@ -55,19 +55,20 @@ jobs:
           fi
           test -f docs/PRIVACY-POLICY.md
           test -f docs/STORE-RELEASE-1.0.md
+          test -f docs/STORE-RELEASE-1.1.md
           test -f docs/STORE-METADATA.md
           test -f docs/SECURE-STORAGE-MIGRATION-1.0.md
 
-      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
           java-version: "21"
-      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           channel: stable
-          flutter-version: "3.47.7"
+          flutter-version: "3.47.8"
           cache: true
-      - uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4.0.1
+      - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4.0.4
         with:
           packages: platform-tools
 
@@ -228,7 +229,7 @@ jobs:
           cp build/app/reports/lint-results-productionRelease.html dist/reports/
           (cd dist && find aab apk -type f -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS)
 
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: wachbuch-google-play-aab-${{ inputs.build_number }}
           path: |
@@ -238,7 +239,7 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: wachbuch-production-apks-${{ inputs.build_number }}
           path: |
@@ -247,7 +248,7 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: wachbuch-android-symbols-${{ inputs.build_number }}
           path: dist/symbols

@@ -76,6 +76,7 @@
   "assetStatusLimited": "Eingeschränkt",
   "assetStatusOob": "Außer Betrieb",
   "assetStatusWorkshop": "Werkstatt",
+  "assetStatusUnknown": "Status unbekannt",
 
   "inventoryTitle": "Schlüssel & Pools",
   "inventoryHint": "Checkout / Checkin für Pool-Geräte und Schlüssel.",
@@ -101,8 +102,6 @@
   "reportsUnacked": "Unquittierte Übergaben",
   "reportsOldestOpen": "Ältester offener Mangel",
   "reportsDays": "Tage",
-  "reportsByOwner": "Offene Mängel nach Zuständigkeit",
-  "reportsNoOwner": "Ohne Zuständigkeit",
   "reportsPrivacyHint": "Diese Auswertung dient der Stationsorganisation, nicht zur Leistungsbewertung einzelner Beschäftigter.",
 
   "handoverAckButton": "Übernommen",
@@ -142,6 +141,7 @@
 
   "kalenderTitle": "Kalender",
   "kalenderEmpty": "Keine anstehenden Termine.",
+  "kalenderEmptyTitle": "Keine Termine",
   "kalenderEntryFallback": "Termin",
   "kalenderTimeTbd": "Zeit folgt",
   "kalenderAllDay": "Ganztägig",
@@ -151,10 +151,12 @@
   "kaffeekasseNegative": "Die Kasse ist im Minus – bitte nachzahlen.",
   "kaffeekasseLastTransactions": "Letzte Buchungen",
   "kaffeekasseEmptyLedger": "Noch keine Buchungen.",
+  "kaffeekasseEmptyLedgerTitle": "Keine Buchungen",
   "kaffeekasseEntryFallback": "Buchung",
 
   "checklistenTitle": "Checklisten",
   "checklistenEmpty": "Keine Checklisten verfügbar.",
+  "checklistenEmptyTitle": "Keine Checklisten",
   "checklistFallback": "Checkliste",
   "checklistNoItems": "Keine Punkte.",
   "checklistCompleteButton": "Checkliste abschließen",
@@ -360,5 +362,18 @@
   "defectEdit": "Bearbeiten",
   "defectUpdated": "Mangel aktualisiert.",
   "defectUpdateFailed": "Mangel konnte nicht aktualisiert werden.",
-  "defectDueClear": "Frist entfernen"
+  "defectDueClear": "Frist entfernen",
+  "attachmentPreviewUnavailable": "Vorschau nicht verfügbar",
+  "attachmentFileInfo": "{filename} ({contentType})",
+  "@attachmentFileInfo": {"placeholders": {"filename": {"type": "String"}, "contentType": {"type": "String"}}},
+  "sessionInvalidNotice": "Anmeldung abgelaufen oder widerrufen. Bitte erneut anmelden.",
+  "sessionNoMembershipNotice": "Für dieses Konto gibt es keinen aktiven Wachenzugang. Bitte an die Wachenleitung wenden.",
+  "freeTextBoundaryHint": "Keine Patienten- oder Einsatzdaten eintragen.",
+  "handoverNoAutoRetryHint": "Wird einmal gesendet. Bei einem Fehler bitte die Liste prüfen, bevor Sie erneut senden.",
+  "defectsShowDone": "Erledigte anzeigen",
+  "defectsLoadMore": "Mehr laden",
+  "defectsShownOfTotal": "{shown} von {total} Mängeln",
+  "@defectsShownOfTotal": {"placeholders": {"shown": {"type": "int"}, "total": {"type": "int"}}},
+  "kaffeekasseBalanceStation": "Kassenstand der Wache",
+  "kaffeekasseBalanceOwn": "Mein Saldo"
 }

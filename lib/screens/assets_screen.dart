@@ -4,6 +4,7 @@ import 'package:wachbuch_mobile/l10n/generated/app_localizations.dart';
 import 'package:wachbuch_mobile/models/inventory_item.dart';
 import 'package:wachbuch_mobile/models/station_asset.dart';
 import 'package:wachbuch_mobile/screens/reports_screen.dart';
+import 'package:wachbuch_mobile/state/station_roles.dart';
 import 'package:wachbuch_mobile/theme/design_tokens.dart';
 import 'package:wachbuch_mobile/ui/asset_status_board.dart';
 import 'package:wachbuch_mobile/ui/error_banner.dart';
@@ -11,9 +12,14 @@ import 'package:wachbuch_mobile/ui/layout.dart';
 
 /// Vehicle/device statusboard + Schlüssel/Pool checkout.
 class AssetsScreen extends StatefulWidget {
-  const AssetsScreen({super.key, required this.api});
+  const AssetsScreen({super.key, required this.api, this.role, this.username});
 
   final WachbuchApi api;
+
+  /// Rolle und Benutzername aus `/me/`. Fehlt die Rolle, lädt der Bildschirm
+  /// `/me/` selbst; bis dahin bleiben rollengebundene Aktionen ausgeblendet.
+  final String? role;
+  final String? username;
 
   @override
   State<AssetsScreen> createState() => _AssetsScreenState();
@@ -25,11 +31,29 @@ class _AssetsScreenState extends State<AssetsScreen> {
   bool _loading = true;
   String? _error;
   final Set<String> _busy = {};
+  String? _role;
+  String? _username;
 
   @override
   void initState() {
     super.initState();
+    _role = widget.role;
+    _username = widget.username;
     _reload();
+  }
+
+  Future<void> _loadIdentity() async {
+    if (widget.role != null) return;
+    try {
+      final me = await widget.api.me();
+      if (!mounted) return;
+      setState(() {
+        _role = (me['membership'] as Map?)?['role']?.toString();
+        _username = (me['user'] as Map?)?['username']?.toString();
+      });
+    } catch (_) {
+      // Ohne bekannte Rolle bleiben die Aktionen ausgeblendet.
+    }
   }
 
   Future<void> _reload() async {
@@ -37,6 +61,7 @@ class _AssetsScreenState extends State<AssetsScreen> {
       _loading = true;
       _error = null;
     });
+    await _loadIdentity();
     try {
       final assets = await widget.api.assets();
       List<InventoryItem> inventory = const [];
@@ -135,7 +160,11 @@ class _AssetsScreenState extends State<AssetsScreen> {
                     ),
                     const SizedBox(height: 8),
                     FilledButton(
-                      onPressed: () => Navigator.of(sheetContext).pop(true),
+                      // Ein unbekannter Status wird nie zurückgeschrieben;
+                      // erst einen der vier bekannten Werte wählen.
+                      onPressed: selectedStatus == 'unknown'
+                          ? null
+                          : () => Navigator.of(sheetContext).pop(true),
                       child: Text(l.commonSave),
                     ),
                   ],
@@ -243,7 +272,10 @@ class _AssetsScreenState extends State<AssetsScreen> {
                 else ...[
                   AssetStatusBoard(
                     assets: _assets,
-                    onAssetTap: _editAssetStatus,
+                    // Statuswechsel nur für WRITE_ROLES (wie der Server).
+                    onAssetTap: StationRoles.canChangeAssetStatus(_role)
+                        ? _editAssetStatus
+                        : null,
                   ),
                   if (_inventory.isNotEmpty) ...[
                     const SizedBox(height: 24),
@@ -269,6 +301,11 @@ class _AssetsScreenState extends State<AssetsScreen> {
                         child: _InventoryCard(
                           item: item,
                           busy: _busy.contains(item.id),
+                          canToggle: StationRoles.canCheckin(
+                            role: _role,
+                            holder: item.holder,
+                            username: _username,
+                          ),
                           onToggle: () => _toggleInventory(item),
                         ),
                       ),
@@ -293,11 +330,15 @@ class _InventoryCard extends StatelessWidget {
     required this.item,
     required this.busy,
     required this.onToggle,
+    this.canToggle = true,
   });
 
   final InventoryItem item;
   final bool busy;
   final VoidCallback onToggle;
+
+  /// Fremde Ausleihen dürfen nur WRITE_ROLES zurückgeben.
+  final bool canToggle;
 
   @override
   Widget build(BuildContext context) {
@@ -310,12 +351,14 @@ class _InventoryCard extends StatelessWidget {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(WachbuchTokens.space4),
         child: Row(
           children: [
             Icon(
               item.kind == 'key' ? Icons.key_outlined : Icons.devices_other,
-              color: item.isOut ? WachbuchTokens.important : scheme.primary,
+              color: item.isOut
+                  ? WachbuchColors.of(context).warning
+                  : scheme.primary,
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -338,19 +381,21 @@ class _InventoryCard extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 8),
-            FilledButton.tonal(
-              onPressed: busy ? null : onToggle,
-              child: busy
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(
-                      item.isOut ? l.inventoryCheckin : l.inventoryCheckout,
-                    ),
-            ),
+            if (canToggle) ...[
+              const SizedBox(width: 8),
+              FilledButton.tonal(
+                onPressed: busy ? null : onToggle,
+                child: busy
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(
+                        item.isOut ? l.inventoryCheckin : l.inventoryCheckout,
+                      ),
+              ),
+            ],
           ],
         ),
       ),

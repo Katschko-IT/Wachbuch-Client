@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wachbuch_mobile/theme/design_tokens.dart';
 import 'package:url_launcher/link.dart';
 
 const _privacyPolicyUri =
@@ -47,9 +48,9 @@ class PrivacyScreen extends StatelessWidget {
               ],
               Material(
                 color: scheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(WachbuchTokens.radiusMd),
                 child: Padding(
-                  padding: const EdgeInsets.all(14),
+                  padding: const EdgeInsets.all(WachbuchTokens.space4),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -142,16 +143,39 @@ const _de = _PolicyCopy(
     _PolicySection(
       'Lokale Daten',
       'Die App speichert die ausgewählte Serveradresse lokal. App-Token und '
-          'server-/tokengebundene Offline-Snapshots werden über den sicheren '
-          'Speicher des Betriebssystems geschützt. Beim Abmelden oder '
-          'Serverwechsel werden Token und zugehöriger Offline-Cache entfernt.',
+          'der Offline-Lesecache werden über den sicheren Speicher des '
+          'Betriebssystems geschützt. Der Offline-Lesecache enthält nur die '
+          'eigene Mitgliedschaft, Checklisten und die Übergabeliste ohne '
+          'Freitext, höchstens 24 Stunden lang. Für Master-Admin, Kassenwart '
+          'und Auditor gibt es keinen Offline-Cache. Gelesen wird er erst, '
+          'nachdem die Sitzung online bestätigt wurde; ein Kaltstart ohne Netz '
+          'zeigt keine Wachendaten.',
+    ),
+    _PolicySection(
+      'Abmelden und ungültige Sitzung',
+      'Beim Abmelden oder Serverwechsel entfernt die App Token und '
+          'Offline-Cache und sperrt den entschlüsselten Schlüssel für '
+          'Nachrichten. Erkennt der Server die Sitzung nicht mehr an (abgelaufen, '
+          'widerrufen oder kein aktiver Wachenzugang), meldet die App ebenso ab.',
     ),
     _PolicySection(
       'Verbindung zum selbst gehosteten Server',
       'Anmeldung und Organisationsdaten wie Übergaben, Checklisten, Mängel, '
           'Geräte-/Fahrzeugstatus und Inventar werden nur an den Server '
-          'übertragen, den Sie selbst eingerichtet haben. Ein Passwort für den '
-          'Token-Austausch wird von der App nicht dauerhaft gespeichert.',
+          'übertragen, den Sie selbst eingerichtet haben. Das gilt auch für '
+          'neu angelegte Übergaben und Termine, Änderungen an Mängeln, die '
+          'Meldung „Ich habe bezahlt“ der Kaffeekasse (Betrag, Zahlungsweg, '
+          'Notiz) und den Gelesen-Status persönlicher Hinweise. Ein Passwort '
+          'für den Token-Austausch wird von der App nicht dauerhaft '
+          'gespeichert.',
+    ),
+    _PolicySection(
+      'Benachrichtigungen',
+      'Mit Ihrer Erlaubnis plant die App lokale Benachrichtigungen, zum '
+          'Beispiel wenn ein Fahrzeug nach der Desinfektion freigegeben werden '
+          'kann, und zeigt bekannte persönliche Hinweise Ihres Servers an. '
+          'Dafür werden keine Daten an den App-Entwickler oder an Dritte '
+          'übertragen.',
     ),
     _PolicySection(
       'Kamera und Fotos',
@@ -196,17 +220,37 @@ const _en = _PolicyCopy(
   sections: [
     _PolicySection(
       'Local data',
-      'The selected server address is stored locally. App tokens and '
-          'server/token-scoped offline snapshots are protected using operating '
-          'system secure storage. Signing out or changing servers removes the '
-          'associated token and offline cache.',
+      'The selected server address is stored locally. App tokens and the '
+          'offline read cache are protected using operating system secure '
+          'storage. The offline read cache holds only your own membership, '
+          'checklists and the handover list without free text, for at most '
+          '24 hours. There is no offline cache for master admins, treasurers '
+          'and auditors. It is read only after the session has been confirmed '
+          'online; a cold start without network shows no station data.',
+    ),
+    _PolicySection(
+      'Signing out and invalid sessions',
+      'Signing out or changing servers removes the token and offline cache '
+          'and locks the decrypted key for messages. If the server no longer '
+          'accepts the session (expired, revoked or no active station access), '
+          'the app signs out as well.',
     ),
     _PolicySection(
       'Self-hosted server connection',
       'Authentication and organisational data such as handovers, checklists, '
           'defects, asset/vehicle status and inventory are sent only to the '
-          'server you configured. A password used for token exchange is not '
-          'persistently stored by the app.',
+          'server you configured. This includes newly created handovers and '
+          'calendar entries, defect edits, the coffee fund "I have paid" report '
+          '(amount, payment method, note) and the read status of personal '
+          'notices. A password used for token exchange is not persistently '
+          'stored by the app.',
+    ),
+    _PolicySection(
+      'Notifications',
+      'With your permission the app schedules local notifications, for '
+          'example when a vehicle can be released after disinfection, and '
+          'shows known personal notices from your server. No data is sent to '
+          'the app developer or third parties for this.',
     ),
     _PolicySection(
       'Camera and photos',

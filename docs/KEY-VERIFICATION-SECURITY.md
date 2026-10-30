@@ -13,7 +13,7 @@
 
 ## Reproducibility
 
-All Flutter workflows use Flutter 3.47.7. `pub get --enforce-lockfile`, localization generation, analysis and the complete test suite must pass without changing the committed lockfile. Native Android/iOS build and dependency-security workflows remain required CI evidence; no store workflow is invoked by this change.
+All Flutter workflows use Flutter 3.47.8. `pub get --enforce-lockfile`, localization generation, analysis and the complete test suite must pass without changing the committed lockfile. Native Android/iOS build and dependency-security workflows remain required CI evidence; no store workflow is invoked by this change.
 
 ## Not claimed
 

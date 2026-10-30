@@ -1,82 +1,78 @@
 import 'package:flutter/material.dart';
 
+import 'app_theme.dart';
 import 'design_tokens.dart';
 
+/// Hochkontrast-Varianten von Wachbuch Klar 2 (Systemeinstellung
+/// „Kontrast erhöhen“): Schwarz/Weiß, kräftige Ränder, größere Schrift.
+/// Zustandsfarben (danger/warning/success) bleiben aus den Tokens.
 class HighContrastTheme {
   HighContrastTheme._();
 
-  static ThemeData light() {
-    final base = ThemeData.light(useMaterial3: true);
+  static ThemeData light() => _build(
+    WachbuchColors.highContrastLight,
+    Brightness.light,
+  );
+
+  static ThemeData dark() => _build(
+    WachbuchColors.highContrastDark,
+    Brightness.dark,
+  );
+
+  static ThemeData _build(WachbuchColors c, Brightness brightness) {
+    final base = buildWachbuchThemeFrom(c, brightness);
+    final t = base.textTheme;
+    final strongBorder = BorderSide(color: c.text, width: 2);
     return base.copyWith(
-      colorScheme: const ColorScheme.highContrastLight(
-        primary: Color(0xFF000000),
-        onPrimary: Color(0xFFFFFFFF),
-        secondary: Color(0xFF000000),
-        onSecondary: Color(0xFFFFFFFF),
-        surface: Color(0xFFFFFFFF),
-        onSurface: Color(0xFF000000),
-        error: Color(0xFFB91C1C),
-        onError: Color(0xFFFFFFFF),
-      ),
-      textTheme: base.textTheme.copyWith(
-        bodySmall: base.textTheme.bodySmall?.copyWith(fontSize: WachbuchTokens.textBody),
-        bodyMedium: base.textTheme.bodyMedium?.copyWith(fontSize: WachbuchTokens.textBody + 2),
-        bodyLarge: base.textTheme.bodyLarge?.copyWith(fontSize: WachbuchTokens.textTitle),
-        titleSmall: base.textTheme.titleSmall?.copyWith(fontSize: WachbuchTokens.textTitle),
-        titleMedium: base.textTheme.titleMedium?.copyWith(fontSize: WachbuchTokens.textHeadline),
-        titleLarge: base.textTheme.titleLarge?.copyWith(fontSize: WachbuchTokens.textHeadline + 4),
+      textTheme: t.copyWith(
+        bodySmall: t.bodySmall?.copyWith(
+          fontSize: WachbuchTokens.textBody,
+          color: c.text,
+        ),
+        bodyMedium: t.bodyMedium?.copyWith(
+          fontSize: WachbuchTokens.textBody + 2,
+        ),
+        bodyLarge: t.bodyLarge?.copyWith(fontSize: WachbuchTokens.textTitle),
+        titleSmall: t.titleSmall?.copyWith(fontSize: WachbuchTokens.textTitle),
+        titleMedium: t.titleMedium?.copyWith(
+          fontSize: WachbuchTokens.textHeadline,
+        ),
+        titleLarge: t.titleLarge?.copyWith(
+          fontSize: WachbuchTokens.textHeadline + 4,
+        ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           minimumSize: const Size(64, WachbuchTokens.touchTarget),
-          textStyle: const TextStyle(fontWeight: FontWeight.bold),
+          elevation: 0,
+          backgroundColor: c.brand,
+          foregroundColor: c.onPrimary,
+          textStyle: const TextStyle(
+            fontFamily: WachbuchTokens.fontFamily,
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          minimumSize: const Size(64, WachbuchTokens.touchTarget),
-          side: const BorderSide(color: Color(0xFF000000), width: 2),
+          minimumSize: const Size.fromHeight(WachbuchTokens.touchTarget),
+          foregroundColor: c.text,
+          side: strongBorder,
         ),
       ),
-      cardTheme: CardThemeData(
+      cardTheme: base.cardTheme.copyWith(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(WachbuchTokens.radiusMd),
-          side: const BorderSide(color: Color(0xFF000000), width: 1),
+          side: BorderSide(color: c.text),
         ),
       ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: Color(0xFF000000),
-        foregroundColor: Color(0xFFFFFFFF),
-      ),
-    );
-  }
-
-  static ThemeData dark() {
-    final base = ThemeData.dark(useMaterial3: true);
-    return base.copyWith(
-      colorScheme: const ColorScheme.highContrastDark(
-        primary: Color(0xFFFFFFFF),
-        onPrimary: Color(0xFF000000),
-        secondary: Color(0xFFFFFFFF),
-        onSecondary: Color(0xFF000000),
-        surface: Color(0xFF000000),
-        onSurface: Color(0xFFFFFFFF),
-        error: Color(0xFFFF6B6B),
-        onError: Color(0xFF000000),
-      ),
-      textTheme: base.textTheme.copyWith(
-        bodySmall: base.textTheme.bodySmall?.copyWith(fontSize: WachbuchTokens.textBody),
-        bodyMedium: base.textTheme.bodyMedium?.copyWith(fontSize: WachbuchTokens.textBody + 2),
-        bodyLarge: base.textTheme.bodyLarge?.copyWith(fontSize: WachbuchTokens.textTitle),
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          minimumSize: const Size(64, WachbuchTokens.touchTarget),
+      appBarTheme: base.appBarTheme.copyWith(
+        backgroundColor: c.text,
+        foregroundColor: c.surface,
+        titleTextStyle: base.appBarTheme.titleTextStyle?.copyWith(
+          color: c.surface,
         ),
-      ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: Color(0xFFFFFFFF),
-        foregroundColor: Color(0xFF000000),
+        shape: const Border(),
       ),
     );
   }

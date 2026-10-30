@@ -9,13 +9,16 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:wachbuch_mobile/api/client.dart';
 import 'package:wachbuch_mobile/models/crew_notice.dart';
 
-/// Erinnert die Besatzung, wenn die Einwirkzeit einer Desinfektion abläuft.
+/// Erinnert die Besatzung, wenn ein Fahrzeug nach der Desinfektion
+/// freigegeben werden kann.
 ///
 /// Der Server gibt Fahrzeuge nie automatisch frei. Die App fragt die laufenden
-/// Sperren der eigenen Fahrzeuge ab und plant zur Sperrzeit eine **lokale**
-/// Benachrichtigung – sie erscheint auch bei geschlossener App und ohne Netz.
-/// Zusätzlich zeigt sie neue Einträge aus dem Posteingang an, sofern dieselbe
-/// Sperre nicht schon lokal erinnert wurde.
+/// Sperren der eigenen Fahrzeuge ab und plant zur Sperrzeit (`locked_until`)
+/// eine **lokale** Benachrichtigung – sie erscheint auch bei geschlossener App
+/// und ohne Netz. Eine Sperre ohne `locked_until` plant nichts. Zusätzlich
+/// zeigt sie neue Einträge aus dem Posteingang an, sofern dieselbe Sperre
+/// nicht schon lokal erinnert wurde – aber nur bekannte Arten
+/// ([CrewNotice.shownKinds]); andere bleiben ungelesen auf dem Server.
 class CrewReminderService {
   CrewReminderService({
     required this.api,
@@ -30,9 +33,23 @@ class CrewReminderService {
   final DateTime Function() _clock;
   bool _syncing = false;
   bool _permissionRequested = false;
+  String? _userKey;
+
+  /// Schlüssel für „schon angezeigt“: Server + `user.id` aus `/me/`, damit
+  /// eine neue Anmeldung desselben Kontos (neues Token) nichts wiederholt.
+  Future<String?> _resolveUserKey() async {
+    final cached = _userKey;
+    if (cached != null) return cached;
+    final me = await api.me();
+    final id = (me['user'] as Map?)?['id']?.toString().trim();
+    if (id == null || id.isEmpty) return null;
+    return _userKey = '${api.baseUrl}|$id';
+  }
 
   /// Plant fällige Erinnerungen und zeigt neue Hinweise. Fehler (offline,
-  /// alter Server) lassen bestehende Planungen unverändert.
+  /// alter Server) lassen bestehende Planungen unverändert. Eine ungültige
+  /// Sitzung (401, 403 ohne Wachenzugang) entfernt alle Planungen und wird
+  /// als [ApiException] weitergeworfen.
   Future<void> sync() async {
     if (_syncing) return;
     _syncing = true;
@@ -47,7 +64,8 @@ class CrewReminderService {
       final List<VehicleLock> locks;
       try {
         locks = await api.vehicleLocks();
-      } on ApiException {
+      } on ApiException catch (error) {
+        if (error.isSessionInvalid) rethrow;
         return;
       }
       for (final lock in locks) {
@@ -78,26 +96,50 @@ class CrewReminderService {
       final List<CrewNotice> notices;
       try {
         notices = await api.crewNotices();
-      } on ApiException {
+      } on ApiException catch (error) {
+        if (error.isSessionInvalid) rethrow;
         return;
       }
-      final shown = await store.readShown();
-      for (final notice in notices) {
-        if (notice.read || notice.key.isEmpty || shown.contains(notice.key)) {
-          continue;
-        }
-        final localAt = scheduled[notice.key];
-        final alreadyRemindedLocally = localAt != null && !localAt.isAfter(now);
-        if (!alreadyRemindedLocally) {
-          await scheduler.show(
-            id: reminderIdFor(notice.key),
-            title: notice.title,
-            body: notice.body,
-          );
-        }
-        shown.add(notice.key);
+      final unread = notices
+          .where((notice) =>
+              !notice.read && notice.key.isNotEmpty && notice.isShownKind)
+          .toList(growable: false);
+      if (unread.isEmpty) return;
+      final String? userKey;
+      try {
+        userKey = await _resolveUserKey();
+      } on ApiException catch (error) {
+        if (error.isSessionInvalid) rethrow;
+        return;
       }
-      await store.writeShown(shown);
+      // Ohne bekannte Benutzer-ID lieber nichts zeigen als doppelt.
+      if (userKey == null) return;
+      final shown = await store.readShown(userKey);
+      for (final notice in unread) {
+        if (!shown.contains(notice.key)) {
+          final localAt = scheduled[notice.key];
+          final alreadyRemindedLocally =
+              localAt != null && !localAt.isAfter(now);
+          if (!alreadyRemindedLocally) {
+            await scheduler.show(
+              id: reminderIdFor(notice.key),
+              title: notice.title,
+              body: notice.body,
+            );
+          }
+          shown.add(notice.key);
+          await store.writeShown(userKey, shown);
+        }
+        await _markRead(notice);
+      }
+    } on ApiException catch (error) {
+      if (error.isSessionInvalid) {
+        // Sitzung ungültig: nichts mehr für dieses Konto erinnern und den
+        // Fehler an die App weitergeben, damit sie abmeldet.
+        await clear();
+        rethrow;
+      }
+      debugPrint('Erinnerungen konnten nicht synchronisiert werden: $error');
     } catch (error) {
       debugPrint('Erinnerungen konnten nicht synchronisiert werden: $error');
     } finally {
@@ -105,7 +147,19 @@ class CrewReminderService {
     }
   }
 
+  /// Dem Server melden, dass der Hinweis angezeigt wurde. Netz- und
+  /// Serverfehler sind unkritisch (die lokale Liste verhindert Wiederholung).
+  Future<void> _markRead(CrewNotice notice) async {
+    if (notice.id <= 0) return;
+    try {
+      await api.markCrewNoticeRead(notice.id);
+    } on ApiException catch (error) {
+      if (error.isSessionInvalid) rethrow;
+    }
+  }
+
   /// Beim Abmelden oder Serverwechsel: geplante Erinnerungen entfernen.
+  /// Die Liste „schon angezeigt“ ist pro Benutzer und bleibt erhalten.
   Future<void> clear() async {
     final scheduled = await store.readScheduled();
     for (final key in scheduled.keys) {
@@ -151,11 +205,17 @@ abstract class ReminderScheduler {
 class ReminderStore {
   ReminderStore({required this.namespace});
 
-  /// Pro Server und Konto getrennt, damit ein Kontowechsel nichts vermischt.
+  /// Pro Server und Token getrennt, damit ein Kontowechsel nichts vermischt.
   final String namespace;
 
   String get _scheduledKey => 'crew_reminders.$namespace.scheduled';
-  String get _shownKey => 'crew_reminders.$namespace.shown';
+
+  /// Frühere, tokengebundene Liste „schon angezeigt“ (nur noch zum Aufräumen).
+  String get _legacyShownKey => 'crew_reminders.$namespace.shown';
+
+  /// „Schon angezeigt“ pro Server und `user.id` (nicht pro Token).
+  static String _shownKeyFor(String userKey) =>
+      'crew_reminders.user.${reminderIdFor(userKey)}.shown';
 
   Future<Map<String, DateTime>> readScheduled() async {
     final prefs = await SharedPreferences.getInstance();
@@ -177,22 +237,25 @@ class ReminderStore {
     ]);
   }
 
-  Future<Set<String>> readShown() async {
+  Future<Set<String>> readShown(String userKey) async {
     final prefs = await SharedPreferences.getInstance();
-    return (prefs.getStringList(_shownKey) ?? const []).toSet();
+    return (prefs.getStringList(_shownKeyFor(userKey)) ?? const []).toSet();
   }
 
-  Future<void> writeShown(Set<String> keys) async {
+  Future<void> writeShown(String userKey, Set<String> keys) async {
     final prefs = await SharedPreferences.getInstance();
     final list = keys.toList();
     // Nur die jüngsten Einträge behalten.
-    await prefs.setStringList(_shownKey, list.length > 200 ? list.sublist(list.length - 200) : list);
+    await prefs.setStringList(
+      _shownKeyFor(userKey),
+      list.length > 200 ? list.sublist(list.length - 200) : list,
+    );
   }
 
   Future<void> clear() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_scheduledKey);
-    await prefs.remove(_shownKey);
+    await prefs.remove(_legacyShownKey);
   }
 }
 
@@ -211,7 +274,8 @@ class LocalNotificationScheduler implements ReminderScheduler {
     android: AndroidNotificationDetails(
       'vehicle_release',
       'Fahrzeugfreigabe',
-      channelDescription: 'Erinnerung, wenn die Einwirkzeit einer Desinfektion abgelaufen ist.',
+      channelDescription:
+          'Erinnerung, wenn ein Fahrzeug nach der Desinfektion freigegeben werden kann.',
       importance: Importance.high,
       priority: Priority.high,
     ),

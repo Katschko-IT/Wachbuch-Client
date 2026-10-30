@@ -1,26 +1,106 @@
 # Changelog
 
-Alle wesentlichen Änderungen an Wachbuch Mobile werden hier dokumentiert.
+Alle wesentlichen Änderungen an Wachwerk Mobile werden hier dokumentiert.
 
-## Unreleased
+## 1.1.0 – Releasedatum offen
 
-- Übergaben in der App anlegen (Titel, Text, Bereich, Dringlichkeit).
-  Schichtleitung und Admin ändern den Status im Detail; erledigte Übergaben
-  verschwinden aus der aktiven Liste.
-- Kaffeekasse mit Monatsbeitrag: eigener Stand mit offenen und bezahlten
-  Monaten, „Ich habe bezahlt“ (bar, Überweisung, PayPal; braucht den aktuellen
-  Server-Stand mit `POST /api/v1/kaffeekasse/bezahlt/`) und Zahlungswege mit IBAN zum
-  Kopieren. Zahlungslinks werden nur als https geöffnet. Die Meldung wird nicht
-  automatisch wiederholt, damit nichts doppelt gebucht wird.
+Build `1.1.0+13`. Server mindestens **0.25.0** (Paginierung, `scope`); der
+Monatsbeitrag der Kaffeekasse braucht **0.26.0**; empfohlen **0.26.1**.
+Freigabeplan: [`docs/STORE-RELEASE-1.1.md`](docs/STORE-RELEASE-1.1.md).
+
+### Verhaltensänderungen gegenüber 1.0
+
+- Ein Kaltstart ohne Netz zeigt keine Wachendaten mehr (Offline-Vertrag §5):
+  Der Offline-Lesecache wird erst gelesen, nachdem die Sitzung online
+  bestätigt wurde. Master-Admin, Kassenwart und Auditor bekommen gar keinen
+  Offline-Cache. Ein Cache aus 1.0 ohne `schema_version` wird beim ersten
+  `/me/` gelöscht.
+- Nach dem Update kann ein persönlicher Hinweis einmal erneut erscheinen:
+  „schon angezeigt“ gilt jetzt pro Benutzer statt pro Token.
+- Ein unbekannter oder fehlender Geräte-/Fahrzeugstatus heißt „Status
+  unbekannt“ statt „Einsatzklar“.
+- Die Auswertung zeigt keine Mängel je Person mehr, auch nicht für ältere
+  Server (< 0.26.1), die `defects_by_owner` noch liefern.
+- Der Posteingang zeigt nur bekannte Hinweisarten (`vehicle_ready`,
+  `coffee_due`) als Benachrichtigung und meldet nur diese als gelesen;
+  andere Arten bleiben ungelesen auf dem Server und im Web-Posteingang.
+
+### Neu
+
+- Übergaben in der App anlegen (Titel, Text, Bereich, Dringlichkeit) für
+  alle Inhaltsrollen (nicht Auditor). Schichtleitung und Admin setzen den
+  Status im Detail; erledigte Übergaben verschwinden aus der aktiven Liste.
+- Kaffeekasse mit Monatsbeitrag (Server ab 0.26.0): eigener Stand mit
+  offenen und bezahlten Monaten, „Ich habe bezahlt“ (bar, Überweisung,
+  PayPal; `POST /api/v1/kaffeekasse/bezahlt/`) und Zahlungswege mit IBAN zum
+  Kopieren. Zahlungslinks werden nur als https geöffnet. Ohne Monatsbeitrag
+  „Kassenstand der Wache“ bzw. „Mein Saldo“ je nach `scope`.
 - Kalender: Schichtleitung und Admin legen Termine an.
-- Mängel bearbeiten: Beschreibung, Ort/Gerät, Dringlichkeit und Frist.
-- Foto-Grenze 5 MiB je Datei wie auf dem Server (vorher 2 MiB).
-- Listen für Übergaben und Mängel folgen den `next`-Seiten des Servers, aber
+- Mängel bearbeiten (Beschreibung, Ort/Gerät, Dringlichkeit, Frist) für alle
+  Inhaltsrollen; „Erledigt“ bleibt Schichtleitung und Admin vorbehalten.
+- Mängel seitenweise (`active=1`, `limit`, `next`) mit „Mehr laden“ und
+  „Erledigte anzeigen“. Übergaben folgen den `next`-Seiten des Servers, aber
   nur auf demselben Server und höchstens zehn Seiten.
-- Abhängigkeiten aktualisiert, u. a. `permission_handler` 13 (Android
-  kompiliert dafür gegen API 37; `targetSdk` bleibt beim Flutter-Standard).
-  `flutter_secure_storage` bleibt bewusst bei 10.x (siehe
-  `docs/SECURE-STORAGE-MIGRATION-1.0.md`).
+- Anhänge ohne Bildtyp (z. B. PDF) zeigen „Vorschau nicht verfügbar“.
+- Neue Freitextformulare (Übergabe, Termin, Mangel bearbeiten) erinnern:
+  „Keine Patienten- oder Einsatzdaten eintragen.“
+- Wache ohne Internet: Ein Verbindungs-QR mit `pin=sha256/…` hinterlegt den
+  Fingerabdruck eines lokalen Serverzertifikats (z. B. Raspberry Pi mit eigenem
+  WLAN). Die App vertraut dann genau diesem Zertifikat für diesen Server.
+- Kopplung am Wachenterminal: Ein QR mit `pair=…` meldet die App ohne Passwort
+  mit dem eigenen Konto an (Server ab 0.24.0, `POST /api/v1/token/kopplung/`).
+- Erinnerung für die Besatzung, wenn ein Fahrzeug nach der Desinfektion
+  freigegeben werden kann (Server ab 0.24.0). Die App plant eine lokale
+  Benachrichtigung zur Sperrzeit (`locked_until`) und zeigt neue Hinweise aus
+  dem persönlichen Posteingang. Freigeben muss die Besatzung selbst; der
+  Server gibt Fahrzeuge nicht automatisch frei. Neue Android-Berechtigungen:
+  `POST_NOTIFICATIONS`, `VIBRATE`. Nativer Push über APNs/FCM ist
+  serverseitig vorbereitet (`docs/PUSH-RELAY.md` im Server-Repository).
+- iOS: Hinweistext für den Zugriff auf das lokale Netzwerk
+  (`NSLocalNetworkUsageDescription`).
+
+### Datenschutz und Sicherheit (Review 2026-10-24)
+
+- Abmelden und Serverwechsel sperren die entschlüsselte Chat-Identität.
+- 401 und 403 „Kein aktiver Wachenzugang“ melden app-weit ab (Token,
+  Krypto, Offline-Cache); fehlende Mitgliedschaft mit eigenem Hinweis. Das
+  gilt auch für die neuen Schreibaufrufe. Der Erinnerungsdienst schluckt 401
+  nicht mehr.
+- Offline-Cache nach `docs/CLIENT-OFFLINE-CONTRACT.md` des Servers: nur
+  eigene Mitgliedschaft, Checklisten und Übergabeliste ohne Freitext (nur die
+  erste Seite), höchstens 24 h alt, nicht für `admin`/`cashier`/`auditor`,
+  lesbar erst nach online bestätigter Sitzung. Kaffeekasse, Übergabe-Details,
+  Mängel, Termine und Anhänge werden nicht gespeichert.
+- Schreibaufrufe werden nicht automatisch wiederholt: Übergabe anlegen,
+  Status setzen, Termin anlegen, „Ich habe bezahlt“ und Mangel bearbeiten
+  (dort hätte eine Wiederholung Mangel-Ereignisse und Audit-Einträge
+  verdoppelt).
+- Rechte wie auf dem Server (`lib/state/station_roles.dart`): Asset-Status,
+  „Mangel erledigt“, Übergabe-Status, Termin anlegen und Rückgabe fremder
+  Ausleihen nur für Schichtleitung/Admin (`WRITE_ROLES`); Übergabe anlegen und
+  Mangel bearbeiten nur für Inhaltsrollen (`CONTENT_ROLES`).
+- Hinweise werden nach dem Anzeigen als gelesen gemeldet.
+- Mängelfotos: eine Grenze von 5 MiB je Datei wie auf dem Server, in der
+  Oberfläche und im API-Aufruf (die Oberfläche prüfte zuvor noch 2 MiB).
+  Fotos gehen base64-kodiert im JSON; hinter einem Proxy kann die wirksame
+  Grenze daher niedriger liegen.
+- 413/415/429 ohne JSON-Körper (z. B. von nginx) mit verständlicher Meldung
+  („Datei zu groß für den Server“, „Dateityp nicht unterstützt“, bei 429 inkl.
+  `Retry-After`).
+- Datenschutzseite der App und `docs/PRIVACY-POLICY.md` beschreiben Cache,
+  Abmeldung, neue Übertragungen und lokale Benachrichtigungen.
+
+### Erscheinungsbild
+
+- Designsystem „Wachbuch Klar 2“ (gleich mit der Web-PWA):
+  - Tokens hell/dunkel als ThemeExtension `WachbuchColors`; Namen wie im Web
+    (`brandDeep` und `brandHover` waren vertauscht).
+  - Hausschrift Atkinson Hyperlegible Next (OFL), tabellarische Ziffern für
+    Beträge und Uhrzeiten.
+  - Statusbedeutung einheitlich: dringend = danger, offen = info,
+    in Arbeit = warning, wartend = neutral, erledigt = success.
+  - Gemeinsame Widgets `EmptyState` und `SectionTitle`; Warnmarkierung als
+    einziges Markenelement oben in der Kopfleiste.
 - Die App heißt jetzt **Wachwerk** wie der Server: App-Name auf dem
   Homescreen (Android und iOS), Texte und Hinweise zu Berechtigungen,
   Datenschutzseite, Landingpage und Doku. Bundle-ID, Paketname,
@@ -37,39 +117,39 @@ Alle wesentlichen Änderungen an Wachbuch Mobile werden hier dokumentiert.
   per `values-v31`, iOS per `LaunchScreen.storyboard`). Die alte
   `flutter_native_splash.yaml` verwies auf ein fehlendes Bild und war nie
   wirksam; sie enthält jetzt dieselben Werte.
-- Wache ohne Internet: Ein Verbindungs-QR mit `pin=sha256/…` hinterlegt den
-  Fingerabdruck eines lokalen Serverzertifikats (z. B. Raspberry Pi mit eigenem
-  WLAN). Die App vertraut dann genau diesem Zertifikat für diesen Server.
-- Kopplung am Wachenterminal: Ein QR mit `pair=…` meldet die App ohne Passwort
-  mit dem eigenen Konto an (Server ab 0.24.0, `POST /api/v1/token/kopplung/`).
-- iOS: Hinweistext für den Zugriff auf das lokale Netzwerk
-  (`NSLocalNetworkUsageDescription`).
-- Erinnerung für die Besatzung, wenn die Desinfektions-Einwirkzeit eines
-  Fahrzeugs abläuft (Server ab 0.24.0). Die App plant eine lokale
-  Benachrichtigung zur Sperrzeit und zeigt neue Hinweise aus dem persönlichen
-  Posteingang. Freigeben muss die Besatzung selbst; der Server gibt Fahrzeuge
-  nicht automatisch frei. Neue Android-Berechtigungen: `POST_NOTIFICATIONS`,
-  `VIBRATE`. Nativer Push über APNs/FCM ist serverseitig vorbereitet
-  (`docs/PUSH-RELAY.md` im Server-Repository).
-- API-Vertrag mit dem Server abgeglichen (Review 2026-10-22):
-  - Kaffeekasse liest die echten Serverfelder `balance_euros`, `results`,
-    `amount_euros` und `reason` (zuvor immer „0,00 €“ und keine Buchungen).
-  - Kassenstand zeigte statt des Währungssymbols einen Funktionsnamen
-    (`Closure: …`); behoben.
-  - Checklisten übernehmen Prüfpunkte, die der Server als Texte liefert, und
-    leiten „erledigt“ aus `last_completed_at` und Turnus ab; der Name der
-    abschließenden Person wird angezeigt.
-  - Ein Abschluss ersetzt die Karte nicht mehr durch eine leere Liste,
-    sondern ergänzt Zeitpunkt, Turnus und nächste Fälligkeit.
-  - Modul-Chips zeigen Wachenchat, Pinnwand, Feiertage und Wetter mit Namen
-    und blenden Zusatzangaben wie `holiday_state` aus.
-- Gemeinsame Palette mit der Web-PWA: Primary `#0D47A1`, Fläche `#F7F9FC`.
 - High-Contrast-Emergency-Themes sind an `MaterialApp` verdrahtet
   (`highContrastTheme` / `highContrastDarkTheme`).
+
+### Server-Abgleich (Review 2026-10-22)
+
+- Kaffeekasse liest die echten Serverfelder `balance_euros`, `results`,
+  `amount_euros` und `reason` (zuvor immer „0,00 €“ und keine Buchungen).
+- Kassenstand zeigte statt des Währungssymbols einen Funktionsnamen
+  (`Closure: …`); behoben.
+- Checklisten übernehmen Prüfpunkte, die der Server als Texte liefert, und
+  leiten „erledigt“ aus `last_completed_at` und Turnus ab; der Name der
+  abschließenden Person wird angezeigt.
+- Ein Abschluss ersetzt die Karte nicht mehr durch eine leere Liste,
+  sondern ergänzt Zeitpunkt, Turnus und nächste Fälligkeit.
+- Modul-Chips zeigen Wachenchat, Pinnwand, Feiertage und Wetter mit Namen
+  und blenden Zusatzangaben wie `holiday_state` aus.
 - Logout ruft `DELETE /api/v1/token/` best-effort auf und räumt den lokalen
   Speicher danach in jedem Fall. Demo-Sitzungen bleiben ohne Netzaufruf.
 - Die Vibe-P0-P3-Änderungen (nicht existierendes `geolocator 14.1.0`,
   unwirksames Certificate Pinning) sind von `main` zurückgenommen.
+
+### Abhängigkeiten
+
+- Flutter 3.47.8; mobile_scanner 7.4.2, package_info_plus 10.2.2,
+  permission_handler 13.0.2 (Android kompiliert dafür gegen API 37;
+  `targetSdk` bleibt beim Flutter-Standard), app_links, geolocator,
+  image_picker, shared_preferences, url_launcher, flutter_secure_storage
+  10.3.4; Gradle 9.8.2, Android Gradle Plugin 9.4.1, Kotlin 2.4.21; GitHub
+  Actions mit SHA-Pin.
+- Bewusst nicht angehoben: flutter_secure_storage 11 (gestufte Migration, siehe
+  `docs/SECURE-STORAGE-MIGRATION-1.0.md`; 1.1 bleibt auf 10.x ohne neue
+  Speicher-Migration) und connectivity_plus 7.3.2 (dbus-Konflikt mit
+  geolocator).
 
 ## 1.0.0 – Store-Release-Kandidat
 

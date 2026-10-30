@@ -41,8 +41,28 @@ class FakeServer {
   List<Map<String, dynamic>> locks = [];
   List<Map<String, dynamic>> notices = [];
   int statusForLocks = 200;
+  int statusForRead = 200;
+  int userId = 7;
+  final readIds = <int>[];
 
   http.Client get client => MockClient((request) async {
+        if (request.url.path == '/api/v1/me/') {
+          return http.Response(
+            jsonEncode({
+              'ok': true,
+              'user': {'id': userId, 'username': 'user$userId'},
+              'membership': {'role': 'member'},
+            }),
+            200,
+          );
+        }
+        final read = RegExp(r'^/api/v1/benachrichtigungen/(\d+)/gelesen/$')
+            .firstMatch(request.url.path);
+        if (read != null && request.method == 'POST') {
+          readIds.add(int.parse(read.group(1)!));
+          if (statusForRead != 200) return http.Response('{}', statusForRead);
+          return http.Response(jsonEncode({'ok': true, 'read': true}), 200);
+        }
         if (request.url.path == '/api/v1/fahrzeuge/sperren/') {
           if (statusForLocks != 200) return http.Response('{}', statusForLocks);
           return http.Response(jsonEncode({'ok': true, 'results': locks}), 200);
@@ -62,10 +82,11 @@ void main() {
   late FakeServer server;
   late FakeScheduler scheduler;
 
-  CrewReminderService service() => CrewReminderService(
-        api: WachbuchApi(baseUrl: 'https://wache.test', token: 'wb_x', client: server.client),
+  CrewReminderService service({String token = 'wb_x', String namespace = 'test'}) =>
+      CrewReminderService(
+        api: WachbuchApi(baseUrl: 'https://wache.test', token: token, client: server.client),
         scheduler: scheduler,
-        store: ReminderStore(namespace: 'test'),
+        store: ReminderStore(namespace: namespace),
         clock: () => now,
       );
 
@@ -105,7 +126,7 @@ void main() {
 
   test('shows a server notice once if it was not reminded locally', () async {
     server.notices = [
-      {'id': 7, 'key': 'vehicle_ready:2:b', 'title': 'RTW 2: Einwirkzeit abgelaufen', 'body': 'x', 'read': false},
+      {'id': 7, 'kind': 'vehicle_ready', 'key': 'vehicle_ready:2:b', 'title': 'RTW 2: Einwirkzeit abgelaufen', 'body': 'x', 'read': false},
     ];
     await service().sync();
     await service().sync();
@@ -114,13 +135,43 @@ void main() {
     expect(scheduler.shown.values.single, contains('RTW 2'));
   });
 
+  test('angezeigte Hinweise werden beim Server als gelesen markiert', () async {
+    server.notices = [
+      {'id': 7, 'kind': 'vehicle_ready', 'key': 'vehicle_ready:2:f', 'title': 'RTW 2', 'body': 'x', 'read': false},
+      {'id': 8, 'kind': 'vehicle_ready', 'key': 'vehicle_ready:3:f', 'title': 'RTW 3', 'body': 'x', 'read': true},
+    ];
+    await service().sync();
+
+    expect(scheduler.shown, hasLength(1));
+    expect(server.readIds, [7]);
+  });
+
+  test('„schon angezeigt“ gilt pro Benutzer, nicht pro Token', () async {
+    server.statusForRead = 500; // Hinweis bleibt serverseitig ungelesen
+    server.notices = [
+      {'id': 9, 'kind': 'vehicle_ready', 'key': 'vehicle_ready:2:g', 'title': 'RTW 2', 'body': 'x', 'read': false},
+    ];
+    await service(token: 'wb_alt', namespace: 'token-a').sync();
+    expect(scheduler.shown, hasLength(1));
+
+    // Neue Anmeldung desselben Benutzers mit neuem Token: nicht erneut zeigen.
+    scheduler.shown.clear();
+    await service(token: 'wb_neu', namespace: 'token-b').sync();
+    expect(scheduler.shown, isEmpty);
+
+    // Anderer Benutzer auf demselben Gerät bekommt den Hinweis.
+    server.userId = 8;
+    await service(token: 'wb_anderer', namespace: 'token-c').sync();
+    expect(scheduler.shown, hasLength(1));
+  });
+
   test('does not repeat a notice that the local reminder already showed', () async {
     // Erster Lauf vor Ablauf: Erinnerung geplant.
     final until = now.subtract(const Duration(minutes: 1));
     final store = ReminderStore(namespace: 'test');
     await store.writeScheduled({'vehicle_ready:2:c': until});
     server.notices = [
-      {'id': 8, 'key': 'vehicle_ready:2:c', 'title': 'RTW 2', 'body': 'x', 'read': false},
+      {'id': 8, 'kind': 'vehicle_ready', 'key': 'vehicle_ready:2:c', 'title': 'RTW 2', 'body': 'x', 'read': false},
     ];
     await service().sync();
 
@@ -135,6 +186,20 @@ void main() {
     expect(scheduler.shown, isEmpty);
   });
 
+  test('401 wird nicht still geschluckt und verwirft geplante Erinnerungen', () async {
+    server.locks = [lock('vehicle_ready:2:e', now.add(const Duration(minutes: 5)))];
+    final reminders = service();
+    await reminders.sync();
+    expect(scheduler.scheduled, isNotEmpty);
+
+    server.statusForLocks = 401;
+    await expectLater(
+      reminders.sync(),
+      throwsA(isA<ApiException>().having((e) => e.statusCode, 'status', 401)),
+    );
+    expect(scheduler.scheduled, isEmpty);
+  });
+
   test('clear removes all planned reminders', () async {
     server.locks = [lock('vehicle_ready:2:d', now.add(const Duration(minutes: 5)))];
     final reminders = service();
@@ -143,6 +208,42 @@ void main() {
 
     expect(scheduler.scheduled, isEmpty);
     expect(await ReminderStore(namespace: 'test').readScheduled(), isEmpty);
+  });
+
+  test('unbekannte Hinweisart wird weder angezeigt noch als gelesen gemeldet',
+      () async {
+    server.notices = [
+      {
+        'id': 20,
+        'kind': 'system_health',
+        'key': 'system_health:1',
+        'title': 'Wachwerk: technische Störung',
+        'body': 'Dienst backup läuft nicht.',
+        'read': false,
+      },
+      {'id': 21, 'key': 'ohne_art:1', 'title': 'Ohne Art', 'body': 'x', 'read': false},
+    ];
+    await service().sync();
+
+    expect(scheduler.shown, isEmpty);
+    expect(server.readIds, isEmpty);
+  });
+
+  test('Kaffeekasse-Hinweis (coffee_due) wird angezeigt', () async {
+    server.notices = [
+      {
+        'id': 22,
+        'kind': 'coffee_due',
+        'key': 'coffee_due:2026-10',
+        'title': 'Kaffeekasse: Beitrag offen',
+        'body': 'Oktober ist noch offen.',
+        'read': false,
+      },
+    ];
+    await service().sync();
+
+    expect(scheduler.shown.values.single, 'Kaffeekasse: Beitrag offen');
+    expect(server.readIds, [22]);
   });
 
   test('reminder ids are stable and positive', () {
