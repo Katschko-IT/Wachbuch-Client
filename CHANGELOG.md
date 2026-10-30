@@ -4,6 +4,11 @@ Alle wesentlichen Änderungen an Wachbuch Mobile werden hier dokumentiert.
 
 ## Unreleased
 
+- Auswertung: Der Abschnitt „Offene Mängel nach Person“ erscheint nur noch,
+  wenn der Server Zeilen liefert. Ab Server 0.26.1 ist `defects_by_owner`
+  immer leer (Mängel je Person sind Leistungsdaten); die Zahl der offenen
+  Mängel steht weiter oben. Demo-Modus und Demo-Landingpage zählen keine
+  Mängel je Person mehr.
 - Übergaben in der App anlegen (Titel, Text, Bereich, Dringlichkeit).
   Schichtleitung und Admin ändern den Status im Detail; erledigte Übergaben
   verschwinden aus der aktiven Liste.
