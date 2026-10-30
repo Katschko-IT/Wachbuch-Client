@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -37,7 +38,9 @@ void main() {
         http.Response(_nginxHtml, 413, headers: {'content-type': 'text/html'}),
       );
       expect(error.statusCode, 413);
-      expect(error.message, 'Datei zu groß (max. 2 MiB)');
+      // Ohne Zahl: die Proxy-Grenze gilt für den base64-kodierten Body.
+      expect(error.message, 'Datei zu groß für den Server');
+      expect(error.message, isNot(contains('MiB')));
     });
 
     test('415 ohne Körper wird zu „Dateityp nicht unterstützt“', () async {
@@ -99,6 +102,77 @@ void main() {
     test('andere 4xx mit HTML bleiben „ungültige Antwort“', () async {
       final error = await _uploadError(http.Response('<html>teapot</html>', 418));
       expect(error.message, 'Der Server hat eine ungültige Antwort gesendet.');
+    });
+  });
+
+  group('Fotogrenze ist überall 5 MiB', () {
+    const limit = 5 * 1024 * 1024;
+
+    test('eine Konstante wie MAX_ATTACHMENT_BYTES des Servers', () {
+      expect(WachbuchApi.maxAttachmentBytes, limit);
+      expect(WachbuchApi.exceedsAttachmentLimit(3 * 1024 * 1024), isFalse);
+      expect(WachbuchApi.exceedsAttachmentLimit(limit), isFalse);
+      expect(WachbuchApi.exceedsAttachmentLimit(limit + 1), isTrue);
+    });
+
+    test('5 MiB + 1 Byte scheitert vor dem Netz mit 413', () async {
+      var calls = 0;
+      final api = WachbuchApi(
+        baseUrl: 'https://wache.example.org',
+        token: 'wb_test',
+        client: MockClient((_) async {
+          calls++;
+          return http.Response('{}', 201);
+        }),
+      );
+
+      await expectLater(
+        api.uploadDefectAttachment(
+          1,
+          filename: 'gross.jpg',
+          contentType: 'image/jpeg',
+          bytes: Uint8List(limit + 1),
+        ),
+        throwsA(isA<ApiException>().having((e) => e.statusCode, 'status', 413)),
+      );
+      expect(calls, 0);
+    });
+
+    test('genau 5 MiB werden gesendet', () async {
+      var calls = 0;
+      final api = WachbuchApi(
+        baseUrl: 'https://wache.example.org',
+        token: 'wb_test',
+        client: MockClient((_) async {
+          calls++;
+          return http.Response(
+            jsonEncode({'id': 1, 'filename': 'a.jpg', 'content_type': 'image/jpeg'}),
+            201,
+          );
+        }),
+      );
+
+      await api.uploadDefectAttachment(
+        1,
+        filename: 'a.jpg',
+        contentType: 'image/jpeg',
+        bytes: Uint8List(limit),
+      );
+      expect(calls, 1);
+    });
+
+    test('keine abweichende Fotogrenze im Quelltext', () {
+      // Die alte Prüfung `bytes.length > 2 * 1024 * 1024` darf nicht
+      // zurückkommen (12 MiB Gesamtgrenze der Demo zählt nicht).
+      final twoMiB = RegExp(r'(?<!\d)2\s*\*\s*1024\s*\*\s*1024');
+      final offenders = <String>[];
+      for (final file in Directory('lib').listSync(recursive: true)) {
+        if (file is! File || !file.path.endsWith('.dart')) continue;
+        if (twoMiB.hasMatch(file.readAsStringSync())) {
+          offenders.add(file.path);
+        }
+      }
+      expect(offenders, isEmpty);
     });
   });
 }

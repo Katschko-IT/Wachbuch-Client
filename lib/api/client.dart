@@ -116,6 +116,13 @@ class WachbuchApi {
         _cache = cache,
         _clock = clock ?? DateTime.now;
 
+  /// Höchstgröße eines Mängelfotos wie auf dem Server
+  /// (`core/api/wachalltag.py`: `MAX_ATTACHMENT_BYTES`).
+  static const int maxAttachmentBytes = 5 * 1024 * 1024;
+
+  /// Prüfung vor dem Senden; dieselbe Grenze für Oberfläche und API-Aufruf.
+  static bool exceedsAttachmentLimit(int bytes) => bytes > maxAttachmentBytes;
+
   /// Origin only, e.g. https://wache.example.org (no trailing slash).
   final String baseUrl;
   final String? token;
@@ -236,9 +243,12 @@ class WachbuchApi {
 
   /// Verständliche Meldungen für Antworten ohne JSON-Körper, wie sie z. B.
   /// nginx vor dem Server bei zu großen Uploads oder Ratenbegrenzung liefert.
+  /// 413 nennt bewusst keine Zahl: Fotos gehen base64-kodiert im JSON, die
+  /// wirksame Grenze hängt daher von `client_max_body_size` des Proxys ab und
+  /// liegt unter [maxAttachmentBytes].
   String? _proxyErrorMessage(http.Response response) {
     return switch (response.statusCode) {
-      413 => 'Datei zu groß (max. 2 MiB)',
+      413 => 'Datei zu groß für den Server',
       415 => 'Dateityp nicht unterstützt',
       429 => 'Zu viele Anfragen – bitte kurz warten${_retryAfterHint(response)}',
       _ => null,
@@ -874,8 +884,7 @@ class WachbuchApi {
     required String contentType,
     required Uint8List bytes,
   }) async {
-    // Grenze wie der Server (core/api/wachalltag.py: MAX_ATTACHMENT_BYTES).
-    if (bytes.length > 5 * 1024 * 1024) {
+    if (exceedsAttachmentLimit(bytes.length)) {
       throw ApiException(413, 'Bild darf maximal 5 MiB groß sein.');
     }
     return _withRetry(() async {

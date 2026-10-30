@@ -21,7 +21,7 @@ import 'package:wachbuch_mobile/models/station_asset.dart';
 import 'package:wachbuch_mobile/api/server_trust.dart';
 
 const demoTokenPrefix = 'wb_demo_';
-const _maxAttachmentBytes = 5 * 1024 * 1024;
+const _maxAttachmentBytes = WachbuchApi.maxAttachmentBytes;
 const _maxAttachmentsPerDefect = 8;
 const _maxAttachmentTotalBytes = 12 * 1024 * 1024;
 

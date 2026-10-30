@@ -620,7 +620,7 @@ class _DefectDetailSheetState extends State<_DefectDetailSheet> {
     if (file == null || !mounted) return;
     final bytes = await file.readAsBytes();
     if (!mounted) return;
-    if (bytes.length > 2 * 1024 * 1024) {
+    if (WachbuchApi.exceedsAttachmentLimit(bytes.length)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l.defectPhotoTooLarge)),
       );
