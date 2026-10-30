@@ -97,3 +97,7 @@ Der Quelltext von 11.2.0 ist gegen Wachwerk geprüft. Ergebnis:
 - `minSdk 24` hat Wachwerk schon. Ab 11.1.0 folgt das Plugin wieder `flutter.compileSdkVersion`.
 
 Die Umstellung bleibt trotzdem zurückgestellt. Der Grund ist die oben verlangte Abnahme des 10.x-Builds auf echten Geräten, nicht die Programmierschnittstelle. Bis dahin bleibt die Linie 10.x; der Lock steht auf 10.3.4.
+
+## App 1.1 (Build 1.1.0+13)
+
+1.1.0+13 bleibt auf `flutter_secure_storage` 10.x (10.3.4). Es gibt **keine** neue Speicher-Migration: `migrateOnAlgorithmChange: true` und `migrateWithBackup: true` bleiben unverändert. Ein Gerät mit 9.x-Speicher (Build ≤ 1.0.0+11) durchläuft beim Update auf 1.1.0+13 denselben Pfad wie beim Update auf 1.0.0+12; einen direkten Sprung auf 11.x gibt es nicht. Upgrade-Matrix und Prüfungen für 1.1: [`STORE-RELEASE-1.1.md`](STORE-RELEASE-1.1.md).
