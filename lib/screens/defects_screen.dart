@@ -8,6 +8,7 @@ import 'package:wachbuch_mobile/state/defect_state.dart';
 import 'package:wachbuch_mobile/state/station_roles.dart';
 import 'package:wachbuch_mobile/theme/design_tokens.dart';
 import 'package:wachbuch_mobile/ui/error_banner.dart';
+import 'package:wachbuch_mobile/ui/free_text_boundary_hint.dart';
 import 'package:wachbuch_mobile/ui/layout.dart';
 import 'package:wachbuch_mobile/ui/priority_badge.dart';
 import 'package:wachbuch_mobile/ui/status_chip.dart';
@@ -1020,6 +1021,8 @@ class _DefectEditSheetState extends State<_DefectEditSheet> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(widget.defect.title, style: Theme.of(context).textTheme.headlineSmall),
+            const SizedBox(height: 8),
+            const FreeTextBoundaryHint(),
             const SizedBox(height: 16),
             TextField(
               key: const Key('defect-edit-description'),

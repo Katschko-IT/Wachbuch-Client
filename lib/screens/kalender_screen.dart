@@ -5,6 +5,7 @@ import 'package:wachbuch_mobile/l10n/generated/app_localizations.dart';
 import 'package:wachbuch_mobile/api/client.dart';
 import 'package:wachbuch_mobile/models/kalender_entry.dart';
 import 'package:wachbuch_mobile/ui/error_banner.dart';
+import 'package:wachbuch_mobile/ui/free_text_boundary_hint.dart';
 import 'package:wachbuch_mobile/ui/layout.dart';
 
 class KalenderScreen extends StatefulWidget {
@@ -366,6 +367,8 @@ class _KalenderCreateSheetState extends State<KalenderCreateSheet> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(l.kalenderCreate, style: Theme.of(context).textTheme.headlineSmall),
+              const SizedBox(height: 8),
+              const FreeTextBoundaryHint(),
               const SizedBox(height: 16),
               TextFormField(
                 key: const Key('kalender-create-title'),

@@ -368,6 +368,7 @@
   "@attachmentFileInfo": {"placeholders": {"filename": {"type": "String"}, "contentType": {"type": "String"}}},
   "sessionInvalidNotice": "Anmeldung abgelaufen oder widerrufen. Bitte erneut anmelden.",
   "sessionNoMembershipNotice": "Für dieses Konto gibt es keinen aktiven Wachenzugang. Bitte an die Wachenleitung wenden.",
+  "freeTextBoundaryHint": "Keine Patienten- oder Einsatzdaten eintragen.",
   "handoverNoAutoRetryHint": "Wird einmal gesendet. Bei einem Fehler bitte die Liste prüfen, bevor Sie erneut senden.",
   "defectsShowDone": "Erledigte anzeigen",
   "defectsLoadMore": "Mehr laden",

@@ -1102,6 +1102,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'This account has no active station access. Please contact your station management.';
 
   @override
+  String get freeTextBoundaryHint => 'Do not enter patient or mission data.';
+
+  @override
   String get handoverNoAutoRetryHint =>
       'Sent once. If an error occurs, please check the list before sending again.';
 

@@ -2114,6 +2114,12 @@ abstract class AppLocalizations {
   /// **'Für dieses Konto gibt es keinen aktiven Wachenzugang. Bitte an die Wachenleitung wenden.'**
   String get sessionNoMembershipNotice;
 
+  /// No description provided for @freeTextBoundaryHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine Patienten- oder Einsatzdaten eintragen.'**
+  String get freeTextBoundaryHint;
+
   /// No description provided for @handoverNoAutoRetryHint.
   ///
   /// In de, this message translates to:

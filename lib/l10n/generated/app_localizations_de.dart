@@ -1109,6 +1109,10 @@ class AppLocalizationsDe extends AppLocalizations {
       'Für dieses Konto gibt es keinen aktiven Wachenzugang. Bitte an die Wachenleitung wenden.';
 
   @override
+  String get freeTextBoundaryHint =>
+      'Keine Patienten- oder Einsatzdaten eintragen.';
+
+  @override
   String get handoverNoAutoRetryHint =>
       'Wird einmal gesendet. Bei einem Fehler bitte die Liste prüfen, bevor Sie erneut senden.';
 
