@@ -22,6 +22,9 @@ class _MemoryCache implements ApiCache {
   Future<void> writeJson(String key, Map<String, dynamic> value) async {
     values[key] = Map<String, dynamic>.from(value);
   }
+
+  @override
+  Future<void> remove(String key) async => values.remove(key);
 }
 
 void main() {
@@ -84,6 +87,7 @@ void main() {
           'ok': true,
           'user': {'username': 'michael'},
           'membership': {
+            'role': 'member',
             'station': {
               'name': 'Wache Nord',
               'modules': {'defects': true},

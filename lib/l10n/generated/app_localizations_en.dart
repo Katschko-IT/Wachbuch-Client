@@ -397,6 +397,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get kalenderEmpty => 'No upcoming appointments.';
 
   @override
+  String get kalenderEmptyTitle => 'No appointments';
+
+  @override
   String get kalenderEntryFallback => 'Appointment';
 
   @override
@@ -422,6 +425,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get kaffeekasseEmptyLedger => 'No transactions yet.';
 
   @override
+  String get kaffeekasseEmptyLedgerTitle => 'No transactions';
+
+  @override
   String get kaffeekasseEntryFallback => 'Transaction';
 
   @override
@@ -429,6 +435,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get checklistenEmpty => 'No checklists available.';
+
+  @override
+  String get checklistenEmptyTitle => 'No checklists';
 
   @override
   String get checklistFallback => 'Checklist';
@@ -1078,4 +1087,41 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get defectDueClear => 'Remove deadline';
+
+  @override
+  String get attachmentPreviewUnavailable => 'Preview not available';
+
+  @override
+  String attachmentFileInfo(String filename, String contentType) {
+    return '$filename ($contentType)';
+  }
+
+  @override
+  String get sessionInvalidNotice =>
+      'Your sign-in expired or was revoked. Please sign in again.';
+
+  @override
+  String get sessionNoMembershipNotice =>
+      'This account has no active station access. Please contact your station management.';
+
+  @override
+  String get handoverNoAutoRetryHint =>
+      'Sent once. If an error occurs, please check the list before sending again.';
+
+  @override
+  String get defectsShowDone => 'Show completed';
+
+  @override
+  String get defectsLoadMore => 'Load more';
+
+  @override
+  String defectsShownOfTotal(int shown, int total) {
+    return '$shown of $total defects';
+  }
+
+  @override
+  String get kaffeekasseBalanceStation => 'Station fund balance';
+
+  @override
+  String get kaffeekasseBalanceOwn => 'My balance';
 }

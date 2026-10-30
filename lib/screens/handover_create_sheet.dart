@@ -153,7 +153,15 @@ class _HandoverCreateSheetState extends State<HandoverCreateSheet> {
                   style: TextStyle(color: Theme.of(context).colorScheme.error),
                 ),
               ],
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
+              // Kein automatisches Wiederholen: der Hinweis erklärt, warum.
+              Text(
+                l.handoverNoAutoRetryHint,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+              const SizedBox(height: 12),
               FilledButton.icon(
                 key: const Key('handover-create-submit'),
                 onPressed: _saving ? null : () => _submit(l),

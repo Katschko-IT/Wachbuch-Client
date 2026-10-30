@@ -27,7 +27,11 @@ const _maxAttachmentTotalBytes = 12 * 1024 * 1024;
 
 /// Returns a demo API when [baseUrl] matches a [DemoService] host.
 /// Real authenticated sessions receive a token-bound encrypted read cache.
-WachbuchApi createWachbuchApi(String baseUrl, {String? token}) {
+WachbuchApi createWachbuchApi(
+  String baseUrl, {
+  String? token,
+  UnauthorizedCallback? onUnauthorized,
+}) {
   final service = DemoService.fromServerUrl(baseUrl);
   if (service != null) {
     return DemoWachbuchApi(
@@ -43,6 +47,7 @@ WachbuchApi createWachbuchApi(String baseUrl, {String? token}) {
     cache: token == null || token.isEmpty
         ? null
         : SecureApiCache.forSession(baseUrl: baseUrl, token: token),
+    onUnauthorized: onUnauthorized,
   );
 }
 
@@ -214,7 +219,7 @@ class DemoWachbuchApi extends WachbuchApi {
   Future<Map<String, dynamic>> createHandover({
     required String title,
     required String details,
-    String category = 'station',
+    required String category,
     String priority = 'normal',
   }) async {
     final id = _handovers.fold<int>(
@@ -222,6 +227,7 @@ class DemoWachbuchApi extends WachbuchApi {
           (maxId, item) => (item['id'] as int? ?? 0) > maxId ? item['id'] as int : maxId,
         ) +
         1;
+    final now = DateTime.now().toUtc().toIso8601String();
     final entry = <String, dynamic>{
       'id': id,
       'title': title,
@@ -231,7 +237,8 @@ class DemoWachbuchApi extends WachbuchApi {
       'priority': priority,
       'status': 'open',
       'author': profile.username,
-      'updated_at': DateTime.now().toUtc().toIso8601String(),
+      'created_at': now,
+      'updated_at': now,
       'version': 1,
     };
     _handovers.insert(0, entry);
@@ -242,10 +249,13 @@ class DemoWachbuchApi extends WachbuchApi {
   Future<Map<String, dynamic>> setHandoverStatus(int id, String status) async {
     final index = _handovers.indexWhere((entry) => entry['id'] == id);
     if (index < 0) throw ApiException(404, 'Übergabe nicht gefunden.');
+    final current = _handovers[index];
+    // Wie der Server: jede Statusänderung erhöht die Version.
     _handovers[index] = {
-      ..._handovers[index],
+      ...current,
       'status': status,
       'updated_at': DateTime.now().toUtc().toIso8601String(),
+      'version': ((current['version'] as num?)?.toInt() ?? 1) + 1,
     };
     return Map<String, dynamic>.from(_handovers[index]);
   }
@@ -389,6 +399,18 @@ class DemoWachbuchApi extends WachbuchApi {
 
   @override
   Future<List<Defect>> defects() async => List<Defect>.unmodifiable(_defects);
+
+  @override
+  Future<DefectPage> defectsPage({bool includeDone = false, int limit = 100}) async {
+    final items = _defects
+        .where((item) => includeDone || item.status != 'done')
+        .toList(growable: false);
+    return DefectPage(items: items, count: items.length);
+  }
+
+  @override
+  Future<DefectPage> defectsNext(String next) async =>
+      const DefectPage(items: [], count: 0);
 
   @override
   Future<Defect> createDefect({

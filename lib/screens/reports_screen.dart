@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wachbuch_mobile/theme/design_tokens.dart';
 import 'package:wachbuch_mobile/api/client.dart';
 import 'package:wachbuch_mobile/l10n/generated/app_localizations.dart';
 import 'package:wachbuch_mobile/models/report_stats.dart';
@@ -113,9 +114,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   ],
                   Material(
                     color: Theme.of(context).colorScheme.secondaryContainer,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(WachbuchTokens.radiusMd),
                     child: Padding(
-                      padding: const EdgeInsets.all(14),
+                      padding: const EdgeInsets.all(WachbuchTokens.space4),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -180,7 +181,7 @@ class _Metrics extends StatelessWidget {
                 width: width,
                 child: Card(
                   child: Padding(
-                    padding: const EdgeInsets.all(14),
+                    padding: const EdgeInsets.all(WachbuchTokens.space4),
                     child: Row(
                       children: [
                         Icon(row.$1, color: Theme.of(context).colorScheme.primary),

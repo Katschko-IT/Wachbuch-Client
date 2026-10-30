@@ -830,6 +830,12 @@ abstract class AppLocalizations {
   /// **'Keine anstehenden Termine.'**
   String get kalenderEmpty;
 
+  /// No description provided for @kalenderEmptyTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine Termine'**
+  String get kalenderEmptyTitle;
+
   /// No description provided for @kalenderEntryFallback.
   ///
   /// In de, this message translates to:
@@ -878,6 +884,12 @@ abstract class AppLocalizations {
   /// **'Noch keine Buchungen.'**
   String get kaffeekasseEmptyLedger;
 
+  /// No description provided for @kaffeekasseEmptyLedgerTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine Buchungen'**
+  String get kaffeekasseEmptyLedgerTitle;
+
   /// No description provided for @kaffeekasseEntryFallback.
   ///
   /// In de, this message translates to:
@@ -895,6 +907,12 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Keine Checklisten verfügbar.'**
   String get checklistenEmpty;
+
+  /// No description provided for @checklistenEmptyTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine Checklisten'**
+  String get checklistenEmptyTitle;
 
   /// No description provided for @checklistFallback.
   ///
@@ -2077,6 +2095,66 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Frist entfernen'**
   String get defectDueClear;
+
+  /// No description provided for @attachmentPreviewUnavailable.
+  ///
+  /// In de, this message translates to:
+  /// **'Vorschau nicht verfügbar'**
+  String get attachmentPreviewUnavailable;
+
+  /// No description provided for @attachmentFileInfo.
+  ///
+  /// In de, this message translates to:
+  /// **'{filename} ({contentType})'**
+  String attachmentFileInfo(String filename, String contentType);
+
+  /// No description provided for @sessionInvalidNotice.
+  ///
+  /// In de, this message translates to:
+  /// **'Anmeldung abgelaufen oder widerrufen. Bitte erneut anmelden.'**
+  String get sessionInvalidNotice;
+
+  /// No description provided for @sessionNoMembershipNotice.
+  ///
+  /// In de, this message translates to:
+  /// **'Für dieses Konto gibt es keinen aktiven Wachenzugang. Bitte an die Wachenleitung wenden.'**
+  String get sessionNoMembershipNotice;
+
+  /// No description provided for @handoverNoAutoRetryHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Wird einmal gesendet. Bei einem Fehler bitte die Liste prüfen, bevor Sie erneut senden.'**
+  String get handoverNoAutoRetryHint;
+
+  /// No description provided for @defectsShowDone.
+  ///
+  /// In de, this message translates to:
+  /// **'Erledigte anzeigen'**
+  String get defectsShowDone;
+
+  /// No description provided for @defectsLoadMore.
+  ///
+  /// In de, this message translates to:
+  /// **'Mehr laden'**
+  String get defectsLoadMore;
+
+  /// No description provided for @defectsShownOfTotal.
+  ///
+  /// In de, this message translates to:
+  /// **'{shown} von {total} Mängeln'**
+  String defectsShownOfTotal(int shown, int total);
+
+  /// No description provided for @kaffeekasseBalanceStation.
+  ///
+  /// In de, this message translates to:
+  /// **'Kassenstand der Wache'**
+  String get kaffeekasseBalanceStation;
+
+  /// No description provided for @kaffeekasseBalanceOwn.
+  ///
+  /// In de, this message translates to:
+  /// **'Mein Saldo'**
+  String get kaffeekasseBalanceOwn;
 }
 
 class _AppLocalizationsDelegate

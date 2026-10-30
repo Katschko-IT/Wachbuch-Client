@@ -4,7 +4,7 @@ Stand: 10. August 2026
 
 ## Ziel
 
-Wachwerk migriert `flutter_secure_storage` kontrolliert von 9.2.4 auf **10.3.1**, bevor ein späterer Wechsel auf 11.x erfolgt. Der Schritt betrifft App-Token, Token-Ablaufzeit und den server-/tokengebundenen Offline-Lesecache.
+Wachwerk migriert `flutter_secure_storage` kontrolliert von 9.2.4 auf **10.3.4**, bevor ein späterer Wechsel auf 11.x erfolgt. Der Schritt betrifft App-Token, Token-Ablaufzeit und den server-/tokengebundenen Offline-Lesecache.
 
 ## Warum nicht direkt 11.x?
 
@@ -23,7 +23,7 @@ Damit wird die Algorithmusmigration ausdrücklich aktiviert und mit crash-resist
 
 ## Android-Zielzustand
 
-Mit `flutter_secure_storage` 10.3.1 verwendet die Standardkonfiguration:
+Mit `flutter_secure_storage` 10.3.4 verwendet die Standardkonfiguration:
 
 - RSA-OAEP mit SHA-256 für Key-Wrapping,
 - AES-GCM für Storage-Verschlüsselung,
@@ -76,7 +76,7 @@ Empfohlene Reihenfolge:
 
 ## Rollback
 
-Nach erfolgreicher Migration darf nicht ungeprüft auf einen 9.x-Build zurückgegangen werden. Ein Rollback muss auf Testgeräten mit bereits migriertem Storage verifiziert werden. Bei einem App-Fehler ist ein 10.3.1-basierter Hotfix einem Downgrade auf 9.x vorzuziehen.
+Nach erfolgreicher Migration darf nicht ungeprüft auf einen 9.x-Build zurückgegangen werden. Ein Rollback muss auf Testgeräten mit bereits migriertem Storage verifiziert werden. Bei einem App-Fehler ist ein 10.3.x-basierter Hotfix einem Downgrade auf 9.x vorzuziehen.
 
 ## v11-Freigabe
 

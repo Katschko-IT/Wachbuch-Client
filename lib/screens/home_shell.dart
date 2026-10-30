@@ -18,12 +18,18 @@ import 'package:wachbuch_mobile/services/connectivity_service.dart';
 import 'package:wachbuch_mobile/state/auth_state.dart';
 import 'package:wachbuch_mobile/screens/handover_create_sheet.dart';
 import 'package:wachbuch_mobile/state/handover_state.dart';
+import 'package:wachbuch_mobile/state/station_roles.dart';
+import 'package:wachbuch_mobile/theme/design_tokens.dart';
 import 'package:wachbuch_mobile/ui/asset_status_board.dart';
 import 'package:wachbuch_mobile/ui/demo_banner.dart';
 import 'package:wachbuch_mobile/ui/error_banner.dart';
 import 'package:wachbuch_mobile/ui/handover_filter.dart';
 import 'package:wachbuch_mobile/ui/layout.dart';
 import 'package:wachbuch_mobile/ui/offline_banner.dart';
+import 'package:wachbuch_mobile/ui/priority_badge.dart';
+import 'package:wachbuch_mobile/ui/section_title.dart';
+import 'package:wachbuch_mobile/ui/status_chip.dart';
+import 'package:wachbuch_mobile/ui/warn_stripe.dart';
 
 class HomeShell extends StatefulWidget {
   const HomeShell({
@@ -83,7 +89,8 @@ class _HomeShellState extends State<HomeShell> {
     final isUnauthorized =
         _authState.lastError?.statusCode == 401 ||
         _handoverState.lastError?.statusCode == 401;
-    if (isUnauthorized) {
+    // Mit zentralem onUnauthorized meldet die App bereits selbst ab.
+    if (isUnauthorized && widget.api.onUnauthorized == null) {
       await widget.onLogout();
     }
   }
@@ -151,7 +158,8 @@ class _HomeShellState extends State<HomeShell> {
               api: widget.api,
               stationName: stationName,
               roleLabel: _authState.roleLabel,
-              canLead: _authState.canLead,
+              role: _authState.role,
+              username: _authState.username,
               modules: _authState.modules,
               handovers: _handoverState.items,
               loading: loading,
@@ -163,7 +171,7 @@ class _HomeShellState extends State<HomeShell> {
               api: widget.api,
               handoverState: _handoverState,
               currentUsername: _authState.username,
-              canLead: _authState.canLead,
+              role: _authState.role,
               error: error,
               onRefresh: _reload,
             ),
@@ -179,6 +187,11 @@ class _HomeShellState extends State<HomeShell> {
         );
 
         final appBar = AppBar(
+          // Warnmarkierung: einzige Stelle des Markenelements in der App.
+          flexibleSpace: const SafeArea(
+            bottom: false,
+            child: Align(alignment: Alignment.topCenter, child: WarnStripe()),
+          ),
           title: Text(
             stationName,
             maxLines: 1,
@@ -282,19 +295,21 @@ class _OverviewTab extends StatelessWidget {
     required this.api,
     required this.stationName,
     required this.roleLabel,
-    this.canLead = false,
     required this.modules,
     required this.handovers,
     required this.loading,
     required this.hasData,
     required this.error,
     required this.onRefresh,
+    this.role,
+    this.username,
   });
 
   final WachbuchApi api;
   final String stationName;
   final String roleLabel;
-  final bool canLead;
+  final String? role;
+  final String? username;
   final Map<String, dynamic> modules;
   final List<Map<String, dynamic>> handovers;
   final bool loading;
@@ -336,7 +351,7 @@ class _OverviewTab extends StatelessWidget {
                 ErrorBanner(message: error!),
                 const SizedBox(height: 16),
               ],
-              _SectionTitle(
+              SectionTitle(
                 icon: Icons.monitor_heart_outlined,
                 title: l.overviewActiveHandovers,
               ),
@@ -385,7 +400,7 @@ class _OverviewTab extends StatelessWidget {
                 _OverviewAssetBoard(api: api),
               ],
               const SizedBox(height: 24),
-              _SectionTitle(
+              SectionTitle(
                 icon: Icons.dashboard_customize_outlined,
                 title: l.overviewModulesTitle,
               ),
@@ -411,13 +426,18 @@ class _OverviewTab extends StatelessWidget {
                 }).toList(),
               ),
               const SizedBox(height: 24),
-              _ModuleTiles(api: api, modules: modules, canLead: canLead),
+              _ModuleTiles(
+                api: api,
+                modules: modules,
+                role: role,
+                username: username,
+              ),
               const SizedBox(height: 24),
               Material(
                 color: Theme.of(context).colorScheme.primaryContainer,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(WachbuchTokens.radiusMd),
                 child: Padding(
-                  padding: const EdgeInsets.all(14),
+                  padding: const EdgeInsets.all(WachbuchTokens.space4),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -457,29 +477,33 @@ class _StationHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final c = WachbuchColors.of(context);
+    // Ruhige Fläche: Farbe bleibt Zustand und Bedienung vorbehalten.
     return Material(
-      color: scheme.primary,
-      borderRadius: BorderRadius.circular(18),
+      color: c.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(WachbuchTokens.radiusLg),
+        side: BorderSide(color: c.line),
+      ),
       clipBehavior: Clip.antiAlias,
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(WachbuchTokens.space5),
         child: Row(
           children: [
             Container(
               width: 52,
               height: 52,
               decoration: BoxDecoration(
-                color: scheme.onPrimary.withValues(alpha: 0.14),
-                borderRadius: BorderRadius.circular(14),
+                color: c.accentSoft,
+                borderRadius: BorderRadius.circular(WachbuchTokens.radiusLg),
               ),
               child: Icon(
                 Icons.local_hospital_outlined,
-                color: scheme.onPrimary,
+                color: c.brandDeep,
                 size: 30,
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: WachbuchTokens.space4),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -490,14 +514,14 @@ class _StationHero extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(
                       context,
-                    ).textTheme.titleLarge?.copyWith(color: scheme.onPrimary),
+                    ).textTheme.titleLarge?.copyWith(color: c.text),
                   ),
                   if (roleLabel.isNotEmpty) ...[
-                    const SizedBox(height: 4),
+                    const SizedBox(height: WachbuchTokens.space1),
                     Text(
                       roleLabel,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: scheme.onPrimary.withValues(alpha: 0.88),
+                        color: c.muted,
                       ),
                     ),
                   ],
@@ -507,27 +531,6 @@ class _StationHero extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _SectionTitle extends StatelessWidget {
-  const _SectionTitle({required this.icon, required this.title});
-
-  final IconData icon;
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Row(
-      children: [
-        Icon(icon, size: 24, color: scheme.primary),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(title, style: Theme.of(context).textTheme.titleMedium),
-        ),
-      ],
     );
   }
 }
@@ -583,11 +586,17 @@ class _DashboardMetric extends StatelessWidget {
 }
 
 class _ModuleTiles extends StatelessWidget {
-  const _ModuleTiles({required this.api, required this.modules, this.canLead = false});
+  const _ModuleTiles({
+    required this.api,
+    required this.modules,
+    this.role,
+    this.username,
+  });
 
-  final bool canLead;
   final WachbuchApi api;
   final Map<String, dynamic> modules;
+  final String? role;
+  final String? username;
 
   /// Module key -> list of tiles to render when the module is enabled.
   /// `chat` renders two tiles (chat + groups); `assets` also matches `inventory`.
@@ -621,7 +630,7 @@ class _ModuleTiles extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _SectionTitle(
+        SectionTitle(
           icon: Icons.apps_outlined,
           title: l.quickAccessTitle,
         ),
@@ -684,15 +693,18 @@ class _ModuleTiles extends StatelessWidget {
     final Widget screen;
     switch (destination.key) {
       case 'module-tile-calendar':
-        screen = KalenderScreen(api: api, canCreate: canLead);
+        screen = KalenderScreen(
+          api: api,
+          canCreate: StationRoles.canCreateCalendarEntry(role),
+        );
       case 'module-tile-coffee':
         screen = KaffeekasseScreen(api: api);
       case 'module-tile-checklists':
         screen = ChecklistenScreen(api: api);
       case 'module-tile-defects':
-        screen = DefectsScreen(api: api);
+        screen = DefectsScreen(api: api, role: role);
       case 'module-tile-assets':
-        screen = AssetsScreen(api: api);
+        screen = AssetsScreen(api: api, role: role, username: username);
       case 'module-tile-reports':
         screen = ReportsScreen(api: api);
       case 'module-tile-chat':
@@ -807,7 +819,7 @@ class _ModuleTile extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(WachbuchTokens.space4),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -842,15 +854,17 @@ class _HandoversTab extends StatefulWidget {
     required this.api,
     required this.handoverState,
     required this.currentUsername,
-    required this.canLead,
     required this.error,
     required this.onRefresh,
+    this.role,
   });
 
   final WachbuchApi api;
   final HandoverState handoverState;
   final String? currentUsername;
-  final bool canLead;
+
+  /// Rolle aus `/me/`; steuert Anlegen und Status-Aktionen.
+  final String? role;
   final String? error;
   final Future<void> Function() onRefresh;
 
@@ -882,10 +896,10 @@ class _HandoversTabState extends State<_HandoversTab> {
         api: widget.api,
         handoverId: id,
         currentUsername: widget.currentUsername,
-        canLead: widget.canLead,
         state: widget.handoverState,
         future: detailFuture,
         fallback: item,
+        canChangeStatus: StationRoles.canChangeHandoverStatus(widget.role),
       ),
     );
   }
@@ -939,18 +953,19 @@ class _HandoversTabState extends State<_HandoversTab> {
         constraints: BoxConstraints(maxWidth: maxW),
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: FilledButton.icon(
-                  key: const Key('handover-create'),
-                  onPressed: _openCreate,
-                  icon: const Icon(Icons.add),
-                  label: Text(l.handoverCreate),
+            if (StationRoles.canCreateHandover(widget.role))
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: FilledButton.icon(
+                    key: const Key('handover-create'),
+                    onPressed: _openCreate,
+                    icon: const Icon(Icons.add),
+                    label: Text(l.handoverCreate),
+                  ),
                 ),
               ),
-            ),
             if (items.isNotEmpty) ...[
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
@@ -1044,7 +1059,10 @@ class _FilterSection extends StatelessWidget {
     if (values.isEmpty) {
       return const SizedBox.shrink();
     }
-    return Padding(
+    // Volle Breite, damit die Gruppe wie bei den Mängeln linksbündig steht
+    // und nicht vom übergeordneten Layout zentriert wird.
+    return Container(
+      width: double.infinity,
       padding: const EdgeInsets.fromLTRB(16, 8, 0, 2),
       child: Semantics(
         container: true,
@@ -1172,7 +1190,9 @@ class _HandoverCard extends StatelessWidget {
               children: [
                 Container(
                   width: 5,
-                  color: _priorityColors(context, item['priority']).foreground,
+                  color: WachbuchColors.of(context).priority(
+                    item['priority']?.toString() ?? '',
+                  ).accent,
                 ),
                 Expanded(
                   child: Padding(
@@ -1201,16 +1221,13 @@ class _HandoverCard extends StatelessWidget {
                           spacing: 8,
                           runSpacing: 8,
                           children: [
-                            _HandoverChip(
+                            StatusChip(
+                              status: item['status']?.toString() ?? '',
                               label: handoverStatusLabel(item['status'], l),
-                              colors: _statusColors(context, item['status']),
                             ),
-                            _HandoverChip(
+                            PriorityBadge(
+                              priority: item['priority']?.toString() ?? '',
                               label: handoverPriorityLabel(item['priority'], l),
-                              colors: _priorityColors(
-                                context,
-                                item['priority'],
-                              ),
                             ),
                           ],
                         ),
@@ -1228,24 +1245,28 @@ class _HandoverCard extends StatelessWidget {
 }
 
 class _HandoverChip extends StatelessWidget {
-  const _HandoverChip({required this.label, required this.colors});
+  const _HandoverChip({required this.label});
 
   final String label;
-  final ({Color background, Color foreground}) colors;
 
   @override
   Widget build(BuildContext context) {
+    final c = WachbuchColors.of(context);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      constraints: const BoxConstraints(minHeight: 36),
+      padding: const EdgeInsets.symmetric(
+        horizontal: WachbuchTokens.space3,
+        vertical: WachbuchTokens.space1,
+      ),
       decoration: BoxDecoration(
-        color: colors.background,
-        borderRadius: BorderRadius.circular(999),
+        color: c.surfaceSoft,
+        border: Border.all(color: c.line),
+        borderRadius: BorderRadius.circular(WachbuchTokens.radiusSm),
       ),
       child: Text(
         label,
         style: Theme.of(context).textTheme.labelMedium?.copyWith(
-          color: colors.foreground,
-          fontSize: 14,
+          color: c.text,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -1258,19 +1279,21 @@ class _HandoverDetailSheet extends StatefulWidget {
     required this.api,
     required this.handoverId,
     required this.currentUsername,
-    required this.canLead,
     required this.state,
     required this.future,
     required this.fallback,
+    this.canChangeStatus = false,
   });
 
   final WachbuchApi api;
   final int handoverId;
   final String? currentUsername;
-  final bool canLead;
   final HandoverState state;
   final Future<Map<String, dynamic>> future;
   final Map<String, dynamic> fallback;
+
+  /// Status setzen nur für `WRITE_ROLES` (Schichtleitung, Admin).
+  final bool canChangeStatus;
 
   @override
   State<_HandoverDetailSheet> createState() => _HandoverDetailSheetState();
@@ -1282,33 +1305,36 @@ class _HandoverDetailSheetState extends State<_HandoverDetailSheet> {
   bool _acking = false;
   bool _creatingDefect = false;
   String? _ackError;
-  String? _status;
-  bool _changingStatus = false;
+  Map<String, dynamic>? _updated;
+  bool _statusBusy = false;
+  String? _statusError;
 
-  Future<void> _changeStatus(AppLocalizations l, String status) async {
-    setState(() => _changingStatus = true);
+  /// POST …/status/ über [HandoverState.setStatus]: einmal senden, ohne
+  /// automatische Wiederholung. Erledigte Übergaben verlassen dort die aktive
+  /// Liste; die Antwort (neue `version`) bleibt hier sichtbar.
+  Future<void> _setStatus(AppLocalizations l, String status) async {
+    setState(() {
+      _statusBusy = true;
+      _statusError = null;
+    });
     try {
-      await widget.state.setStatus(widget.handoverId, status);
+      final updated = await widget.state.setStatus(widget.handoverId, status);
       if (!mounted) return;
-      setState(() {
-        _status = status;
-        _changingStatus = false;
-      });
+      setState(() => _updated = {...updated, 'status': updated['status'] ?? status});
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l.handoverStatusChanged(handoverStatusLabel(status, l)))),
+        SnackBar(
+          content: Text(l.handoverStatusChanged(handoverStatusLabel(status, l))),
+        ),
       );
     } on ApiException catch (error) {
       if (!mounted) return;
-      setState(() => _changingStatus = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error.message)),
-      );
+      // Inline statt SnackBar: das Blatt liegt sonst über der Meldung.
+      setState(() => _statusError = error.message);
     } catch (_) {
       if (!mounted) return;
-      setState(() => _changingStatus = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l.handoverStatusFailed)),
-      );
+      setState(() => _statusError = l.handoverStatusFailed);
+    } finally {
+      if (mounted) setState(() => _statusBusy = false);
     }
   }
 
@@ -1435,11 +1461,7 @@ class _HandoverDetailSheetState extends State<_HandoverDetailSheet> {
               child: ErrorBanner(message: message),
             );
           }
-          final item = {
-            ...widget.fallback,
-            ...?snapshot.data,
-            if (_status != null) 'status': _status,
-          };
+          final item = {...widget.fallback, ...?snapshot.data, ...?_updated};
           final rawAuthor = item['author'];
           final author = rawAuthor is Map ? rawAuthor : null;
           final authorName = author?['display_name']?.toString();
@@ -1472,23 +1494,45 @@ class _HandoverDetailSheetState extends State<_HandoverDetailSheet> {
                   children: [
                     _HandoverChip(
                       label: handoverCategoryLabel(item['category'], l),
-                      colors: (
-                        background: Theme.of(
-                          context,
-                        ).colorScheme.surfaceContainerHighest,
-                        foreground: Theme.of(context).colorScheme.onSurface,
-                      ),
                     ),
-                    _HandoverChip(
+                    StatusChip(
+                      status: item['status']?.toString() ?? '',
                       label: handoverStatusLabel(item['status'], l),
-                      colors: _statusColors(context, item['status']),
                     ),
-                    _HandoverChip(
+                    PriorityBadge(
+                      priority: item['priority']?.toString() ?? '',
                       label: handoverPriorityLabel(item['priority'], l),
-                      colors: _priorityColors(context, item['priority']),
                     ),
                   ],
                 ),
+                if (widget.canChangeStatus) ...[
+                  const SizedBox(height: 16),
+                  Text(
+                    l.handoverStatusTitle,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    key: const Key('handover-status'),
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (final status in const ['open', 'in_progress', 'done'])
+                        ChoiceChip(
+                          key: Key('handover-status-$status'),
+                          label: Text(handoverStatusLabel(status, l)),
+                          selected: item['status'] == status,
+                          onSelected: _statusBusy || item['status'] == status
+                              ? null
+                              : (_) => _setStatus(l, status),
+                        ),
+                    ],
+                  ),
+                  if (_statusError != null) ...[
+                    const SizedBox(height: 8),
+                    ErrorBanner(message: _statusError!),
+                  ],
+                ],
                 const SizedBox(height: 20),
                 Text(
                   details?.isNotEmpty == true
@@ -1496,30 +1540,6 @@ class _HandoverDetailSheetState extends State<_HandoverDetailSheet> {
                       : l.detailsNoFurtherInfo,
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
-                if (widget.canLead) ...[
-                  const SizedBox(height: 20),
-                  Text(
-                    l.handoverStatusTitle,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                  ),
-                  const SizedBox(height: 8),
-                  SegmentedButton<String>(
-                    key: const Key('handover-status'),
-                    segments: [
-                      for (final value in const ['open', 'in_progress', 'done'])
-                        ButtonSegment(
-                          value: value,
-                          label: Text(handoverStatusLabel(value, l)),
-                        ),
-                    ],
-                    selected: {item['status']?.toString() ?? 'open'},
-                    onSelectionChanged: _changingStatus
-                        ? null
-                        : (selection) => _changeStatus(l, selection.first),
-                  ),
-                ],
                 const SizedBox(height: 20),
                 if (authorName?.isNotEmpty == true)
                   _DetailRow(icon: Icons.person_outline, value: authorName!),
@@ -1638,52 +1658,6 @@ double _handoverCardExtent(BuildContext context) {
   final scale = MediaQuery.textScalerOf(context).scale(1);
   final extraScale = (scale - 1).clamp(0.0, 2.0);
   return 196 + (190 * extraScale);
-}
-
-({Color background, Color foreground}) _statusColors(
-  BuildContext context,
-  Object? status,
-) {
-  final colors = Theme.of(context).colorScheme;
-  return switch (status?.toString()) {
-    'open' => (
-      background: colors.primaryContainer,
-      foreground: colors.onPrimaryContainer,
-    ),
-    'in_progress' => (
-      background: colors.secondaryContainer,
-      foreground: colors.onSecondaryContainer,
-    ),
-    'done' => (
-      background: colors.surfaceContainerHighest,
-      foreground: colors.onSurface,
-    ),
-    _ => (
-      background: colors.surfaceContainerHigh,
-      foreground: colors.onSurface,
-    ),
-  };
-}
-
-({Color background, Color foreground}) _priorityColors(
-  BuildContext context,
-  Object? priority,
-) {
-  final colors = Theme.of(context).colorScheme;
-  return switch (priority?.toString()) {
-    'urgent' => (
-      background: colors.errorContainer,
-      foreground: colors.onErrorContainer,
-    ),
-    'important' => (
-      background: colors.tertiaryContainer,
-      foreground: colors.onTertiaryContainer,
-    ),
-    _ => (
-      background: colors.surfaceContainerHighest,
-      foreground: colors.onSurface,
-    ),
-  };
 }
 
 String _formatTimestamp(Object? value) {

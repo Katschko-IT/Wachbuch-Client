@@ -22,6 +22,10 @@ import 'package:wachbuch_mobile/models/station_asset.dart';
 
 typedef WachbuchApiFactory = WachbuchApi Function(String baseUrl);
 
+/// Wird aufgerufen, wenn der Server die Sitzung nicht mehr anerkennt
+/// (401 oder 403 „Kein aktiver Wachenzugang“). Die App meldet dann ab.
+typedef UnauthorizedCallback = void Function(ApiException error);
+
 WachbuchApi defaultWachbuchApiFactory(String baseUrl) {
   return WachbuchApi(baseUrl: baseUrl);
 }
@@ -66,6 +70,17 @@ class ApiException implements Exception {
   final String? code;
   final String? correlationId;
 
+  /// 403 aus `api_token_required`: Konto ohne aktive Mitgliedschaft.
+  /// Der Server liefert dafür nur den allgemeinen Code `forbidden`, daher wird
+  /// zusätzlich der Meldungstext geprüft.
+  bool get isNoActiveMembership =>
+      statusCode == 403 &&
+      (code == 'no_active_membership' ||
+          message.toLowerCase().contains('kein aktiver wachenzugang'));
+
+  /// Sitzung ist serverseitig nicht (mehr) gültig.
+  bool get isSessionInvalid => statusCode == 401 || isNoActiveMembership;
+
   bool get isMfaRequired =>
       statusCode == 403 &&
       (code == 'mfa_required' ||
@@ -95,8 +110,11 @@ class WachbuchApi {
     http.Client? client,
     this.requestTimeout = const Duration(seconds: 20),
     ApiCache? cache,
+    this.onUnauthorized,
+    DateTime Function()? clock,
   })  : _client = client ?? http.Client(),
-        _cache = cache;
+        _cache = cache,
+        _clock = clock ?? DateTime.now;
 
   /// Origin only, e.g. https://wache.example.org (no trailing slash).
   final String baseUrl;
@@ -104,6 +122,17 @@ class WachbuchApi {
   final Duration requestTimeout;
   final http.Client _client;
   final ApiCache? _cache;
+
+  /// App-weite Abmeldung bei ungültiger Sitzung (nur für Anfragen mit Token).
+  final UnauthorizedCallback? onUnauthorized;
+  final DateTime Function() _clock;
+
+  /// Rolle aus der letzten erfolgreichen `/me/`-Antwort dieser Sitzung.
+  String? _role;
+
+  /// Der Offline-Cache darf nur gelesen werden, nachdem diese Sitzung online
+  /// bestätigt wurde (CLIENT-OFFLINE-CONTRACT §3.5/§5).
+  bool _sessionConfirmed = false;
 
   Uri _uri(String path) {
     final root = baseUrl.endsWith('/')
@@ -136,6 +165,15 @@ class WachbuchApi {
     }
   }
 
+  /// Meldet eine ungültige Sitzung an [onUnauthorized] und wirft den Fehler.
+  Never _raise(ApiException error) {
+    final hasToken = token != null && token!.isNotEmpty;
+    if (hasToken && error.isSessionInvalid) {
+      onUnauthorized?.call(error);
+    }
+    throw error;
+  }
+
   Map<String, dynamic> _decode(http.Response response) {
     Map<String, dynamic> body = {};
     if (response.body.isNotEmpty) {
@@ -155,10 +193,14 @@ class WachbuchApi {
             'Serverfehler (${response.statusCode}). Bitte später erneut versuchen.',
           );
         }
-        throw ApiException(
+        final proxyMessage = _proxyErrorMessage(response);
+        if (proxyMessage != null) {
+          _raise(ApiException(response.statusCode, proxyMessage));
+        }
+        _raise(ApiException(
           response.statusCode,
           'Der Server hat eine ungültige Antwort gesendet.',
-        );
+        ));
       }
     }
     if (response.statusCode >= 400) {
@@ -178,23 +220,85 @@ class WachbuchApi {
       message ??= body['message']?.toString();
       code ??= body['code']?.toString();
       correlationId ??= body['correlation_id']?.toString();
-      throw ApiException(
+      final resolved = message?.isNotEmpty == true
+          ? message! + _retryAfterHint(response)
+          : _proxyErrorMessage(response) ??
+              'Anfrage fehlgeschlagen (${response.statusCode})';
+      _raise(ApiException(
         response.statusCode,
-        message?.isNotEmpty == true
-            ? message!
-            : 'Anfrage fehlgeschlagen (${response.statusCode})',
+        resolved,
         code: code,
         correlationId: correlationId,
-      );
+      ));
     }
     return body;
   }
 
+  /// Verständliche Meldungen für Antworten ohne JSON-Körper, wie sie z. B.
+  /// nginx vor dem Server bei zu großen Uploads oder Ratenbegrenzung liefert.
+  String? _proxyErrorMessage(http.Response response) {
+    return switch (response.statusCode) {
+      413 => 'Datei zu groß (max. 2 MiB)',
+      415 => 'Dateityp nicht unterstützt',
+      429 => 'Zu viele Anfragen – bitte kurz warten${_retryAfterHint(response)}',
+      _ => null,
+    };
+  }
+
+  /// Wartezeit aus `Retry-After` (nur Sekundenangabe) für 429-Meldungen.
+  String _retryAfterHint(http.Response response) {
+    if (response.statusCode != 429) return '';
+    final raw = response.headers['retry-after']?.trim();
+    final seconds = raw == null ? null : int.tryParse(raw);
+    if (seconds == null || seconds <= 0) return '';
+    return ' (erneut versuchen in $seconds s)';
+  }
+
+  /// Rolle aus dem gespeicherten `/me/`-Snapshot (optional ohne Altersprüfung).
+  Future<String?> _storedRole({bool ignoreAge = false}) async {
+    final raw = await _cache?.readJson('me');
+    final data = OfflineCachePolicy.unwrap(raw, _clock(), ignoreAge: ignoreAge);
+    return OfflineCachePolicy.roleOf(data);
+  }
+
+  Future<String?> _effectiveRole() async => _role ?? await _storedRole();
+
+  /// Übernimmt die Rolle aus `/me/`. Ausgeschlossene Rollen und ein
+  /// Rollenwechsel löschen den Cache vollständig (Vertrag §2, §8).
+  Future<void> _applyRole(Map<String, dynamic> me) async {
+    final role = OfflineCachePolicy.roleOf(me);
+    final cache = _cache;
+    try {
+      final previous = _role ?? await _storedRole(ignoreAge: true);
+      // Snapshots älterer App-Versionen tragen kein schema_version und können
+      // verbotene Daten (z. B. Kaffeekasse) enthalten: komplett verwerfen.
+      final storedMe = _role == null ? await cache?.readJson('me') : null;
+      final legacy = storedMe != null &&
+          storedMe['schema_version'] != OfflineCachePolicy.schemaVersion;
+      if (cache != null &&
+          (legacy ||
+              !OfflineCachePolicy.roleAllowed(role) ||
+              (previous != null && previous != role))) {
+        await cache.clear();
+      }
+    } catch (_) {
+      // Cache-Fehler dürfen eine erfolgreiche Anfrage nicht scheitern lassen.
+    } finally {
+      _role = role;
+    }
+  }
+
   Future<void> _cacheWrite(String key, Map<String, dynamic> body) async {
     final cache = _cache;
-    if (cache == null) return;
+    if (cache == null || !OfflineCachePolicy.isCacheable(key)) return;
     try {
-      await cache.writeJson(key, body);
+      if (!OfflineCachePolicy.roleAllowed(await _effectiveRole())) return;
+      final entry = OfflineCachePolicy.wrap(
+        OfflineCachePolicy.minimize(key, body),
+        _clock(),
+      );
+      if (jsonEncode(entry).length > OfflineCachePolicy.maxEntryBytes) return;
+      await cache.writeJson(key, entry);
     } catch (_) {
       // Cache failure must never turn a successful online request into an error.
     }
@@ -202,9 +306,21 @@ class WachbuchApi {
 
   Future<Map<String, dynamic>?> _cacheRead(String key) async {
     final cache = _cache;
-    if (cache == null) return null;
+    if (cache == null ||
+        !_sessionConfirmed ||
+        !OfflineCachePolicy.isCacheable(key)) {
+      return null;
+    }
     try {
-      return await cache.readJson(key);
+      if (!OfflineCachePolicy.roleAllowed(await _effectiveRole())) return null;
+      final raw = await cache.readJson(key);
+      final data = OfflineCachePolicy.unwrap(raw, _clock());
+      if (data == null) {
+        // Abgelaufene oder alte Einträge ohne Zeitstempel verwerfen.
+        if (raw != null) await cache.remove(key);
+        return null;
+      }
+      return OfflineCachePolicy.restore(key, data);
     } catch (_) {
       return null;
     }
@@ -214,6 +330,7 @@ class WachbuchApi {
     String path, {
     String? cacheKey,
     String? moduleLabel,
+    Future<void> Function(Map<String, dynamic> body)? onOnline,
   }) async {
     try {
       final body = await _withRetry(() async {
@@ -225,6 +342,8 @@ class WachbuchApi {
             : _requireModule(response, moduleLabel);
         return _decode(checked);
       });
+      if (token != null && token!.isNotEmpty) _sessionConfirmed = true;
+      if (onOnline != null) await onOnline(body);
       if (cacheKey != null) await _cacheWrite(cacheKey, body);
       return body;
     } on ApiException catch (error) {
@@ -325,7 +444,7 @@ class WachbuchApi {
 
   /// GET /api/v1/me/ with encrypted offline fallback.
   Future<Map<String, dynamic>> me() =>
-      _getJson('/api/v1/me/', cacheKey: 'me');
+      _getJson('/api/v1/me/', cacheKey: 'me', onOnline: _applyRole);
 
   /// GET /api/v1/fahrzeuge/sperren/ – laufende Desinfektionssperren der
   /// Fahrzeuge, die die angemeldete Person besetzt. Ältere Server ohne diesen
@@ -389,10 +508,11 @@ class WachbuchApi {
     return parsed.hasQuery ? '${parsed.path}?${parsed.query}' : parsed.path;
   }
 
-  /// Erste Seite (mit Offline-Cache) plus alle Folgeseiten über `next`.
+  /// Erste Seite plus alle Folgeseiten über `next`. Nur die erste Seite darf
+  /// in den Offline-Cache ([cacheKey]); Folgeseiten nie.
   Future<List<Map<String, dynamic>>> _getAllPages(
     String path, {
-    required String cacheKey,
+    String? cacheKey,
     String? moduleLabel,
   }) async {
     var body = await _getJson(path, cacheKey: cacheKey, moduleLabel: moduleLabel);
@@ -412,11 +532,13 @@ class WachbuchApi {
     return _getAllPages('/api/v1/handovers/', cacheKey: 'handovers');
   }
 
-  /// POST /api/v1/handovers/ – neue Übergabe (alle Rollen mit Inhaltszugriff).
+  /// POST /api/v1/handovers/ — Felder wie `HandoverForm` des Servers
+  /// (Inhaltsrollen). Keine automatische Wiederholung, damit keine
+  /// Doppel-Übergaben entstehen.
   Future<Map<String, dynamic>> createHandover({
     required String title,
     required String details,
-    String category = 'station',
+    required String category,
     String priority = 'normal',
   }) async {
     return _withRetry(() async {
@@ -436,7 +558,11 @@ class WachbuchApi {
     }, maxAttempts: 1);
   }
 
-  /// POST /api/v1/handovers/{id}/status/ – nur Schichtleitung und Admin.
+  /// POST /api/v1/handovers/{id}/status/ — `{"status": ...}`, nur
+  /// Schichtleitung und Admin. Der Server liefert die Übergabe mit Details und
+  /// neuer `version` zurück. Ein unveränderter Status ist dort ein No-op; die
+  /// App wiederholt den Aufruf trotzdem nicht automatisch (Grundregel für alle
+  /// Schreibaufrufe: kein stilles Wiederholen nach verlorener Antwort).
   Future<Map<String, dynamic>> setHandoverStatus(int id, String status) async {
     return _withRetry(() async {
       final response = await _send(
@@ -447,14 +573,12 @@ class WachbuchApi {
         ),
       );
       return _decode(response);
-    });
+    }, maxAttempts: 1);
   }
 
-  /// GET /api/v1/handovers/{id}/
-  Future<Map<String, dynamic>> handoverDetail(int id) => _getJson(
-        '/api/v1/handovers/$id/',
-        cacheKey: 'handover_$id',
-      );
+  /// GET /api/v1/handovers/{id}/ — nie offline gespeichert (Freitext).
+  Future<Map<String, dynamic>> handoverDetail(int id) =>
+      _getJson('/api/v1/handovers/$id/');
 
   /// POST /api/v1/kaffeekasse/bezahlt/ – „Ich habe bezahlt“ (eigene Zahlung).
   /// Nicht wiederholen: eine doppelte Meldung wäre eine doppelte Buchung.
@@ -479,7 +603,7 @@ class WachbuchApi {
 
   /// GET /api/v1/kalender/
   Future<List<KalenderEntry>> kalender() async {
-    final body = await _getJson('/api/v1/kalender/', cacheKey: 'calendar');
+    final body = await _getJson('/api/v1/kalender/');
     return _readList(body).map(KalenderEntry.fromJson).toList(growable: false);
   }
 
@@ -509,7 +633,8 @@ class WachbuchApi {
 
   /// GET /api/v1/kaffeekasse/
   Future<Kaffeekasse> kaffeekasse() async {
-    final body = await _getJson('/api/v1/kaffeekasse/', cacheKey: 'coffee');
+    // Kaffeekasse ist im Offline-Cache ausdrücklich verboten.
+    final body = await _getJson('/api/v1/kaffeekasse/');
     return Kaffeekasse.fromJson(body);
   }
 
@@ -519,11 +644,10 @@ class WachbuchApi {
     return _readList(body).map(Checklist.fromJson).toList(growable: false);
   }
 
-  /// GET /api/v1/pinnwand/ with encrypted offline fallback.
+  /// GET /api/v1/pinnwand/
   Future<List<PinboardNote>> pinboard() async {
     final body = await _getJson(
       '/api/v1/pinnwand/',
-      cacheKey: 'pinboard',
       moduleLabel: 'Pinnwand',
     );
     return _readList(body).map(PinboardNote.fromJson).toList(growable: false);
@@ -599,10 +723,66 @@ class WachbuchApi {
   Future<List<Defect>> defects() async {
     final items = await _getAllPages(
       '/api/v1/defects/',
-      cacheKey: 'defects',
       moduleLabel: 'Mängel',
     );
     return items.map(Defect.fromJson).toList(growable: false);
+  }
+
+  /// GET /api/v1/defects/?active=1&limit=… — erste Seite, sortiert vom
+  /// Server (offen → in Arbeit → wartend → erledigt, dann nach Priorität).
+  /// Ohne [includeDone] schließt `active=1` erledigte Mängel aus.
+  Future<DefectPage> defectsPage({bool includeDone = false, int limit = 100}) async {
+    final path = Uri(
+      path: '/api/v1/defects/',
+      queryParameters: {
+        if (!includeDone) 'active': '1',
+        'limit': '${limit.clamp(1, 200)}',
+      },
+    ).toString();
+    return _defectPage(await _getJson(path, moduleLabel: 'Mängel'));
+  }
+
+  /// Folgt dem `next`-Pfad einer [DefectPage]. Nur Pfade unter
+  /// `/api/v1/defects/` auf diesem Server werden angefragt.
+  Future<DefectPage> defectsNext(String next) async {
+    final path = _sameOriginPath(next, '/api/v1/defects/');
+    if (path == null) {
+      throw ApiException(400, 'Ungültiger Folgelink vom Server.');
+    }
+    return _defectPage(await _getJson(path, moduleLabel: 'Mängel'));
+  }
+
+  DefectPage _defectPage(Map<String, dynamic> body) {
+    final items = _readList(body).map(Defect.fromJson).toList(growable: false);
+    String? link(Object? value) {
+      final text = value?.toString().trim() ?? '';
+      return text.isEmpty ? null : text;
+    }
+
+    return DefectPage(
+      items: items,
+      count: body['count'] is num ? (body['count'] as num).toInt() : items.length,
+      next: link(body['next']),
+      previous: link(body['previous']),
+    );
+  }
+
+  /// Pfad samt Query eines Folgelinks, wenn er auf diesen Server und unter
+  /// [prefix] zeigt; sonst `null`.
+  String? _sameOriginPath(String link, String prefix) {
+    final uri = Uri.tryParse(link.trim());
+    if (uri == null) return null;
+    if (uri.hasScheme || uri.hasAuthority) {
+      final base = Uri.tryParse(baseUrl);
+      if (base == null ||
+          uri.scheme != base.scheme ||
+          uri.host != base.host ||
+          uri.port != base.port) {
+        return null;
+      }
+    }
+    if (!uri.path.startsWith(prefix)) return null;
+    return uri.hasQuery ? '${uri.path}?${uri.query}' : uri.path;
   }
 
   Future<Defect> createDefect({
@@ -678,7 +858,6 @@ class WachbuchApi {
   Future<List<DefectAttachment>> defectAttachments(int defectId) async {
     final body = await _getJson(
       '/api/v1/defects/$defectId/attachments/',
-      cacheKey: 'defect_${defectId}_attachments',
       moduleLabel: 'Mängel',
     );
     return _readList(body)
@@ -730,7 +909,6 @@ class WachbuchApi {
   Future<List<StationAsset>> assets() async {
     final body = await _getJson(
       '/api/v1/assets/',
-      cacheKey: 'assets',
       moduleLabel: 'Geräte',
     );
     return _readList(body)
@@ -776,7 +954,6 @@ class WachbuchApi {
   Future<List<InventoryItem>> inventory() async {
     final body = await _getJson(
       '/api/v1/inventory/',
-      cacheKey: 'inventory',
       moduleLabel: 'Inventar',
     );
     return _readList(body)
@@ -832,7 +1009,6 @@ class WachbuchApi {
   Future<List<HandoverAck>> handoverAcks(int id) async {
     final body = await _getJson(
       '/api/v1/handovers/$id/acks/',
-      cacheKey: 'handover_${id}_acks',
       moduleLabel: 'Quittierung',
     );
     return _readList(body).map(HandoverAck.fromJson).toList(growable: false);
@@ -862,7 +1038,6 @@ class WachbuchApi {
   Future<WachalltagReport> reportStats() async {
     final body = await _getJson(
       '/api/v1/reports/',
-      cacheKey: 'reports',
       moduleLabel: 'Auswertung',
     );
     return WachalltagReport.fromJson(body);
@@ -1140,6 +1315,8 @@ class WachbuchApi {
       client: _client,
       requestTimeout: requestTimeout,
       cache: _cache,
+      onUnauthorized: onUnauthorized,
+      clock: _clock,
     );
   }
 }

@@ -16,8 +16,7 @@ class PriorityBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accent = WachbuchTokens.priorityColor(priority);
-    final foreground = Theme.of(context).colorScheme.onSurface;
+    final tone = WachbuchColors.of(context).priority(priority);
     final locale = Localizations.localeOf(context).languageCode;
     final text = label ?? _defaultLabel(priority, locale);
 
@@ -26,11 +25,11 @@ class PriorityBadge extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(
           horizontal: compact ? WachbuchTokens.spaceSm : WachbuchTokens.spaceMd,
-          vertical: compact ? WachbuchTokens.spaceXs : 6,
+          vertical: compact ? 2 : WachbuchTokens.space1,
         ),
         decoration: BoxDecoration(
-          color: accent.withValues(alpha: 0.12),
-          border: Border.all(color: accent.withValues(alpha: 0.72), width: 1.5),
+          color: tone.background,
+          border: Border.all(color: tone.border),
           borderRadius: BorderRadius.circular(WachbuchTokens.radiusSm),
         ),
         constraints: BoxConstraints(minHeight: compact ? 28 : 36),
@@ -40,7 +39,10 @@ class PriorityBadge extends StatelessWidget {
             Container(
               width: compact ? 7 : 9,
               height: compact ? 7 : 9,
-              decoration: BoxDecoration(color: accent, shape: BoxShape.circle),
+              decoration: BoxDecoration(
+                color: tone.accent,
+                shape: BoxShape.circle,
+              ),
             ),
             SizedBox(
               width: compact
@@ -50,7 +52,7 @@ class PriorityBadge extends StatelessWidget {
             Text(
               text,
               style: TextStyle(
-                color: foreground,
+                color: tone.foreground,
                 fontSize: compact
                     ? WachbuchTokens.textCaption
                     : WachbuchTokens.textBody,

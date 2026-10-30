@@ -42,6 +42,46 @@ Alle wesentlichen Änderungen an Wachbuch Mobile werden hier dokumentiert.
   per `values-v31`, iOS per `LaunchScreen.storyboard`). Die alte
   `flutter_native_splash.yaml` verwies auf ein fehlendes Bild und war nie
   wirksam; sie enthält jetzt dieselben Werte.
+- Designsystem „Wachbuch Klar 2“ (gleich mit der Web-PWA):
+  - Tokens hell/dunkel als ThemeExtension `WachbuchColors`; Namen wie im Web
+    (`brandDeep` und `brandHover` waren vertauscht).
+  - Hausschrift Atkinson Hyperlegible Next (OFL), tabellarische Ziffern für
+    Beträge und Uhrzeiten.
+  - Statusbedeutung einheitlich: dringend = danger, offen = info,
+    in Arbeit = warning, wartend = neutral, erledigt = success.
+  - Gemeinsame Widgets `EmptyState` und `SectionTitle`; Warnmarkierung als
+    einziges Markenelement oben in der Kopfleiste.
+- Review 2026-10-24:
+  - Abmelden und Serverwechsel sperren die entschlüsselte Chat-Identität.
+  - 401 und 403 „Kein aktiver Wachenzugang“ melden app-weit ab (Token,
+    Krypto, Offline-Cache); fehlende Mitgliedschaft mit eigenem Hinweis. Der
+    Erinnerungsdienst schluckt 401 nicht mehr.
+  - Offline-Cache nach `docs/CLIENT-OFFLINE-CONTRACT.md` des Servers: nur
+    eigene Mitgliedschaft, Checklisten und Übergabeliste ohne Freitext,
+    höchstens 24 h alt, nicht für `admin`/`cashier`/`auditor`, lesbar erst
+    nach online bestätigter Sitzung. Kaffeekasse, Übergabe-Details, Mängel und
+    Anhänge werden nicht mehr gespeichert.
+  - Übergaben anlegen (Inhaltsrollen) und Status setzen (Schichtleitung/Admin),
+    ohne automatische Wiederholung.
+  - Asset-Status, „Mangel erledigt“ und Rückgabe fremder Ausleihen nur für
+    Schichtleitung/Admin sichtbar (wie `WRITE_ROLES` des Servers).
+  - Mängel seitenweise (`active=1`, `limit`, `next`) mit „Mehr laden“ und
+    Option „Erledigte anzeigen“.
+  - Hinweise werden nach dem Anzeigen als gelesen gemeldet; „schon angezeigt“
+    gilt pro Benutzer statt pro Token.
+  - Anhänge ohne Bildtyp (z. B. PDF) zeigen „Vorschau nicht verfügbar“.
+  - 413/415/429 ohne JSON-Körper (z. B. von nginx) mit verständlicher Meldung,
+    bei 429 inkl. `Retry-After`.
+  - Kaffeekasse: „Kassenstand der Wache“ bzw. „Mein Saldo“ je nach `scope`.
+
+- Abhängigkeiten aktualisiert (Stand 24.10.2026): Flutter 3.47.8, app_links,
+  geolocator, image_picker, mobile_scanner 7.4.2, package_info_plus,
+  shared_preferences, url_launcher, flutter_secure_storage 10.3.4; Gradle 9.8.2,
+  Android Gradle Plugin 9.4.1, Kotlin 2.4.21; GitHub Actions mit SHA-Pin.
+  Bewusst nicht angehoben: flutter_secure_storage 11 (gestufte Migration, siehe
+  `docs/SECURE-STORAGE-MIGRATION-1.0.md`) und connectivity_plus 7.3.2
+  (dbus-Konflikt mit geolocator).
+
 - Wache ohne Internet: Ein Verbindungs-QR mit `pin=sha256/…` hinterlegt den
   Fingerabdruck eines lokalen Serverzertifikats (z. B. Raspberry Pi mit eigenem
   WLAN). Die App vertraut dann genau diesem Zertifikat für diesen Server.

@@ -14,8 +14,7 @@ class StatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accent = WachbuchTokens.statusColor(status);
-    final foreground = Theme.of(context).colorScheme.onSurface;
+    final tone = WachbuchColors.of(context).status(status);
     final locale = Localizations.localeOf(context).languageCode;
     final text = label ?? _defaultLabel(status, locale);
 
@@ -24,12 +23,12 @@ class StatusChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(
           horizontal: WachbuchTokens.spaceMd,
-          vertical: 6,
+          vertical: WachbuchTokens.space1,
         ),
         decoration: BoxDecoration(
-          color: accent.withValues(alpha: 0.12),
-          border: Border.all(color: accent.withValues(alpha: 0.65)),
-          borderRadius: BorderRadius.circular(WachbuchTokens.radiusMd),
+          color: tone.background,
+          border: Border.all(color: tone.border),
+          borderRadius: BorderRadius.circular(WachbuchTokens.radiusSm),
         ),
         constraints: const BoxConstraints(minHeight: 36),
         child: Row(
@@ -38,13 +37,16 @@ class StatusChip extends StatelessWidget {
             Container(
               width: 8,
               height: 8,
-              decoration: BoxDecoration(color: accent, shape: BoxShape.circle),
+              decoration: BoxDecoration(
+                color: tone.accent,
+                shape: BoxShape.circle,
+              ),
             ),
             const SizedBox(width: WachbuchTokens.spaceSm),
             Text(
               text,
               style: TextStyle(
-                color: foreground,
+                color: tone.foreground,
                 fontSize: WachbuchTokens.textBody,
                 fontWeight: FontWeight.w700,
               ),
