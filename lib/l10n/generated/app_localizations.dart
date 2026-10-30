@@ -644,18 +644,6 @@ abstract class AppLocalizations {
   /// **'Tage'**
   String get reportsDays;
 
-  /// No description provided for @reportsByOwner.
-  ///
-  /// In de, this message translates to:
-  /// **'Offene Mängel nach Zuständigkeit'**
-  String get reportsByOwner;
-
-  /// No description provided for @reportsNoOwner.
-  ///
-  /// In de, this message translates to:
-  /// **'Ohne Zuständigkeit'**
-  String get reportsNoOwner;
-
   /// No description provided for @reportsPrivacyHint.
   ///
   /// In de, this message translates to:

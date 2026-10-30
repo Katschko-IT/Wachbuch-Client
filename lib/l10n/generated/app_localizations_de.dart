@@ -293,12 +293,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get reportsDays => 'Tage';
 
   @override
-  String get reportsByOwner => 'Offene Mängel nach Zuständigkeit';
-
-  @override
-  String get reportsNoOwner => 'Ohne Zuständigkeit';
-
-  @override
   String get reportsPrivacyHint =>
       'Diese Auswertung dient der Stationsorganisation, nicht zur Leistungsbewertung einzelner Beschäftigter.';
 

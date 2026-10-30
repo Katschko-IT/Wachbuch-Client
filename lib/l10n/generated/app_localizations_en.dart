@@ -293,12 +293,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportsDays => 'days';
 
   @override
-  String get reportsByOwner => 'Open defects by owner';
-
-  @override
-  String get reportsNoOwner => 'No owner';
-
-  @override
   String get reportsPrivacyHint =>
       'This report supports station organisation and is not intended for individual employee performance scoring.';
 

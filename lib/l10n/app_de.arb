@@ -102,8 +102,6 @@
   "reportsUnacked": "Unquittierte Übergaben",
   "reportsOldestOpen": "Ältester offener Mangel",
   "reportsDays": "Tage",
-  "reportsByOwner": "Offene Mängel nach Zuständigkeit",
-  "reportsNoOwner": "Ohne Zuständigkeit",
   "reportsPrivacyHint": "Diese Auswertung dient der Stationsorganisation, nicht zur Leistungsbewertung einzelner Beschäftigter.",
 
   "handoverAckButton": "Übernommen",

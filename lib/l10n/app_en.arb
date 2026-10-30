@@ -100,8 +100,6 @@
   "reportsUnacked": "Unacknowledged handovers",
   "reportsOldestOpen": "Oldest open defect",
   "reportsDays": "days",
-  "reportsByOwner": "Open defects by owner",
-  "reportsNoOwner": "No owner",
   "reportsPrivacyHint": "This report supports station organisation and is not intended for individual employee performance scoring.",
 
   "handoverAckButton": "Acknowledged",
