@@ -814,8 +814,11 @@ class WachbuchApi {
     }, maxAttempts: 1);
   }
 
-  /// PATCH /api/v1/defects/{id}/ – Beschreibung, Bezug, Priorität, Frist.
-  /// Der Titel bleibt auf dem Server unveränderlich.
+  /// PATCH /api/v1/defects/{id}/ – Beschreibung, Bezug, Priorität, Frist
+  /// (Inhaltsrollen). Der Titel bleibt auf dem Server unveränderlich.
+  /// Keine automatische Wiederholung: Der Server schreibt bei jedem Aufruf
+  /// ein Mangel-Ereignis und einen Audit-Eintrag (append-only), eine
+  /// Wiederholung nach verlorener Antwort würde sie verdoppeln.
   Future<Defect> updateDefect(
     int id, {
     String? description,
@@ -836,7 +839,7 @@ class WachbuchApi {
         _client.patch(_uri('/api/v1/defects/$id/'), headers: _headers(), body: jsonEncode(body)),
       );
       return Defect.fromJson(_decode(_requireModule(response, 'Mängel')));
-    });
+    }, maxAttempts: 1);
   }
 
   /// POST /api/v1/defects/{id}/status/

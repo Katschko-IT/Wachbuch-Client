@@ -79,6 +79,46 @@ void main() {
       expect(calls, hasLength(1));
     });
 
+    final writes = <String, Future<Object?> Function(WachbuchApi api)>{
+      'createHandover': (api) =>
+          api.createHandover(title: 't', details: 'd', category: 'task'),
+      'setHandoverStatus': (api) => api.setHandoverStatus(12, 'done'),
+      'createKalenderEntry': (api) => api.createKalenderEntry(
+            title: 'Fortbildung',
+            startsAt: DateTime.utc(2026, 11, 2, 9),
+            endsAt: DateTime.utc(2026, 11, 2, 11),
+          ),
+      'reportCoffeePayment': (api) =>
+          api.reportCoffeePayment(method: 'cash', amountEuros: 5),
+      'updateDefect': (api) => api.updateDefect(9, description: 'Rad links'),
+    };
+    for (final entry in writes.entries) {
+      test('401 bei ${entry.key} löst onUnauthorized aus und wirft weiter',
+          () async {
+        final client = api(_error(401, 'Ungültiges oder widerrufenes API-Token.'));
+
+        await expectLater(
+          entry.value(client),
+          throwsA(isA<ApiException>().having((e) => e.statusCode, 'status', 401)),
+        );
+        expect(calls, hasLength(1));
+      });
+    }
+
+    test('403 „Rolle darf keine Termine anlegen.“ meldet nicht ab', () async {
+      final client = api(_error(403, 'Rolle darf keine Termine anlegen.'));
+
+      await expectLater(
+        client.createKalenderEntry(
+          title: 'Fortbildung',
+          startsAt: DateTime.utc(2026, 11, 2, 9),
+          endsAt: DateTime.utc(2026, 11, 2, 11),
+        ),
+        throwsA(isA<ApiException>().having((e) => e.statusCode, 'status', 403)),
+      );
+      expect(calls, isEmpty);
+    });
+
     test('copyWithToken übernimmt den Callback', () async {
       final client = api(_error(401, 'x'), token: null).copyWithToken('wb_neu');
 

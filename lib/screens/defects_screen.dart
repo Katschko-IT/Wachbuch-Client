@@ -19,7 +19,7 @@ class DefectsScreen extends StatefulWidget {
   final WachbuchApi api;
 
   /// Rolle aus `/me/`. Fehlt sie, lädt der Bildschirm `/me/` selbst; bis
-  /// dahin bleibt „erledigt“ ausgeblendet.
+  /// dahin bleiben „Bearbeiten“ und „erledigt“ ausgeblendet.
   final String? role;
 
   @override
@@ -107,6 +107,7 @@ class _DefectsScreenState extends State<DefectsScreen> {
           clearDue: edit.clearDue,
         ),
         errorText: () => _state.error,
+        canEdit: StationRoles.canEditDefect(_role),
         canClose: StationRoles.canCloseDefect(_role),
       ),
     );
@@ -483,6 +484,7 @@ class _DefectDetailSheet extends StatefulWidget {
     required this.onSetStatus,
     required this.onEdit,
     required this.errorText,
+    this.canEdit = false,
     this.canClose = false,
   });
 
@@ -491,6 +493,9 @@ class _DefectDetailSheet extends StatefulWidget {
   final Future<bool> Function(int id, String status) onSetStatus;
   final Future<Defect?> Function(Defect current, _DefectEdit edit) onEdit;
   final String? Function() errorText;
+
+  /// „Bearbeiten“ nur für Inhaltsrollen (Server: defect_detail PATCH).
+  final bool canEdit;
 
   /// „Erledigt“ nur für WRITE_ROLES (Server: defect_status).
   final bool canClose;
@@ -760,16 +765,18 @@ class _DefectDetailSheetState extends State<_DefectDetailSheet> {
               Text('${l.defectOwnerLabel}: ${_defect.owner.isEmpty ? "—" : _defect.owner}'),
               if (_defect.dueDisplay.isNotEmpty)
                 Text('${l.defectDueLabel}: ${_defect.dueDisplay}'),
-              const SizedBox(height: 12),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: OutlinedButton.icon(
-                  key: const Key('defect-edit'),
-                  onPressed: _edit,
-                  icon: const Icon(Icons.edit_outlined),
-                  label: Text(l.defectEdit),
+              if (widget.canEdit) ...[
+                const SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: OutlinedButton.icon(
+                    key: const Key('defect-edit'),
+                    onPressed: _edit,
+                    icon: const Icon(Icons.edit_outlined),
+                    label: Text(l.defectEdit),
+                  ),
                 ),
-              ),
+              ],
               const SizedBox(height: 24),
               Text(l.defectSetStatus, style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),

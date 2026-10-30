@@ -11,6 +11,7 @@ import 'package:wachbuch_mobile/api/client.dart';
 /// Lesen nur innerhalb einer online bestätigten Sitzung.
 class _MemoryCache implements ApiCache {
   final Map<String, Map<String, dynamic>> values = {};
+  final writes = <String>[];
   var clears = 0;
 
   @override
@@ -27,6 +28,7 @@ class _MemoryCache implements ApiCache {
 
   @override
   Future<void> writeJson(String key, Map<String, dynamic> value) async {
+    writes.add(key);
     values[key] = jsonDecode(jsonEncode(value)) as Map<String, dynamic>;
   }
 
@@ -67,6 +69,12 @@ class _Server {
 
   String role = 'member';
   bool online = true;
+
+  /// Übergabeliste mit Folgeseite (`next`), wie ab Server 0.25.
+  bool pagedHandovers = false;
+
+  /// Kaffeekasse mit Monatsbeitrag, eigenen Monaten und IBAN (Server 0.26).
+  bool coffeeMonthlyFee = false;
   final requests = <String>[];
 
   http.Client get client => MockClient((request) async {
@@ -74,7 +82,53 @@ class _Server {
         if (!online) throw http.ClientException('offline', request.url);
         final path = request.url.path;
         Object body;
-        if (path == '/api/v1/me/') {
+        if (request.method != 'GET') {
+          body = switch (path) {
+            '/api/v1/handovers/' || '/api/v1/handovers/1/status/' => {
+                'ok': true,
+                'id': 1,
+                'title': 'RTW 1 auffüllen',
+                'details': 'Freitext',
+                'status': 'done',
+                'version': 2,
+              },
+            '/api/v1/kalender/' => {
+                'ok': true,
+                'id': 3,
+                'title': 'Fortbildung',
+                'starts_at': '2026-11-02T09:00:00Z',
+              },
+            '/api/v1/defects/9/' => {
+                'ok': true,
+                'id': 9,
+                'title': 'Trage',
+                'description': 'Rad links',
+                'status': 'open',
+              },
+            _ => {'ok': true},
+          };
+          return http.Response(jsonEncode(body), 200,
+              headers: {'content-type': 'application/json'});
+        }
+        if (path == '/api/v1/handovers/' &&
+            pagedHandovers &&
+            request.url.queryParameters['offset'] == '1') {
+          body = {
+            'ok': true,
+            'count': 2,
+            'results': [
+              {
+                'id': 2,
+                'title': 'Folgeseite Sauerstoff',
+                'priority': 'normal',
+                'status': 'open',
+                'details': 'Freitext der Folgeseite.',
+              },
+            ],
+            'next': null,
+            'previous': '/api/v1/handovers/',
+          };
+        } else if (path == '/api/v1/me/') {
           body = _me(role);
         } else if (path == '/api/v1/handovers/') {
           body = {
@@ -91,7 +145,7 @@ class _Server {
                 'details': 'Freitext darf nicht in den Cache.',
               },
             ],
-            'next': null,
+            'next': pagedHandovers ? '/api/v1/handovers/?offset=1' : null,
             'previous': null,
           };
         } else if (path == '/api/v1/handovers/1/') {
@@ -121,7 +175,29 @@ class _Server {
             ],
           };
         } else if (path == '/api/v1/kaffeekasse/') {
-          body = {'ok': true, 'balance_euros': '12.50', 'results': []};
+          body = {
+            'ok': true,
+            'balance_euros': '12.50',
+            'results': [],
+            if (coffeeMonthlyFee) ...{
+              'scope': 'own',
+              'monthly_fee_euros': '5.00',
+              'own': {
+                'participant': true,
+                'open_euros': '5.00',
+                'credit_euros': '0.00',
+                'months': [
+                  {'month': '2026-10', 'status': 'open', 'open_euros': '5.00'},
+                ],
+              },
+              'payment': {
+                'methods': ['cash', 'transfer'],
+                'iban': 'DE89370400440532013000',
+                'account_holder': 'Kaffeekasse Wache Nord',
+                'note': 'Bitte bar',
+              },
+            },
+          };
         } else if (path == '/api/v1/kalender/') {
           body = {'ok': true, 'results': []};
         } else if (path == '/api/v1/defects/') {
@@ -226,6 +302,69 @@ void main() {
     await client.defectAttachments(1);
     await client.kalender();
 
+    expect(cache.values.keys.toSet(), {'me'});
+  });
+
+  test('Folgeseiten der Übergaben werden nicht gespeichert; erste Seite ohne '
+      'Freitext und ohne next', () async {
+    server.pagedHandovers = true;
+    final client = api();
+    await client.me();
+    final items = await client.handovers();
+    expect(items.map((item) => item['id']), [1, 2]);
+
+    final data = cache.values['handovers']!['data'] as Map<String, dynamic>;
+    expect(data.keys.toSet(), {'results'});
+    final item = (data['results'] as List).single as Map<String, dynamic>;
+    expect(item['id'], 1);
+    expect(
+      item.keys.toSet().difference({'id', 'title', 'created_at', 'updated_at', 'urgent'}),
+      isEmpty,
+    );
+    final stored = jsonEncode(cache.values);
+    expect(stored, isNot(contains('Folgeseite')));
+    expect(stored, isNot(contains('Freitext')));
+    expect(stored, isNot(contains('offset')));
+  });
+
+  test('Mängel über defects() und defectsPage() werden nie gespeichert', () async {
+    final client = api();
+    await client.me();
+    await client.defects();
+    await client.defectsPage();
+    await client.defectsPage(includeDone: true);
+
+    expect(cache.values.keys.toSet(), {'me'});
+    expect(cache.writes.toSet(), {'me'});
+  });
+
+  test('Kaffeekasse mit Monatsbeitrag (own, months, payment, IBAN) wird nie '
+      'gespeichert', () async {
+    server.coffeeMonthlyFee = true;
+    final client = api();
+    await client.me();
+    final kasse = await client.kaffeekasse();
+    expect(kasse.hasMonthlyFee, isTrue);
+
+    expect(cache.values.keys.toSet(), {'me'});
+    expect(jsonEncode(cache.values), isNot(contains('DE89')));
+  });
+
+  test('Schreibaufrufe (Übergabe, Status, Termin, Zahlung, Mangel bearbeiten) '
+      'schreiben keinen Cache', () async {
+    final client = api();
+    await client.me();
+    await client.createHandover(title: 't', details: 'Freitext', category: 'task');
+    await client.setHandoverStatus(1, 'done');
+    await client.createKalenderEntry(
+      title: 'Fortbildung',
+      startsAt: DateTime.utc(2026, 11, 2, 9),
+      endsAt: DateTime.utc(2026, 11, 2, 11),
+    );
+    await client.reportCoffeePayment(method: 'cash', amountEuros: 5);
+    await client.updateDefect(9, description: 'Rad links');
+
+    expect(cache.writes, ['me']);
     expect(cache.values.keys.toSet(), {'me'});
   });
 
