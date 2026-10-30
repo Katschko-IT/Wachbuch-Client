@@ -9,13 +9,16 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:wachbuch_mobile/api/client.dart';
 import 'package:wachbuch_mobile/models/crew_notice.dart';
 
-/// Erinnert die Besatzung, wenn die Einwirkzeit einer Desinfektion abläuft.
+/// Erinnert die Besatzung, wenn ein Fahrzeug nach der Desinfektion
+/// freigegeben werden kann.
 ///
 /// Der Server gibt Fahrzeuge nie automatisch frei. Die App fragt die laufenden
-/// Sperren der eigenen Fahrzeuge ab und plant zur Sperrzeit eine **lokale**
-/// Benachrichtigung – sie erscheint auch bei geschlossener App und ohne Netz.
-/// Zusätzlich zeigt sie neue Einträge aus dem Posteingang an, sofern dieselbe
-/// Sperre nicht schon lokal erinnert wurde.
+/// Sperren der eigenen Fahrzeuge ab und plant zur Sperrzeit (`locked_until`)
+/// eine **lokale** Benachrichtigung – sie erscheint auch bei geschlossener App
+/// und ohne Netz. Eine Sperre ohne `locked_until` plant nichts. Zusätzlich
+/// zeigt sie neue Einträge aus dem Posteingang an, sofern dieselbe Sperre
+/// nicht schon lokal erinnert wurde – aber nur bekannte Arten
+/// ([CrewNotice.shownKinds]); andere bleiben ungelesen auf dem Server.
 class CrewReminderService {
   CrewReminderService({
     required this.api,
@@ -98,7 +101,8 @@ class CrewReminderService {
         return;
       }
       final unread = notices
-          .where((notice) => !notice.read && notice.key.isNotEmpty)
+          .where((notice) =>
+              !notice.read && notice.key.isNotEmpty && notice.isShownKind)
           .toList(growable: false);
       if (unread.isEmpty) return;
       final String? userKey;
@@ -270,7 +274,8 @@ class LocalNotificationScheduler implements ReminderScheduler {
     android: AndroidNotificationDetails(
       'vehicle_release',
       'Fahrzeugfreigabe',
-      channelDescription: 'Erinnerung, wenn die Einwirkzeit einer Desinfektion abgelaufen ist.',
+      channelDescription:
+          'Erinnerung, wenn ein Fahrzeug nach der Desinfektion freigegeben werden kann.',
       importance: Importance.high,
       priority: Priority.high,
     ),

@@ -126,7 +126,7 @@ void main() {
 
   test('shows a server notice once if it was not reminded locally', () async {
     server.notices = [
-      {'id': 7, 'key': 'vehicle_ready:2:b', 'title': 'RTW 2: Einwirkzeit abgelaufen', 'body': 'x', 'read': false},
+      {'id': 7, 'kind': 'vehicle_ready', 'key': 'vehicle_ready:2:b', 'title': 'RTW 2: Einwirkzeit abgelaufen', 'body': 'x', 'read': false},
     ];
     await service().sync();
     await service().sync();
@@ -137,8 +137,8 @@ void main() {
 
   test('angezeigte Hinweise werden beim Server als gelesen markiert', () async {
     server.notices = [
-      {'id': 7, 'key': 'vehicle_ready:2:f', 'title': 'RTW 2', 'body': 'x', 'read': false},
-      {'id': 8, 'key': 'vehicle_ready:3:f', 'title': 'RTW 3', 'body': 'x', 'read': true},
+      {'id': 7, 'kind': 'vehicle_ready', 'key': 'vehicle_ready:2:f', 'title': 'RTW 2', 'body': 'x', 'read': false},
+      {'id': 8, 'kind': 'vehicle_ready', 'key': 'vehicle_ready:3:f', 'title': 'RTW 3', 'body': 'x', 'read': true},
     ];
     await service().sync();
 
@@ -149,7 +149,7 @@ void main() {
   test('„schon angezeigt“ gilt pro Benutzer, nicht pro Token', () async {
     server.statusForRead = 500; // Hinweis bleibt serverseitig ungelesen
     server.notices = [
-      {'id': 9, 'key': 'vehicle_ready:2:g', 'title': 'RTW 2', 'body': 'x', 'read': false},
+      {'id': 9, 'kind': 'vehicle_ready', 'key': 'vehicle_ready:2:g', 'title': 'RTW 2', 'body': 'x', 'read': false},
     ];
     await service(token: 'wb_alt', namespace: 'token-a').sync();
     expect(scheduler.shown, hasLength(1));
@@ -171,7 +171,7 @@ void main() {
     final store = ReminderStore(namespace: 'test');
     await store.writeScheduled({'vehicle_ready:2:c': until});
     server.notices = [
-      {'id': 8, 'key': 'vehicle_ready:2:c', 'title': 'RTW 2', 'body': 'x', 'read': false},
+      {'id': 8, 'kind': 'vehicle_ready', 'key': 'vehicle_ready:2:c', 'title': 'RTW 2', 'body': 'x', 'read': false},
     ];
     await service().sync();
 
@@ -208,6 +208,42 @@ void main() {
 
     expect(scheduler.scheduled, isEmpty);
     expect(await ReminderStore(namespace: 'test').readScheduled(), isEmpty);
+  });
+
+  test('unbekannte Hinweisart wird weder angezeigt noch als gelesen gemeldet',
+      () async {
+    server.notices = [
+      {
+        'id': 20,
+        'kind': 'system_health',
+        'key': 'system_health:1',
+        'title': 'Wachwerk: technische Störung',
+        'body': 'Dienst backup läuft nicht.',
+        'read': false,
+      },
+      {'id': 21, 'key': 'ohne_art:1', 'title': 'Ohne Art', 'body': 'x', 'read': false},
+    ];
+    await service().sync();
+
+    expect(scheduler.shown, isEmpty);
+    expect(server.readIds, isEmpty);
+  });
+
+  test('Kaffeekasse-Hinweis (coffee_due) wird angezeigt', () async {
+    server.notices = [
+      {
+        'id': 22,
+        'kind': 'coffee_due',
+        'key': 'coffee_due:2026-10',
+        'title': 'Kaffeekasse: Beitrag offen',
+        'body': 'Oktober ist noch offen.',
+        'read': false,
+      },
+    ];
+    await service().sync();
+
+    expect(scheduler.shown.values.single, 'Kaffeekasse: Beitrag offen');
+    expect(server.readIds, [22]);
   });
 
   test('reminder ids are stable and positive', () {
