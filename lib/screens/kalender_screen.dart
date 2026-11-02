@@ -138,23 +138,28 @@ class _KalenderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final c = WachbuchColors.of(context);
     return Card(
       clipBehavior: Clip.antiAlias,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(WachbuchTokens.radiusLg),
+        side: BorderSide(color: c.line),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(WachbuchTokens.space4),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               width: 4,
-              height: 56,
+              height: WachbuchTokens.inputHeight,
               decoration: BoxDecoration(
-                color: scheme.primary,
+                color: c.brand,
                 borderRadius: BorderRadius.circular(WachbuchTokens.radiusSm),
               ),
             ),
-            const SizedBox(width: 14),
+            const SizedBox(width: WachbuchTokens.space3),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -163,22 +168,24 @@ class _KalenderCard extends StatelessWidget {
                     entry.title.isNotEmpty
                         ? entry.title
                         : AppLocalizations.of(context)!.kalenderEntryFallback,
-                    style: Theme.of(context).textTheme.titleMedium,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: c.text,
+                        ),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: WachbuchTokens.space1),
                   Row(
                     children: [
                       Icon(
                         Icons.schedule,
                         size: 18,
-                        color: scheme.onSurfaceVariant,
+                        color: c.muted,
                       ),
-                      const SizedBox(width: 6),
+                      const SizedBox(width: WachbuchTokens.space1),
                       Expanded(
                         child: Text(
                           _formatRange(entry, AppLocalizations.of(context)!),
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: scheme.onSurfaceVariant,
+                                color: c.muted,
                                 fontFeatures: WachbuchTokens.tabularFigures,
                               ),
                         ),
@@ -186,20 +193,20 @@ class _KalenderCard extends StatelessWidget {
                     ],
                   ),
                   if (entry.location.isNotEmpty) ...[
-                    const SizedBox(height: 4),
+                    const SizedBox(height: WachbuchTokens.space1),
                     Row(
                       children: [
                         Icon(
                           Icons.place_outlined,
                           size: 18,
-                          color: scheme.onSurfaceVariant,
+                          color: c.muted,
                         ),
-                        const SizedBox(width: 6),
+                        const SizedBox(width: WachbuchTokens.space1),
                         Expanded(
                           child: Text(
                             entry.location,
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: scheme.onSurfaceVariant,
+                                  color: c.muted,
                                 ),
                           ),
                         ),
@@ -207,10 +214,12 @@ class _KalenderCard extends StatelessWidget {
                     ),
                   ],
                   if (entry.description.isNotEmpty) ...[
-                    const SizedBox(height: 10),
+                    const SizedBox(height: WachbuchTokens.space2),
                     Text(
                       entry.description,
-                      style: Theme.of(context).textTheme.bodyMedium,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: c.text,
+                          ),
                     ),
                   ],
                 ],
@@ -355,56 +364,87 @@ class _KalenderCreateSheetState extends State<KalenderCreateSheet> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
+    final c = WachbuchColors.of(context);
     final material = MaterialLocalizations.of(context);
     String format(DateTime value) =>
         '${material.formatMediumDate(value)}, ${material.formatTimeOfDay(TimeOfDay.fromDateTime(value), alwaysUse24HourFormat: true)}';
     return SafeArea(
       child: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(24, 0, 24, 24 + MediaQuery.viewInsetsOf(context).bottom),
+        padding: EdgeInsets.fromLTRB(
+          WachbuchTokens.space5,
+          0,
+          WachbuchTokens.space5,
+          WachbuchTokens.space5 + MediaQuery.viewInsetsOf(context).bottom,
+        ),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(l.kalenderCreate, style: Theme.of(context).textTheme.headlineSmall),
-              const SizedBox(height: 8),
+              Text(
+                l.kalenderCreate,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: c.text,
+                    ),
+              ),
+              const SizedBox(height: WachbuchTokens.space2),
               const FreeTextBoundaryHint(),
-              const SizedBox(height: 16),
+              const SizedBox(height: WachbuchTokens.space4),
               TextFormField(
                 key: const Key('kalender-create-title'),
                 controller: _title,
                 maxLength: 160,
+                textInputAction: TextInputAction.next,
                 decoration: InputDecoration(labelText: l.kalenderFieldTitle),
                 validator: (value) => (value ?? '').trim().isEmpty ? l.kalenderTitleRequired : null,
               ),
+              const SizedBox(height: WachbuchTokens.space2),
               TextFormField(
                 controller: _description,
                 minLines: 2,
                 maxLines: 5,
-                decoration: InputDecoration(labelText: l.kalenderFieldDescription),
+                decoration: InputDecoration(
+                  labelText: l.kalenderFieldDescription,
+                  alignLabelWithHint: true,
+                ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: WachbuchTokens.space3),
               ListTile(
                 key: const Key('kalender-create-start'),
                 contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.play_arrow_outlined),
+                minTileHeight: WachbuchTokens.touchTarget,
+                leading: Icon(Icons.play_arrow_outlined, color: c.brand),
                 title: Text(l.kalenderFieldStart),
-                subtitle: Text(format(_start)),
+                subtitle: Text(
+                  format(_start),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: c.muted,
+                        fontFeatures: WachbuchTokens.tabularFigures,
+                      ),
+                ),
                 onTap: _pickStart,
               ),
               ListTile(
                 key: const Key('kalender-create-end'),
                 contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.stop_outlined),
+                minTileHeight: WachbuchTokens.touchTarget,
+                leading: Icon(Icons.stop_outlined, color: c.brand),
                 title: Text(l.kalenderFieldEnd),
-                subtitle: Text(format(_end)),
+                subtitle: Text(
+                  format(_end),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: c.muted,
+                        fontFeatures: WachbuchTokens.tabularFigures,
+                      ),
+                ),
                 onTap: _pickEnd,
               ),
               if (_error != null) ...[
-                const SizedBox(height: 8),
-                Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                const SizedBox(height: WachbuchTokens.space2),
+                Text(_error!, style: TextStyle(color: c.danger)),
               ],
-              const SizedBox(height: 16),
+              const SizedBox(height: WachbuchTokens.space4),
               FilledButton.icon(
                 key: const Key('kalender-create-submit'),
                 onPressed: _saving ? null : () => _submit(l),

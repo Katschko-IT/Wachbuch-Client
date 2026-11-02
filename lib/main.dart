@@ -206,7 +206,7 @@ class _WachbuchAppState extends State<WachbuchApp> with WidgetsBindingObserver {
       }
       await widget.store.clearToken();
       token = null;
-      _sessionNotice = 'Ihre Anmeldung ist abgelaufen. Bitte erneut anmelden.';
+      _sessionNotice = 'Deine Anmeldung ist abgelaufen. Bitte erneut anmelden.';
     }
 
     final initialLink = await widget.linkSource.getInitialLink();

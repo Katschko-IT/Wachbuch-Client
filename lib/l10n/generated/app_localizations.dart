@@ -143,7 +143,7 @@ abstract class AppLocalizations {
   /// No description provided for @noticeSessionExpired.
   ///
   /// In de, this message translates to:
-  /// **'Ihre Anmeldung ist abgelaufen. Bitte erneut anmelden.'**
+  /// **'Deine Anmeldung ist abgelaufen. Bitte erneut anmelden.'**
   String get noticeSessionExpired;
 
   /// No description provided for @noticeSessionEnded.
@@ -233,7 +233,7 @@ abstract class AppLocalizations {
   /// No description provided for @overviewModulesHint.
   ///
   /// In de, this message translates to:
-  /// **'Ihre Wache und die verfügbaren Module werden automatisch aus Ihrem Benutzerkonto geladen.'**
+  /// **'Deine Wache und die verfügbaren Module werden automatisch aus deinem Benutzerkonto geladen.'**
   String get overviewModulesHint;
 
   /// No description provided for @moduleCalendarTitle.
@@ -671,7 +671,7 @@ abstract class AppLocalizations {
   /// No description provided for @handoverAckDone.
   ///
   /// In de, this message translates to:
-  /// **'Von Ihnen quittiert'**
+  /// **'Von dir quittiert'**
   String get handoverAckDone;
 
   /// No description provided for @handoverAckListTitle.
@@ -1097,13 +1097,13 @@ abstract class AppLocalizations {
   /// No description provided for @setupServerAddressTitle.
   ///
   /// In de, this message translates to:
-  /// **'Server-Adresse Ihrer Wache'**
+  /// **'Server-Adresse deiner Wache'**
   String get setupServerAddressTitle;
 
   /// No description provided for @setupHint.
   ///
   /// In de, this message translates to:
-  /// **'Geben Sie die Adresse ein oder scannen Sie den QR-Code aus dem Web.'**
+  /// **'Gib die Adresse ein oder scanne den QR-Code aus dem Web.'**
   String get setupHint;
 
   /// No description provided for @setupAddressLabel.
@@ -1145,7 +1145,7 @@ abstract class AppLocalizations {
   /// No description provided for @setupFooter.
   ///
   /// In de, this message translates to:
-  /// **'Play-Store-Client: Verbindung nur zu Ihrem selbst gehosteten Server. Produktion: HTTPS erforderlich.'**
+  /// **'Play-Store-Client: Verbindung nur zu deinem selbst gehosteten Server. Produktion: HTTPS erforderlich.'**
   String get setupFooter;
 
   /// No description provided for @setupDemoButton.
@@ -1277,7 +1277,7 @@ abstract class AppLocalizations {
   /// No description provided for @qrCameraDialogMessage.
   ///
   /// In de, this message translates to:
-  /// **'Wachwerk benötigt die Kamera hier ausschließlich, um den QR-Code mit der Server-Adresse Ihrer Wache zu scannen. Ohne Kamera können Sie die Adresse auch manuell eingeben.'**
+  /// **'Wachwerk benötigt die Kamera hier ausschließlich, um den QR-Code mit der Server-Adresse deiner Wache zu scannen. Ohne Kamera kannst du die Adresse auch manuell eingeben.'**
   String get qrCameraDialogMessage;
 
   /// No description provided for @qrCameraContinue.
@@ -1295,7 +1295,7 @@ abstract class AppLocalizations {
   /// No description provided for @qrCameraDeniedMessage.
   ///
   /// In de, this message translates to:
-  /// **'Ohne Kamerazugriff können Sie den QR nicht scannen. Geben Sie die Server-Adresse manuell ein oder aktivieren Sie die Kamera in den Systemeinstellungen.'**
+  /// **'Ohne Kamerazugriff kannst du den QR nicht scannen. Gib die Server-Adresse manuell ein oder aktiviere die Kamera in den Systemeinstellungen.'**
   String get qrCameraDeniedMessage;
 
   /// No description provided for @qrCameraOk.
@@ -2171,7 +2171,7 @@ abstract class AppLocalizations {
   /// No description provided for @handoverNoAutoRetryHint.
   ///
   /// In de, this message translates to:
-  /// **'Wird einmal gesendet. Bei einem Fehler bitte die Liste prüfen, bevor Sie erneut senden.'**
+  /// **'Wird einmal gesendet. Bei einem Fehler bitte die Liste prüfen, bevor du erneut sendest.'**
   String get handoverNoAutoRetryHint;
 
   /// No description provided for @defectsShowDone.

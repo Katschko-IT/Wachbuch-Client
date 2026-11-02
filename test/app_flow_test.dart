@@ -145,7 +145,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(ServerSetupScreen), findsOneWidget);
-    expect(find.text('Server-Adresse Ihrer Wache'), findsOneWidget);
+    expect(find.text('Server-Adresse deiner Wache'), findsOneWidget);
     final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
     expect(app.theme?.useMaterial3, isTrue);
     expect(app.darkTheme?.useMaterial3, isTrue);

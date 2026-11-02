@@ -33,7 +33,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get noticeSessionExpired =>
-      'Ihre Anmeldung ist abgelaufen. Bitte erneut anmelden.';
+      'Deine Anmeldung ist abgelaufen. Bitte erneut anmelden.';
 
   @override
   String get noticeSessionEnded => 'Sitzung beendet. Bitte erneut anmelden.';
@@ -81,7 +81,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get overviewModulesHint =>
-      'Ihre Wache und die verfügbaren Module werden automatisch aus Ihrem Benutzerkonto geladen.';
+      'Deine Wache und die verfügbaren Module werden automatisch aus deinem Benutzerkonto geladen.';
 
   @override
   String get moduleCalendarTitle => 'Kalender';
@@ -306,7 +306,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get handoverAckButton => 'Übernommen';
 
   @override
-  String get handoverAckDone => 'Von Ihnen quittiert';
+  String get handoverAckDone => 'Von dir quittiert';
 
   @override
   String get handoverAckListTitle => 'Quittierungen';
@@ -537,11 +537,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get loginInvalidInput => 'Ungültige Eingabe.';
 
   @override
-  String get setupServerAddressTitle => 'Server-Adresse Ihrer Wache';
+  String get setupServerAddressTitle => 'Server-Adresse deiner Wache';
 
   @override
   String get setupHint =>
-      'Geben Sie die Adresse ein oder scannen Sie den QR-Code aus dem Web.';
+      'Gib die Adresse ein oder scanne den QR-Code aus dem Web.';
 
   @override
   String get setupAddressLabel => 'Adresse';
@@ -563,7 +563,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get setupFooter =>
-      'Play-Store-Client: Verbindung nur zu Ihrem selbst gehosteten Server. Produktion: HTTPS erforderlich.';
+      'Play-Store-Client: Verbindung nur zu deinem selbst gehosteten Server. Produktion: HTTPS erforderlich.';
 
   @override
   String get setupDemoButton => 'Demo-Modus ausprobieren';
@@ -636,7 +636,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get qrCameraDialogMessage =>
-      'Wachwerk benötigt die Kamera hier ausschließlich, um den QR-Code mit der Server-Adresse Ihrer Wache zu scannen. Ohne Kamera können Sie die Adresse auch manuell eingeben.';
+      'Wachwerk benötigt die Kamera hier ausschließlich, um den QR-Code mit der Server-Adresse deiner Wache zu scannen. Ohne Kamera kannst du die Adresse auch manuell eingeben.';
 
   @override
   String get qrCameraContinue => 'Weiter';
@@ -646,7 +646,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get qrCameraDeniedMessage =>
-      'Ohne Kamerazugriff können Sie den QR nicht scannen. Geben Sie die Server-Adresse manuell ein oder aktivieren Sie die Kamera in den Systemeinstellungen.';
+      'Ohne Kamerazugriff kannst du den QR nicht scannen. Gib die Server-Adresse manuell ein oder aktiviere die Kamera in den Systemeinstellungen.';
 
   @override
   String get qrCameraOk => 'OK';
@@ -1140,7 +1140,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get handoverNoAutoRetryHint =>
-      'Wird einmal gesendet. Bei einem Fehler bitte die Liste prüfen, bevor Sie erneut senden.';
+      'Wird einmal gesendet. Bei einem Fehler bitte die Liste prüfen, bevor du erneut sendest.';
 
   @override
   String get defectsShowDone => 'Erledigte anzeigen';

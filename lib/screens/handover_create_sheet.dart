@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:wachbuch_mobile/api/client.dart';
 import 'package:wachbuch_mobile/l10n/generated/app_localizations.dart';
 import 'package:wachbuch_mobile/state/handover_state.dart';
+import 'package:wachbuch_mobile/theme/design_tokens.dart';
 import 'package:wachbuch_mobile/ui/free_text_boundary_hint.dart';
 import 'package:wachbuch_mobile/ui/handover_filter.dart';
 
@@ -70,13 +71,14 @@ class _HandoverCreateSheetState extends State<HandoverCreateSheet> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
+    final c = WachbuchColors.of(context);
     return SafeArea(
       child: SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(
-          24,
+          WachbuchTokens.space5,
           0,
-          24,
-          24 + MediaQuery.viewInsetsOf(context).bottom,
+          WachbuchTokens.space5,
+          WachbuchTokens.space5 + MediaQuery.viewInsetsOf(context).bottom,
         ),
         child: Form(
           key: _formKey,
@@ -85,11 +87,14 @@ class _HandoverCreateSheetState extends State<HandoverCreateSheet> {
             children: [
               Text(
                 l.handoverCreateHeading,
-                style: Theme.of(context).textTheme.headlineSmall,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: c.text,
+                    ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: WachbuchTokens.space2),
               const FreeTextBoundaryHint(),
-              const SizedBox(height: 16),
+              const SizedBox(height: WachbuchTokens.space4),
               TextFormField(
                 key: const Key('handover-create-title'),
                 controller: _title,
@@ -100,7 +105,7 @@ class _HandoverCreateSheetState extends State<HandoverCreateSheet> {
                     ? l.handoverTitleRequired
                     : null,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: WachbuchTokens.space2),
               TextFormField(
                 key: const Key('handover-create-details'),
                 controller: _details,
@@ -115,7 +120,7 @@ class _HandoverCreateSheetState extends State<HandoverCreateSheet> {
                     ? l.handoverDetailsRequired
                     : null,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: WachbuchTokens.space3),
               DropdownButtonFormField<String>(
                 key: const Key('handover-create-category'),
                 initialValue: _category,
@@ -130,12 +135,14 @@ class _HandoverCreateSheetState extends State<HandoverCreateSheet> {
                 onChanged: (value) =>
                     setState(() => _category = value ?? _category),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: WachbuchTokens.space4),
               Text(
                 l.handoverFieldPriority,
-                style: Theme.of(context).textTheme.labelLarge,
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: c.text,
+                    ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: WachbuchTokens.space2),
               SegmentedButton<String>(
                 key: const Key('handover-create-priority'),
                 segments: [
@@ -150,21 +157,21 @@ class _HandoverCreateSheetState extends State<HandoverCreateSheet> {
                     setState(() => _priority = selection.first),
               ),
               if (_error != null) ...[
-                const SizedBox(height: 12),
+                const SizedBox(height: WachbuchTokens.space3),
                 Text(
                   _error!,
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                  style: TextStyle(color: c.danger),
                 ),
               ],
-              const SizedBox(height: 16),
+              const SizedBox(height: WachbuchTokens.space4),
               // Kein automatisches Wiederholen: der Hinweis erklärt, warum.
               Text(
                 l.handoverNoAutoRetryHint,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      color: c.muted,
                     ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: WachbuchTokens.space3),
               FilledButton.icon(
                 key: const Key('handover-create-submit'),
                 onPressed: _saving ? null : () => _submit(l),

@@ -97,50 +97,56 @@ class _KaffeekasseScreenState extends State<KaffeekasseScreen> {
       onRefresh: _reload,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(WachbuchTokens.space4),
         children: [
           if (_error != null) ...[
             ErrorBanner(message: _error!),
-            const SizedBox(height: 16),
+            const SizedBox(height: WachbuchTokens.space4),
           ],
           if (kasse != null) ...[
             if (kasse.hasMonthlyFee)
               _OwnStatusCard(own: kasse.own!)
             else
               _BalanceCard(kasse: kasse),
-            const SizedBox(height: 16),
+            const SizedBox(height: WachbuchTokens.space4),
             if (kasse.monthlyFee > 0 && kasse.own?.participant == false) ...[
-              Text(AppLocalizations.of(context)!.kaffeekasseNotParticipant),
-              const SizedBox(height: 16),
+              Text(
+                AppLocalizations.of(context)!.kaffeekasseNotParticipant,
+                style: TextStyle(color: WachbuchColors.of(context).muted),
+              ),
+              const SizedBox(height: WachbuchTokens.space4),
             ],
             if (kasse.hasMonthlyFee && kasse.own!.months.isNotEmpty) ...[
               _MonthsCard(months: kasse.own!.months),
-              const SizedBox(height: 16),
+              const SizedBox(height: WachbuchTokens.space4),
             ],
             if (kasse.payment != null) ...[
               FilledButton.icon(
                 key: const Key('coffee-i-paid'),
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(WachbuchTokens.touchTarget),
+                ),
                 onPressed: () => _openPaySheet(kasse.payment!),
                 icon: const Icon(Icons.check_circle_outline),
                 label: Text(AppLocalizations.of(context)!.kaffeekasseIPaid),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: WachbuchTokens.space4),
               if (kasse.payment!.iban.isNotEmpty ||
                   kasse.payment!.paypalUrl.isNotEmpty ||
                   kasse.payment!.weroUrl.isNotEmpty) ...[
                 _TransferCard(payment: kasse.payment!),
-                const SizedBox(height: 16),
+                const SizedBox(height: WachbuchTokens.space4),
               ],
             ],
             if (kasse.paymentHint.isNotEmpty) ...[
               _PaymentHintCard(hint: kasse.paymentHint),
-              const SizedBox(height: 16),
+              const SizedBox(height: WachbuchTokens.space4),
             ],
             SectionTitle(
               icon: Icons.receipt_outlined,
               title: AppLocalizations.of(context)!.kaffeekasseLastTransactions,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: WachbuchTokens.space2),
             if (kasse.ledger.isEmpty)
               EmptyState(
                 icon: Icons.receipt_long_outlined,
@@ -168,13 +174,18 @@ class _BalanceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final c = WachbuchColors.of(context);
     final urgent = kasse.isNegative;
-    final background = urgent ? scheme.errorContainer : scheme.primaryContainer;
-    final foreground = urgent ? scheme.onErrorContainer : scheme.onPrimaryContainer;
+    final background = urgent ? c.dangerSoft : c.surface;
+    final borderColor = urgent ? c.danger.withValues(alpha: 0.45) : c.line;
+    final foreground = urgent ? c.danger : c.text;
+    final iconColor = urgent ? c.danger : c.brand;
     return Material(
       color: background,
-      borderRadius: BorderRadius.circular(WachbuchTokens.radiusLg),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(WachbuchTokens.radiusLg),
+        side: BorderSide(color: borderColor),
+      ),
       clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.all(WachbuchTokens.space5),
@@ -185,10 +196,10 @@ class _BalanceCard extends StatelessWidget {
               children: [
                 Icon(
                   Icons.coffee_outlined,
-                  color: foreground,
+                  color: iconColor,
                   size: 28,
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: WachbuchTokens.space3),
                 Expanded(
                   child: Text(
                     switch (kasse.scope) {
@@ -206,16 +217,17 @@ class _BalanceCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: WachbuchTokens.space3),
             Text(
               kasse.balance,
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     color: foreground,
                     fontWeight: FontWeight.w700,
+                    fontFeatures: WachbuchTokens.tabularFigures,
                   ),
             ),
             if (urgent) ...[
-              const SizedBox(height: 6),
+              const SizedBox(height: WachbuchTokens.space2),
               Text(
                 AppLocalizations.of(context)!.kaffeekasseNegative,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -237,10 +249,13 @@ class _PaymentHintCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final c = WachbuchColors.of(context);
     return Material(
-      color: scheme.secondaryContainer,
-      borderRadius: BorderRadius.circular(WachbuchTokens.radiusMd),
+      color: c.surfaceSoft,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(WachbuchTokens.radiusMd),
+        side: BorderSide(color: c.line),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(WachbuchTokens.space4),
         child: Row(
@@ -248,14 +263,14 @@ class _PaymentHintCard extends StatelessWidget {
           children: [
             Icon(
               Icons.payments_outlined,
-              color: scheme.onSecondaryContainer,
+              color: c.brand,
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: WachbuchTokens.space3),
             Expanded(
               child: Text(
                 hint,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: scheme.onSecondaryContainer,
+                      color: c.text,
                     ),
               ),
             ),
@@ -273,16 +288,16 @@ class _LedgerTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final c = WachbuchColors.of(context);
     final amountColor =
-        entry.isNegative ? scheme.error : scheme.primary;
+        entry.isNegative ? c.danger : c.brand;
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(vertical: 4),
+      contentPadding: const EdgeInsets.symmetric(vertical: WachbuchTokens.space1),
       title: Text(
         entry.description.isNotEmpty
             ? entry.description
             : AppLocalizations.of(context)!.kaffeekasseEntryFallback,
-        style: Theme.of(context).textTheme.bodyLarge,
+        style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: c.text),
       ),
       subtitle: Text(
         [
@@ -290,6 +305,7 @@ class _LedgerTile extends StatelessWidget {
           if (entry.createdAt != null) _formatTimestamp(entry.createdAt!),
         ].join(' · '),
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: c.muted,
               fontFeatures: WachbuchTokens.tabularFigures,
             ),
       ),
@@ -319,10 +335,12 @@ class _OwnStatusCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
-    final scheme = Theme.of(context).colorScheme;
+    final c = WachbuchColors.of(context);
     final open = own.openEuros > 0;
-    final background = open ? scheme.errorContainer : scheme.primaryContainer;
-    final foreground = open ? scheme.onErrorContainer : scheme.onPrimaryContainer;
+    final background = open ? c.dangerSoft : c.surface;
+    final borderColor = open ? c.danger.withValues(alpha: 0.45) : c.line;
+    final foreground = open ? c.danger : c.text;
+    final iconColor = open ? c.danger : c.brand;
     final (label, value) = open
         ? (l.kaffeekasseOpen, own.formattedOpen)
         : own.creditEuros > 0
@@ -331,16 +349,20 @@ class _OwnStatusCard extends StatelessWidget {
     return Material(
       key: const Key('coffee-own-status'),
       color: background,
-      borderRadius: BorderRadius.circular(18),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(WachbuchTokens.radiusLg),
+        side: BorderSide(color: borderColor),
+      ),
+      clipBehavior: Clip.antiAlias,
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(WachbuchTokens.space5),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                Icon(Icons.coffee_outlined, color: foreground, size: 28),
-                const SizedBox(width: 10),
+                Icon(Icons.coffee_outlined, color: iconColor, size: 28),
+                const SizedBox(width: WachbuchTokens.space3),
                 Expanded(
                   child: Text(
                     label,
@@ -349,12 +371,13 @@ class _OwnStatusCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: WachbuchTokens.space3),
             Text(
               value,
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     color: foreground,
                     fontWeight: FontWeight.w700,
+                    fontFeatures: WachbuchTokens.tabularFigures,
                   ),
             ),
           ],
@@ -372,16 +395,19 @@ class _MonthsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
-    final scheme = Theme.of(context).colorScheme;
+    final c = WachbuchColors.of(context);
     final material = MaterialLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(l.kaffeekasseMonthsTitle, style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(height: 8),
+        SectionTitle(
+          icon: Icons.calendar_month_outlined,
+          title: l.kaffeekasseMonthsTitle,
+        ),
+        const SizedBox(height: WachbuchTokens.space2),
         Wrap(
-          spacing: 8,
-          runSpacing: 8,
+          spacing: WachbuchTokens.space2,
+          runSpacing: WachbuchTokens.space2,
           children: [
             for (final month in months)
               Chip(
@@ -392,7 +418,7 @@ class _MonthsCard extends StatelessWidget {
                     _ => Icons.beach_access_outlined,
                   },
                   size: 18,
-                  color: month.status == 'open' ? scheme.error : scheme.primary,
+                  color: month.status == 'open' ? c.danger : c.brand,
                 ),
                 label: Text(
                   '${month.month != null ? material.formatMonthYear(month.month!) : '?'} · '
@@ -401,6 +427,9 @@ class _MonthsCard extends StatelessWidget {
                     'open' => l.kaffeekasseMonthOpen(month.formattedOpen),
                     _ => l.kaffeekasseMonthWaived,
                   }}',
+                  style: const TextStyle(
+                    fontFeatures: WachbuchTokens.tabularFigures,
+                  ),
                 ),
               ),
           ],
@@ -423,6 +452,7 @@ class _TransferCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
+    final c = WachbuchColors.of(context);
     final text = Theme.of(context).textTheme;
     Widget row(String label, String value, {bool copy = false}) => Row(
           children: [
@@ -430,8 +460,14 @@ class _TransferCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(label, style: text.labelMedium),
-                  SelectableText(value, style: text.bodyLarge),
+                  Text(label, style: text.labelMedium?.copyWith(color: c.muted)),
+                  SelectableText(
+                    value,
+                    style: text.bodyLarge?.copyWith(
+                      color: c.text,
+                      fontFeatures: WachbuchTokens.tabularFigures,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -440,13 +476,22 @@ class _TransferCard extends StatelessWidget {
         );
     return Card(
       key: const Key('coffee-transfer'),
+      color: c.surface,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(WachbuchTokens.radiusLg),
+        side: BorderSide(color: c.line),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(WachbuchTokens.space4),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(l.kaffeekasseTransferTitle, style: text.titleMedium),
-            const SizedBox(height: 8),
+            SectionTitle(
+              icon: Icons.account_balance_outlined,
+              title: l.kaffeekasseTransferTitle,
+            ),
+            const SizedBox(height: WachbuchTokens.space3),
             if (payment.iban.isNotEmpty) ...[
               row(l.kaffeekasseRecipient, payment.accountHolder),
               row(l.kaffeekasseIban, payment.formattedIban, copy: true),
@@ -462,8 +507,14 @@ class _TransferCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(l.kaffeekasseReference, style: text.labelMedium),
-                          SelectableText(payment.transferText, style: text.bodyLarge),
+                          Text(l.kaffeekasseReference, style: text.labelMedium?.copyWith(color: c.muted)),
+                          SelectableText(
+                            payment.transferText,
+                            style: text.bodyLarge?.copyWith(
+                              color: c.text,
+                              fontFeatures: WachbuchTokens.tabularFigures,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -472,9 +523,10 @@ class _TransferCard extends StatelessWidget {
                 ),
             ],
             if (payment.paypalUrl.isNotEmpty || payment.weroUrl.isNotEmpty) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: WachbuchTokens.space3),
               Wrap(
-                spacing: 8,
+                spacing: WachbuchTokens.space2,
+                runSpacing: WachbuchTokens.space2,
                 children: [
                   if (payment.paypalUrl.isNotEmpty)
                     OutlinedButton.icon(
@@ -576,20 +628,37 @@ class _CoffeePaySheetState extends State<CoffeePaySheet> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
+    final c = WachbuchColors.of(context);
     return SafeArea(
       child: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(24, 0, 24, 24 + MediaQuery.viewInsetsOf(context).bottom),
+        padding: EdgeInsets.fromLTRB(
+          WachbuchTokens.space5,
+          0,
+          WachbuchTokens.space5,
+          WachbuchTokens.space5 + MediaQuery.viewInsetsOf(context).bottom,
+        ),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(l.kaffeekasseIPaid, style: Theme.of(context).textTheme.headlineSmall),
-              const SizedBox(height: 8),
-              Text(l.kaffeekassePayHint),
-              const SizedBox(height: 16),
+              Text(
+                l.kaffeekasseIPaid,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      color: c.text,
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+              const SizedBox(height: WachbuchTokens.space2),
+              Text(
+                l.kaffeekassePayHint,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: c.muted,
+                    ),
+              ),
+              const SizedBox(height: WachbuchTokens.space4),
               Text(l.kaffeekassePayMethod, style: Theme.of(context).textTheme.labelLarge),
-              const SizedBox(height: 8),
+              const SizedBox(height: WachbuchTokens.space2),
               SegmentedButton<String>(
                 key: const Key('coffee-pay-method'),
                 segments: [
@@ -599,7 +668,7 @@ class _CoffeePaySheetState extends State<CoffeePaySheet> {
                 selected: {_method},
                 onSelectionChanged: (selection) => setState(() => _method = selection.first),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: WachbuchTokens.space4),
               TextFormField(
                 key: const Key('coffee-pay-amount'),
                 controller: _amount,
@@ -610,17 +679,17 @@ class _CoffeePaySheetState extends State<CoffeePaySheet> {
                   return value == null || value < 0.01 || value > 500 ? l.kaffeekasseAmountInvalid : null;
                 },
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: WachbuchTokens.space2),
               TextFormField(
                 controller: _note,
                 maxLength: 120,
                 decoration: InputDecoration(labelText: l.kaffeekasseNote),
               ),
               if (_error != null) ...[
-                const SizedBox(height: 8),
-                Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                const SizedBox(height: WachbuchTokens.space2),
+                Text(_error!, style: TextStyle(color: c.danger)),
               ],
-              const SizedBox(height: 16),
+              const SizedBox(height: WachbuchTokens.space4),
               FilledButton.icon(
                 key: const Key('coffee-pay-submit'),
                 onPressed: _saving ? null : () => _submit(l),

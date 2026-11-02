@@ -358,14 +358,15 @@ class _DefectCreateSheetState extends State<_DefectCreateSheet> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
+    final c = WachbuchColors.of(context);
     final locale = Localizations.localeOf(context).languageCode;
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.fromLTRB(
-          24,
+          WachbuchTokens.space5,
           0,
-          24,
-          24 + MediaQuery.viewInsetsOf(context).bottom,
+          WachbuchTokens.space5,
+          WachbuchTokens.space5 + MediaQuery.viewInsetsOf(context).bottom,
         ),
         child: SingleChildScrollView(
           child: Form(
@@ -377,22 +378,24 @@ class _DefectCreateSheetState extends State<_DefectCreateSheet> {
                   l.defectCreateTitle,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.w700,
+                        color: c.text,
                       ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: WachbuchTokens.space2),
+                const FreeTextBoundaryHint(),
+                const SizedBox(height: WachbuchTokens.space4),
                 TextFormField(
                   controller: _title,
                   maxLength: 160,
                   textInputAction: TextInputAction.next,
                   decoration: InputDecoration(
                     labelText: l.defectTitleLabel,
-                    border: const OutlineInputBorder(),
                   ),
                   validator: (value) => value == null || value.trim().isEmpty
                       ? l.defectTitleLabel
                       : null,
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: WachbuchTokens.space3),
                 TextFormField(
                   controller: _description,
                   minLines: 3,
@@ -400,24 +403,22 @@ class _DefectCreateSheetState extends State<_DefectCreateSheet> {
                   maxLength: 3000,
                   decoration: InputDecoration(
                     labelText: l.defectDescriptionLabel,
-                    border: const OutlineInputBorder(),
+                    alignLabelWithHint: true,
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: WachbuchTokens.space3),
                 TextFormField(
                   controller: _asset,
                   maxLength: 160,
                   decoration: InputDecoration(
                     labelText: l.defectAssetLabel,
-                    border: const OutlineInputBorder(),
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: WachbuchTokens.space3),
                 DropdownButtonFormField<String>(
                   initialValue: _priority,
                   decoration: InputDecoration(
                     labelText: l.defectPriorityLabel,
-                    border: const OutlineInputBorder(),
                   ),
                   items: const ['normal', 'important', 'urgent']
                       .map(
@@ -429,12 +430,11 @@ class _DefectCreateSheetState extends State<_DefectCreateSheet> {
                       .toList(),
                   onChanged: (value) => setState(() => _priority = value ?? 'normal'),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: WachbuchTokens.space3),
                 DropdownButtonFormField<String>(
                   initialValue: _category,
                   decoration: InputDecoration(
                     labelText: l.defectCategoryLabel,
-                    border: const OutlineInputBorder(),
                   ),
                   items: const [
                     'task',
@@ -454,7 +454,7 @@ class _DefectCreateSheetState extends State<_DefectCreateSheet> {
                       .toList(),
                   onChanged: (value) => setState(() => _category = value ?? 'task'),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: WachbuchTokens.space3),
                 OutlinedButton.icon(
                   onPressed: _pickDue,
                   icon: const Icon(Icons.event_outlined),
@@ -462,12 +462,16 @@ class _DefectCreateSheetState extends State<_DefectCreateSheet> {
                     _dueAt == null
                         ? l.defectDueLabel
                         : '${l.defectDueLabel}: ${MaterialLocalizations.of(context).formatMediumDate(_dueAt!)} · ${MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(_dueAt!))}',
+                    style: const TextStyle(
+                      fontFeatures: WachbuchTokens.tabularFigures,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 20),
-                FilledButton(
+                const SizedBox(height: WachbuchTokens.space4),
+                FilledButton.icon(
                   onPressed: _submit,
-                  child: Text(l.commonSave),
+                  icon: const Icon(Icons.save_outlined),
+                  label: Text(l.commonSave),
                 ),
               ],
             ),
@@ -1013,81 +1017,104 @@ class _DefectEditSheetState extends State<_DefectEditSheet> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
+    final c = WachbuchColors.of(context);
     final material = MaterialLocalizations.of(context);
-    return Padding(
-      padding: EdgeInsets.fromLTRB(24, 0, 24, 24 + MediaQuery.viewInsetsOf(context).bottom),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(widget.defect.title, style: Theme.of(context).textTheme.headlineSmall),
-            const SizedBox(height: 8),
-            const FreeTextBoundaryHint(),
-            const SizedBox(height: 16),
-            TextField(
-              key: const Key('defect-edit-description'),
-              controller: _description,
-              minLines: 3,
-              maxLines: 6,
-              maxLength: 3000,
-              decoration: InputDecoration(labelText: l.defectDescriptionLabel, border: const OutlineInputBorder()),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _asset,
-              maxLength: 160,
-              decoration: InputDecoration(labelText: l.defectAssetLabel, border: const OutlineInputBorder()),
-            ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              key: const Key('defect-edit-priority'),
-              initialValue: _priority,
-              decoration: InputDecoration(labelText: l.defectPriorityLabel, border: const OutlineInputBorder()),
-              items: [
-                for (final value in const ['normal', 'important', 'urgent'])
-                  DropdownMenuItem(value: value, child: Text(_priorityLabel(l, value))),
-              ],
-              onChanged: (value) => setState(() => _priority = value ?? _priority),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: _pickDue,
-                    icon: const Icon(Icons.event_outlined),
-                    label: Text(
-                      _dueAt == null
-                          ? l.defectDueLabel
-                          : '${l.defectDueLabel}: ${material.formatMediumDate(_dueAt!)} · '
-                              '${material.formatTimeOfDay(TimeOfDay.fromDateTime(_dueAt!), alwaysUse24HourFormat: true)}',
+    return SafeArea(
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+          WachbuchTokens.space5,
+          0,
+          WachbuchTokens.space5,
+          WachbuchTokens.space5 + MediaQuery.viewInsetsOf(context).bottom,
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                widget.defect.title,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: c.text,
+                    ),
+              ),
+              const SizedBox(height: WachbuchTokens.space2),
+              const FreeTextBoundaryHint(),
+              const SizedBox(height: WachbuchTokens.space4),
+              TextField(
+                key: const Key('defect-edit-description'),
+                controller: _description,
+                minLines: 3,
+                maxLines: 6,
+                maxLength: 3000,
+                decoration: InputDecoration(
+                  labelText: l.defectDescriptionLabel,
+                  alignLabelWithHint: true,
+                ),
+              ),
+              const SizedBox(height: WachbuchTokens.space3),
+              TextField(
+                controller: _asset,
+                maxLength: 160,
+                decoration: InputDecoration(labelText: l.defectAssetLabel),
+              ),
+              const SizedBox(height: WachbuchTokens.space3),
+              DropdownButtonFormField<String>(
+                key: const Key('defect-edit-priority'),
+                initialValue: _priority,
+                decoration: InputDecoration(labelText: l.defectPriorityLabel),
+                items: [
+                  for (final value in const ['normal', 'important', 'urgent'])
+                    DropdownMenuItem(value: value, child: Text(_priorityLabel(l, value))),
+                ],
+                onChanged: (value) => setState(() => _priority = value ?? _priority),
+              ),
+              const SizedBox(height: WachbuchTokens.space3),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: _pickDue,
+                      icon: const Icon(Icons.event_outlined),
+                      label: Text(
+                        _dueAt == null
+                            ? l.defectDueLabel
+                            : '${l.defectDueLabel}: ${material.formatMediumDate(_dueAt!)} · '
+                                '${material.formatTimeOfDay(TimeOfDay.fromDateTime(_dueAt!), alwaysUse24HourFormat: true)}',
+                        style: const TextStyle(
+                          fontFeatures: WachbuchTokens.tabularFigures,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-                if (_dueAt != null)
-                  IconButton(
-                    tooltip: l.defectDueClear,
-                    onPressed: () => setState(() {
-                      _dueAt = null;
-                      _dueCleared = true;
-                    }),
-                    icon: const Icon(Icons.clear),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            FilledButton(
-              key: const Key('defect-edit-save'),
-              onPressed: () => Navigator.of(context).pop(_DefectEdit(
-                description: _description.text.trim(),
-                assetRef: _asset.text.trim(),
-                priority: _priority,
-                dueAt: _dueAt,
-                clearDue: _dueCleared,
-              )),
-              child: Text(l.commonSave),
-            ),
-          ],
+                  if (_dueAt != null) ...[
+                    const SizedBox(width: WachbuchTokens.space2),
+                    IconButton(
+                      tooltip: l.defectDueClear,
+                      onPressed: () => setState(() {
+                        _dueAt = null;
+                        _dueCleared = true;
+                      }),
+                      icon: const Icon(Icons.clear),
+                    ),
+                  ],
+                ],
+              ),
+              const SizedBox(height: WachbuchTokens.space4),
+              FilledButton.icon(
+                key: const Key('defect-edit-save'),
+                onPressed: () => Navigator.of(context).pop(_DefectEdit(
+                  description: _description.text.trim(),
+                  assetRef: _asset.text.trim(),
+                  priority: _priority,
+                  dueAt: _dueAt,
+                  clearDue: _dueCleared,
+                )),
+                icon: const Icon(Icons.save_outlined),
+                label: Text(l.commonSave),
+              ),
+            ],
+          ),
         ),
       ),
     );

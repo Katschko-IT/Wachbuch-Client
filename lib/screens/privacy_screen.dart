@@ -183,7 +183,7 @@ const _de = _PolicyCopy(
       'Verbindung zum selbst gehosteten Server',
       'Anmeldung und Organisationsdaten wie Übergaben, Checklisten, Mängel, '
           'Geräte-/Fahrzeugstatus und Inventar werden nur an den Server '
-          'übertragen, den Sie selbst eingerichtet haben. Das gilt auch für '
+          'übertragen, den du selbst eingerichtet hast. Das gilt auch für '
           'neu angelegte Übergaben und Termine, Änderungen an Mängeln, die '
           'Meldung „Ich habe bezahlt“ der Kaffeekasse (Betrag, Zahlungsweg, '
           'Notiz) und den Gelesen-Status persönlicher Hinweise. Ein Passwort '
@@ -192,9 +192,9 @@ const _de = _PolicyCopy(
     ),
     _PolicySection(
       'Benachrichtigungen',
-      'Mit Ihrer Erlaubnis plant die App lokale Benachrichtigungen, zum '
+      'Mit deiner Erlaubnis plant die App lokale Benachrichtigungen, zum '
           'Beispiel wenn ein Fahrzeug nach der Desinfektion freigegeben werden '
-          'kann, und zeigt bekannte persönliche Hinweise Ihres Servers an. '
+          'kann, und zeigt bekannte persönliche Hinweise deines Servers an. '
           'Dafür werden keine Daten an den App-Entwickler oder an Dritte '
           'übertragen.',
     ),
@@ -202,8 +202,8 @@ const _de = _PolicyCopy(
       'Kamera und Fotos',
       'Beim QR-Scan werden Kameraframes nur zur Erkennung der Serveradresse '
           'verarbeitet und nicht als Foto hochgeladen. Ein Mängelfoto wird nur '
-          'übertragen, wenn Sie es ausdrücklich aufnehmen oder aus der '
-          'Fotomediathek auswählen. Patienten- oder Einsatzdaten gehören nicht '
+          'übertragen, wenn du es ausdrücklich aufnimmst oder aus der '
+          'Fotomediathek auswählst. Patienten- oder Einsatzdaten gehören nicht '
           'in Mängelfotos.',
     ),
     _PolicySection(

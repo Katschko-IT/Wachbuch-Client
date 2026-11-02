@@ -40,10 +40,10 @@ Bericht: `docs/REVIEW-2026-10-22.md` im Server-Repository.
 - [x] ~~Rechte wie der Server (`StationRoles`): Übergabe anlegen, Status, Termin anlegen, Mangel bearbeiten/erledigen, Asset-Status, fremde Rückgabe.~~
 - [x] ~~Schreibaufrufe ohne automatische Wiederholung (Übergabe, Status, Termin, Zahlung, Mangel bearbeiten).~~
 - [x] ~~Unbekannter Gerätestatus „Status unbekannt“ statt „Einsatzklar“; Auswertung ohne Mängel je Person; Posteingang nur bekannte Hinweisarten.~~
-- [ ] Anzeige des Cache-Alters und Aktion „Offline-Daten löschen“ (Offline-Vertrag §6.4/§6.5).
-- [ ] Klar-2-Feinschliff für Kaffeekasse-Karten, HandoverCreateSheet, KalenderCreateSheet und Mangel-Bearbeiten.
-- [ ] Einheitliche Anrede (du/Sie) in den deutschen Texten.
-- [ ] `nextPagePath` und `_sameOriginPath` zusammenführen.
+- [x] ~~Anzeige des Cache-Alters und Aktion „Offline-Daten löschen“ (Offline-Vertrag §6.4/§6.5).~~
+- [x] ~~Klar-2-Feinschliff für Kaffeekasse-Karten, HandoverCreateSheet, KalenderCreateSheet und Mangel-Bearbeiten.~~
+- [x] ~~Einheitliche Anrede (du/Sie) in den deutschen Texten.~~
+- [x] ~~`nextPagePath` und `_sameOriginPath` zusammenführen.~~
 
 ## Android-Ziel: 10/10 Release Engineering
 
