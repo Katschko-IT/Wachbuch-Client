@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:wachbuch_mobile/api/client.dart';
 import 'package:wachbuch_mobile/models/kalender_entry.dart';
 import 'package:wachbuch_mobile/screens/kalender_screen.dart';
@@ -25,6 +29,44 @@ class _ErrorApi extends WachbuchApi {
 }
 
 void main() {
+  testWidgets('zeigt description und bereits laufende Termine vom Server', (tester) async {
+    // Form von core/api/views.py (kalender): `description` (evtl. leer),
+    // gefiltert nach Ende statt Beginn – laufende Termine sind enthalten.
+    final now = DateTime.now().toUtc();
+    final api = WachbuchApi(
+      baseUrl: 'https://wache.example.org',
+      token: 'wb_test',
+      client: MockClient((_) async => http.Response(
+            jsonEncode({
+              'ok': true,
+              'results': [
+                {
+                  'id': 3,
+                  'title': 'Desinfektionsschulung',
+                  'description': 'Raum 2, bitte Ausweis mitbringen',
+                  'starts_at': now.subtract(const Duration(hours: 1)).toIso8601String(),
+                  'ends_at': now.add(const Duration(hours: 1)).toIso8601String(),
+                },
+                {
+                  'id': 4,
+                  'title': 'Fahrzeugpflege',
+                  'description': '',
+                  'starts_at': now.add(const Duration(days: 1)).toIso8601String(),
+                  'ends_at': null,
+                },
+              ],
+            }),
+            200,
+          )),
+    );
+    await tester.pumpWidget(localizedApp(home: KalenderScreen(api: api)));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Desinfektionsschulung'), findsOneWidget);
+    expect(find.text('Raum 2, bitte Ausweis mitbringen'), findsOneWidget);
+    expect(find.text('Fahrzeugpflege'), findsOneWidget);
+  });
+
   testWidgets('renders app bar and upcoming entries', (tester) async {
     await tester.pumpWidget(
       localizedApp(

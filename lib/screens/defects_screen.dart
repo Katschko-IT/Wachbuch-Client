@@ -5,17 +5,23 @@ import 'package:wachbuch_mobile/l10n/generated/app_localizations.dart';
 import 'package:wachbuch_mobile/models/defect.dart';
 import 'package:wachbuch_mobile/models/defect_attachment.dart';
 import 'package:wachbuch_mobile/state/defect_state.dart';
+import 'package:wachbuch_mobile/state/station_roles.dart';
 import 'package:wachbuch_mobile/theme/design_tokens.dart';
 import 'package:wachbuch_mobile/ui/error_banner.dart';
+import 'package:wachbuch_mobile/ui/free_text_boundary_hint.dart';
 import 'package:wachbuch_mobile/ui/layout.dart';
 import 'package:wachbuch_mobile/ui/priority_badge.dart';
 import 'package:wachbuch_mobile/ui/status_chip.dart';
 
 /// Persistent station defects: list, create, status workflow and photos.
 class DefectsScreen extends StatefulWidget {
-  const DefectsScreen({super.key, required this.api});
+  const DefectsScreen({super.key, required this.api, this.role});
 
   final WachbuchApi api;
+
+  /// Rolle aus `/me/`. Fehlt sie, lädt der Bildschirm `/me/` selbst; bis
+  /// dahin bleiben „Bearbeiten“ und „erledigt“ ausgeblendet.
+  final String? role;
 
   @override
   State<DefectsScreen> createState() => _DefectsScreenState();
@@ -24,11 +30,24 @@ class DefectsScreen extends StatefulWidget {
 class _DefectsScreenState extends State<DefectsScreen> {
   late final DefectState _state;
   String? _statusFilter;
+  String? _role;
 
   @override
   void initState() {
     super.initState();
+    _role = widget.role;
     _state = DefectState(api: widget.api)..reload();
+    if (_role == null) _loadRole();
+  }
+
+  Future<void> _loadRole() async {
+    try {
+      final me = await widget.api.me();
+      if (!mounted) return;
+      setState(() => _role = (me['membership'] as Map?)?['role']?.toString());
+    } catch (_) {
+      // Ohne bekannte Rolle bleibt „erledigt“ ausgeblendet.
+    }
   }
 
   @override
@@ -89,6 +108,8 @@ class _DefectsScreenState extends State<DefectsScreen> {
           clearDue: edit.clearDue,
         ),
         errorText: () => _state.error,
+        canEdit: StationRoles.canEditDefect(_role),
+        canClose: StationRoles.canCloseDefect(_role),
       ),
     );
   }
@@ -130,67 +151,125 @@ class _DefectsScreenState extends State<DefectsScreen> {
           final items = _visible;
           return RefreshIndicator(
             onRefresh: _state.reload,
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: maxW),
-                child: ListView(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
-                  children: [
-                    Text(
-                      l.defectsHint,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                    ),
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        for (final status in const [
-                          'open',
-                          'in_progress',
-                          'waiting',
-                          'done',
-                        ])
-                          FilterChip(
-                            label: Text(_statusLabel(l, status)),
-                            selected: _statusFilter == status,
-                            onSelected: (selected) {
-                              setState(() {
-                                _statusFilter = selected ? status : null;
-                              });
-                            },
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    if (_state.error != null) ...[
-                      ErrorBanner(message: _state.error!),
+            child: NotificationListener<ScrollEndNotification>(
+              // Am Listenende automatisch die nächste Seite laden.
+              onNotification: (notification) {
+                if (notification.metrics.extentAfter < 200 &&
+                    _state.hasMore &&
+                    !_state.loadingMore) {
+                  _state.loadMore();
+                }
+                return false;
+              },
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: maxW),
+                  child: ListView(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
+                    children: [
+                      Text(
+                        l.defectsHint,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                      ),
                       const SizedBox(height: 12),
-                    ],
-                    if (_state.loading && !_state.hasData)
-                      const Padding(
-                        padding: EdgeInsets.all(32),
-                        child: Center(child: CircularProgressIndicator()),
-                      )
-                    else if (items.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.all(24),
-                        child: Text(l.defectsEmpty),
-                      )
-                    else
-                      ...items.map(
-                        (defect) => Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: _DefectCard(
-                            defect: defect,
-                            onTap: () => _openDetail(defect),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (final status in const [
+                            'open',
+                            'in_progress',
+                            'waiting',
+                            'done',
+                          ])
+                            FilterChip(
+                              label: Text(_statusLabel(l, status)),
+                              selected: _statusFilter == status,
+                              onSelected: (selected) {
+                                setState(() {
+                                  _statusFilter = selected ? status : null;
+                                });
+                                // Erledigte lädt der Server nur auf Wunsch.
+                                if (selected && status == 'done') {
+                                  _state.setShowDone(true);
+                                }
+                              },
+                            ),
+                        ],
+                      ),
+                      SwitchListTile(
+                        key: const Key('defects-show-done'),
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(l.defectsShowDone),
+                        value: _state.showDone,
+                        onChanged: _state.loading
+                            ? null
+                            : (value) {
+                                if (!value && _statusFilter == 'done') {
+                                  setState(() => _statusFilter = null);
+                                }
+                                _state.setShowDone(value);
+                              },
+                      ),
+                      if (_state.hasData)
+                        Text(
+                          l.defectsShownOfTotal(
+                            _state.items.length,
+                            _state.totalCount,
+                          ),
+                          style: Theme.of(context).textTheme.labelLarge,
+                        ),
+                      const SizedBox(height: 12),
+                      if (_state.error != null) ...[
+                        ErrorBanner(message: _state.error!),
+                        const SizedBox(height: 12),
+                      ],
+                      if (_state.loading && !_state.hasData)
+                        const Padding(
+                          padding: EdgeInsets.all(32),
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                      else if (items.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: Text(l.defectsEmpty),
+                        )
+                      else
+                        ...items.map(
+                          (defect) => Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: _DefectCard(
+                              defect: defect,
+                              onTap: () => _openDetail(defect),
+                            ),
                           ),
                         ),
-                      ),
-                  ],
+                      if (_state.hasMore)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Center(
+                            child: OutlinedButton.icon(
+                              key: const Key('defects-load-more'),
+                              onPressed:
+                                  _state.loadingMore ? null : _state.loadMore,
+                              icon: _state.loadingMore
+                                  ? const SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Icon(Icons.expand_more),
+                              label: Text(l.defectsLoadMore),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -406,6 +485,8 @@ class _DefectDetailSheet extends StatefulWidget {
     required this.onSetStatus,
     required this.onEdit,
     required this.errorText,
+    this.canEdit = false,
+    this.canClose = false,
   });
 
   final WachbuchApi api;
@@ -413,6 +494,12 @@ class _DefectDetailSheet extends StatefulWidget {
   final Future<bool> Function(int id, String status) onSetStatus;
   final Future<Defect?> Function(Defect current, _DefectEdit edit) onEdit;
   final String? Function() errorText;
+
+  /// „Bearbeiten“ nur für Inhaltsrollen (Server: defect_detail PATCH).
+  final bool canEdit;
+
+  /// „Erledigt“ nur für WRITE_ROLES (Server: defect_status).
+  final bool canClose;
 
   @override
   State<_DefectDetailSheet> createState() => _DefectDetailSheetState();
@@ -534,7 +621,7 @@ class _DefectDetailSheetState extends State<_DefectDetailSheet> {
     if (file == null || !mounted) return;
     final bytes = await file.readAsBytes();
     if (!mounted) return;
-    if (bytes.length > 2 * 1024 * 1024) {
+    if (WachbuchApi.exceedsAttachmentLimit(bytes.length)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l.defectPhotoTooLarge)),
       );
@@ -583,7 +670,23 @@ class _DefectDetailSheetState extends State<_DefectDetailSheet> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Flexible(child: InteractiveViewer(child: Image.memory(bytes))),
+                // Nur Bilder rendern; PDFs u. Ä. bekommen einen Hinweis statt
+                // eines kaputten Image-Widgets.
+                Flexible(
+                  child: attachment.contentType
+                          .toLowerCase()
+                          .startsWith('image/')
+                      ? InteractiveViewer(
+                          child: Image.memory(
+                            bytes,
+                            errorBuilder: (context, error, stackTrace) =>
+                                _AttachmentPreviewUnavailable(
+                              attachment: attachment,
+                            ),
+                          ),
+                        )
+                      : _AttachmentPreviewUnavailable(attachment: attachment),
+                ),
                 Padding(
                   padding: const EdgeInsets.all(12),
                   child: Text(attachment.filename),
@@ -663,16 +766,18 @@ class _DefectDetailSheetState extends State<_DefectDetailSheet> {
               Text('${l.defectOwnerLabel}: ${_defect.owner.isEmpty ? "—" : _defect.owner}'),
               if (_defect.dueDisplay.isNotEmpty)
                 Text('${l.defectDueLabel}: ${_defect.dueDisplay}'),
-              const SizedBox(height: 12),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: OutlinedButton.icon(
-                  key: const Key('defect-edit'),
-                  onPressed: _edit,
-                  icon: const Icon(Icons.edit_outlined),
-                  label: Text(l.defectEdit),
+              if (widget.canEdit) ...[
+                const SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: OutlinedButton.icon(
+                    key: const Key('defect-edit'),
+                    onPressed: _edit,
+                    icon: const Icon(Icons.edit_outlined),
+                    label: Text(l.defectEdit),
+                  ),
                 ),
-              ),
+              ],
               const SizedBox(height: 24),
               Text(l.defectSetStatus, style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
@@ -680,8 +785,14 @@ class _DefectDetailSheetState extends State<_DefectDetailSheet> {
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  for (final status in const ['open', 'in_progress', 'waiting', 'done'])
+                  for (final status in [
+                    'open',
+                    'in_progress',
+                    'waiting',
+                    if (widget.canClose || _defect.status == 'done') 'done',
+                  ])
                     FilterChip(
+                      key: Key('defect-status-$status'),
                       label: Text(_statusLabel(l, status)),
                       selected: _defect.status == status,
                       onSelected: _defect.status == status ? null : (_) => _setStatus(status),
@@ -700,6 +811,11 @@ class _DefectDetailSheetState extends State<_DefectDetailSheet> {
                     ),
                   ),
                   FilledButton.tonalIcon(
+                    // Das Theme macht FilledButtons volle Breite
+                    // (Size.fromHeight); in einer Row wäre das unendlich.
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size(64, WachbuchTokens.touchTarget),
+                    ),
                     onPressed: _photoBusy ? null : _addPhoto,
                     icon: _photoBusy
                         ? const SizedBox(
@@ -723,7 +839,7 @@ class _DefectDetailSheetState extends State<_DefectDetailSheet> {
               if (_attachmentError != null) ErrorBanner(message: _attachmentError!),
               if (_attachmentsLoading)
                 const Padding(
-                  padding: EdgeInsets.all(20),
+                  padding: EdgeInsets.all(WachbuchTokens.space5),
                   child: Center(child: CircularProgressIndicator()),
                 )
               else if (_attachments.isEmpty)
@@ -766,7 +882,7 @@ class _DefectCard extends StatelessWidget {
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: WachbuchTokens.touchTarget),
           child: Padding(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(WachbuchTokens.space4),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -905,6 +1021,8 @@ class _DefectEditSheetState extends State<_DefectEditSheet> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(widget.defect.title, style: Theme.of(context).textTheme.headlineSmall),
+            const SizedBox(height: 8),
+            const FreeTextBoundaryHint(),
             const SizedBox(height: 16),
             TextField(
               key: const Key('defect-edit-description'),
@@ -971,6 +1089,39 @@ class _DefectEditSheetState extends State<_DefectEditSheet> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Hinweis für Anhänge ohne Bildvorschau (z. B. PDF oder defekte Bilddaten).
+class _AttachmentPreviewUnavailable extends StatelessWidget {
+  const _AttachmentPreviewUnavailable({required this.attachment});
+
+  final DefectAttachment attachment;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final type = attachment.contentType.isEmpty ? '—' : attachment.contentType;
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.insert_drive_file_outlined, size: 48),
+          const SizedBox(height: 12),
+          Text(
+            l.attachmentPreviewUnavailable,
+            style: Theme.of(context).textTheme.titleMedium,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            l.attachmentFileInfo(attachment.filename, type),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }

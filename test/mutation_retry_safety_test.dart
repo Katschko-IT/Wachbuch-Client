@@ -98,6 +98,40 @@ void main() {
       expect(calls, 1);
     });
 
+    // Schreibaufrufe aus App 1.1: nach einem 500 genau ein Versuch. Ein
+    // stilles Wiederholen nach verlorener Antwort würde Übergaben, Termine
+    // oder Zahlungsmeldungen doppeln bzw. Mangel-Ereignisse und Audit-
+    // Einträge (append-only) verdoppeln.
+    final writes = <String, Future<Object?> Function(WachbuchApi api)>{
+      'createHandover': (api) =>
+          api.createHandover(title: 't', details: 'd', category: 'task'),
+      'setHandoverStatus': (api) => api.setHandoverStatus(12, 'done'),
+      'createKalenderEntry': (api) => api.createKalenderEntry(
+            title: 'Fortbildung',
+            startsAt: DateTime.utc(2026, 11, 2, 9),
+            endsAt: DateTime.utc(2026, 11, 2, 11),
+          ),
+      'reportCoffeePayment': (api) =>
+          api.reportCoffeePayment(method: 'cash', amountEuros: 5),
+      'updateDefect': (api) => api.updateDefect(9, description: 'Rad links'),
+    };
+    for (final entry in writes.entries) {
+      test('${entry.key} wird nach 500 nicht automatisch wiederholt', () async {
+        var calls = 0;
+        final api = WachbuchApi(
+          baseUrl: 'https://wache.example.org',
+          token: 'token',
+          client: MockClient((_) async {
+            calls++;
+            return serverError();
+          }),
+        );
+
+        await expectLater(entry.value(api), throwsA(isA<ApiException>()));
+        expect(calls, 1);
+      });
+    }
+
     test('MFA setup required is handled as an MFA requirement', () {
       final error = ApiException(
         403,

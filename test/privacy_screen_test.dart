@@ -13,6 +13,19 @@ void main() {
 
     expect(find.text('Datenschutz'), findsOneWidget);
     expect(find.textContaining('keine zentrale Wachwerk-Cloud'), findsOneWidget);
+    // Offline-Vertrag: 24 h, Positivliste, Rollenausschluss.
+    expect(find.textContaining('höchstens 24 Stunden'), findsOneWidget);
+    expect(
+      find.textContaining('Für Master-Admin, Kassenwart und Auditor gibt es '
+          'keinen Offline-Cache'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('Übergabeliste ohne Freitext'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.textContaining('Ich habe bezahlt'),
+      300,
+    );
+    expect(find.textContaining('Gelesen-Status persönlicher Hinweise'), findsOneWidget);
 
     await tester.scrollUntilVisible(
       find.byKey(const Key('open-privacy-policy')),
@@ -35,6 +48,17 @@ void main() {
 
     expect(find.text('Privacy'), findsOneWidget);
     expect(find.textContaining('open-source client'), findsOneWidget);
+    expect(find.textContaining('for at most 24 hours'), findsOneWidget);
+    expect(
+      find.textContaining('no offline cache for master admins, treasurers and '
+          'auditors'),
+      findsOneWidget,
+    );
+    await tester.scrollUntilVisible(
+      find.textContaining('I have paid'),
+      300,
+    );
+    expect(find.textContaining('read status of personal notices'), findsOneWidget);
 
     await tester.scrollUntilVisible(
       find.byKey(const Key('open-privacy-policy')),

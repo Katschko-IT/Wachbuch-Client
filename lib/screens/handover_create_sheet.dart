@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:wachbuch_mobile/api/client.dart';
 import 'package:wachbuch_mobile/l10n/generated/app_localizations.dart';
 import 'package:wachbuch_mobile/state/handover_state.dart';
+import 'package:wachbuch_mobile/ui/free_text_boundary_hint.dart';
 import 'package:wachbuch_mobile/ui/handover_filter.dart';
 
 /// Formular „Neue Übergabe“ (POST /api/v1/handovers/).
@@ -86,6 +87,8 @@ class _HandoverCreateSheetState extends State<HandoverCreateSheet> {
                 l.handoverCreateHeading,
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
+              const SizedBox(height: 8),
+              const FreeTextBoundaryHint(),
               const SizedBox(height: 16),
               TextFormField(
                 key: const Key('handover-create-title'),
@@ -153,7 +156,15 @@ class _HandoverCreateSheetState extends State<HandoverCreateSheet> {
                   style: TextStyle(color: Theme.of(context).colorScheme.error),
                 ),
               ],
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
+              // Kein automatisches Wiederholen: der Hinweis erklärt, warum.
+              Text(
+                l.handoverNoAutoRetryHint,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+              const SizedBox(height: 12),
               FilledButton.icon(
                 key: const Key('handover-create-submit'),
                 onPressed: _saving ? null : () => _submit(l),

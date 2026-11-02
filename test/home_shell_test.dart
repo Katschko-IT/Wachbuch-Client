@@ -267,6 +267,28 @@ void main() {
     expect(find.text('1 von 3 Übergaben'), findsOneWidget);
   });
 
+  testWidgets('handover filter sections start at the left margin', (
+    tester,
+  ) async {
+    _usePhone(tester);
+    await tester.pumpWidget(
+      localizedApp(
+        home: HomeShell(
+          api: _PolishedApi(),
+          onLogout: () async {},
+          onChangeServer: () async {},
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Übergaben'));
+    await tester.pumpAndSettle();
+
+    // Wie bei den Mängeln linksbündig, nicht zentriert (E2E-Befund).
+    expect(tester.getTopLeft(find.text('Status')).dx, 16);
+    expect(tester.getTopLeft(find.text('Priorität')).dx, 16);
+  });
+
   testWidgets('priority filter and search combine with AND', (tester) async {
     _usePhone(tester);
     await tester.pumpWidget(

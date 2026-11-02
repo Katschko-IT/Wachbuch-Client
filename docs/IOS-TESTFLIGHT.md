@@ -72,10 +72,10 @@ Die geheimen Dateien niemals committen.
 
 ## Was der Workflow vor dem Upload erzwingt
 
-Für den aktuellen 1.0-Migrationskandidaten werden standardmäßig `1.0.0` und Build `12` vorgeschlagen. Der Workflow:
+Für 1.1 werden standardmäßig `1.1.0` und Build `13` vorgeschlagen (Freigabeplan: [`STORE-RELEASE-1.1.md`](STORE-RELEASE-1.1.md)). Der Workflow:
 
 1. läuft nur von `main`,
-2. verlangt exakte Übereinstimmung mit `version: 1.0.0+12` in `pubspec.yaml`,
+2. verlangt exakte Übereinstimmung mit `version: 1.1.0+13` in `pubspec.yaml`,
 3. prüft Xcode/iOS-SDK,
 4. validiert alle benötigten Secrets,
 5. prüft, dass das Provisioning Profile zu `de.wachbuch.wachbuchMobile` gehört,
@@ -153,6 +153,8 @@ Bevorzugt einen dedizierten HTTPS-Review-Server bereitstellen:
 Review-Text und Store-Metadaten: [`STORE-METADATA.md`](STORE-METADATA.md).
 
 ## 1.0-TestFlight-Reihenfolge
+
+Für 1.1 gilt die Reihenfolge aus [`STORE-RELEASE-1.1.md`](STORE-RELEASE-1.1.md): TestFlight erst, wenn der Mac-Runner repariert und `ios.yml` auf `main` grün ist; Version `1.1.0`, Build `13`.
 
 1. Release-PR vollständig grün mergen.
 2. App-ID/App-Store-Connect-Eintrag und Signing-Assets anlegen.

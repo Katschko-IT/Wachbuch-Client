@@ -63,7 +63,7 @@ cp android/key.properties.example android/key.properties
 ```
 
 `build-aab.sh` liest Version und Buildnummer standardmäßig direkt aus
-`pubspec.yaml` (`1.0.0+12`) und bricht ab, wenn man per `BUILD_NAME` oder
+`pubspec.yaml` (derzeit `1.1.0+13`) und bricht ab, wenn man per `BUILD_NAME` oder
 `BUILD_NUMBER` einen davon abweichenden Store-Build anfordert.
 
 Alternativ den geschützten GitHub-Workflow **Android Signed Release** verwenden.

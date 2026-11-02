@@ -43,12 +43,22 @@ class CrewNotice {
     required this.title,
     required this.body,
     required this.read,
+    this.kind = '',
     this.createdAt,
   });
+
+  /// Arten, die App 1.1 kennt (`UserNotification.Kind` des Servers 0.24 bis
+  /// 0.26). Nur diese erscheinen als Benachrichtigung und werden als gelesen
+  /// gemeldet. Neue Arten späterer Server (z. B. technische Hinweise für
+  /// Admins) bleiben unberührt: kein Text auf dem Sperrbildschirm, dessen
+  /// Inhalt die App nicht kennt, und kein `read_at`, das eine Eskalation auf
+  /// dem Server beenden könnte.
+  static const shownKinds = {'vehicle_ready', 'coffee_due'};
 
   factory CrewNotice.fromJson(Map<String, dynamic> json) {
     return CrewNotice(
       id: _readInt(json['id']),
+      kind: (json['kind'] ?? '').toString().trim(),
       key: (json['key'] ?? '').toString(),
       title: (json['title'] ?? '').toString(),
       body: (json['body'] ?? '').toString(),
@@ -58,11 +68,17 @@ class CrewNotice {
   }
 
   final int id;
+
+  /// `kind` des Servers, z. B. `vehicle_ready`; leer bei fehlender Angabe.
+  final String kind;
   final String key;
   final String title;
   final String body;
   final bool read;
   final DateTime? createdAt;
+
+  /// Fail closed: fehlende oder unbekannte Art wird nicht angezeigt.
+  bool get isShownKind => shownKinds.contains(kind);
 }
 
 int _readInt(Object? value) {

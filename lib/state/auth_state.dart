@@ -23,19 +23,16 @@ class AuthState extends ChangeNotifier {
     return (station?['name'] as String?) ?? fallback;
   }
 
-  /// Rollen-Schlüssel aus `/me/` (`member`, `shift_lead`, `cashier`, `admin`, `auditor`).
-  String get role {
-    final membership = _me?['membership'] as Map?;
-    return (membership?['role'] ?? _me?['role'])?.toString() ?? '';
-  }
-
-  /// Schichtleitung und Admin dürfen Übergabe-Status ändern und Termine anlegen
-  /// (Server: `WRITE_ROLES`).
-  bool get canLead => role == 'shift_lead' || role == 'admin';
-
   String get roleLabel {
     final membership = _me?['membership'] as Map?;
     return (membership?['role_label'] as String?) ?? '';
+  }
+
+  /// Rollenschlüssel aus `/me/` (`membership.role`), z. B. `shift_lead`.
+  String? get role {
+    final membership = _me?['membership'] as Map?;
+    final value = membership?['role']?.toString().trim();
+    return value == null || value.isEmpty ? null : value;
   }
 
   Map<String, dynamic> get modules {

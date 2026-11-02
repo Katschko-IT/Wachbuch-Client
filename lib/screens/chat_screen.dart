@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wachbuch_mobile/theme/design_tokens.dart';
 import 'package:wachbuch_mobile/api/client.dart';
 import 'package:wachbuch_mobile/crypto/e2ee.dart';
 import 'package:wachbuch_mobile/l10n/generated/app_localizations.dart';
@@ -396,7 +397,7 @@ class _MessageBubble extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
               color: bubbleColor,
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(WachbuchTokens.radiusLg),
             ),
             child: message.readable
                 ? Text(message.text, style: TextStyle(color: onBubble))

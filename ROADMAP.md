@@ -1,6 +1,6 @@
 # Wachwerk Client Roadmap
 
-Stand: 9. August 2026
+Stand: 30. Oktober 2026
 
 ## Behörden-Wachalltag (RD · Feuerwehr · FFW · Polizei)
 
@@ -21,14 +21,29 @@ Checks → Schlüssel/Pools → Offline-Cache → Auswertung. Prototyp Phase A�
 - [x] ~~Schreibende Server-Endpunkte nutzen: Übergabe anlegen/Status,
   `PATCH /defects/{id}/`, Kalendertermin anlegen, Kaffeekasse „Ich habe bezahlt“.~~
 - [x] ~~`next`-Paginierung auswerten (Übergaben, Mängel; nur gleicher Server, höchstens 10 Seiten).~~
-- [x] ~~Upload-Grenze mit dem Server vereinheitlichen (5 MiB je Foto).~~
+- [x] ~~Upload-Grenze mit dem Server vereinheitlichen (5 MiB je Foto, eine Konstante für Oberfläche und API).~~
 - [ ] `flutter_secure_storage` 11: API geprüft und kompatibel. Umstellung erst nach der
   Geräteabnahme des 10.x-Builds (`docs/SECURE-STORAGE-MIGRATION-1.0.md`).
-- [x] ~~Lokale Erinnerung „Einwirkzeit abgelaufen“ für die Fahrzeugbesatzung.~~
+- [x] ~~Lokale Erinnerung zur Fahrzeugfreigabe nach der Desinfektion für die Fahrzeugbesatzung.~~
 - [ ] Echter Push (APNs/FCM): Apple-Developer-Konto, Firebase-Projekt, Push-Relay
   betreiben, Token über `POST /api/v1/push/geraete/` registrieren.
 
 Bericht: `docs/REVIEW-2026-10-22.md` im Server-Repository.
+
+## App 1.1 (Build 1.1.0+13)
+
+- [x] ~~Offline-Cache nach `docs/CLIENT-OFFLINE-CONTRACT.md` des Servers: Positivliste, 24 h, kein Cache für Admin/Kasse/Auditor, Lesen erst nach online bestätigter Sitzung.~~
+- [x] ~~Zentrale Abmeldung bei 401 und 403 „Kein aktiver Wachenzugang“, auch für Schreibaufrufe.~~
+- [x] ~~Chat-Identität beim Abmelden und Serverwechsel sperren.~~
+- [x] ~~Designsystem „Wachbuch Klar 2“ (Tokens, Schrift, Statussemantik, EmptyState/SectionTitle, Warnmarkierung).~~
+- [x] ~~Mängel seitenweise (`active=1`, `limit`, `next`).~~
+- [x] ~~Rechte wie der Server (`StationRoles`): Übergabe anlegen, Status, Termin anlegen, Mangel bearbeiten/erledigen, Asset-Status, fremde Rückgabe.~~
+- [x] ~~Schreibaufrufe ohne automatische Wiederholung (Übergabe, Status, Termin, Zahlung, Mangel bearbeiten).~~
+- [x] ~~Unbekannter Gerätestatus „Status unbekannt“ statt „Einsatzklar“; Auswertung ohne Mängel je Person; Posteingang nur bekannte Hinweisarten.~~
+- [ ] Anzeige des Cache-Alters und Aktion „Offline-Daten löschen“ (Offline-Vertrag §6.4/§6.5).
+- [ ] Klar-2-Feinschliff für Kaffeekasse-Karten, HandoverCreateSheet, KalenderCreateSheet und Mangel-Bearbeiten.
+- [ ] Einheitliche Anrede (du/Sie) in den deutschen Texten.
+- [ ] `nextPagePath` und `_sameOriginPath` zusammenführen.
 
 ## Android-Ziel: 10/10 Release Engineering
 

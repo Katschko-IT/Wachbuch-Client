@@ -1,5 +1,8 @@
+import 'dart:ui';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wachbuch_mobile/api/client.dart';
+import 'package:wachbuch_mobile/l10n/generated/app_localizations.dart';
 import 'package:wachbuch_mobile/state/handover_state.dart';
 
 class _FakeApi extends WachbuchApi {
@@ -76,6 +79,19 @@ void main() {
     state.togglePriority('urgent', selected: true);
     state.setSearchQuery('tor');
     expect(state.filteredItems, isEmpty);
+
+    // filteredItemsFor with AppLocalizations resolves category, status and priority labels
+    final l10n = lookupAppLocalizations(const Locale('de'));
+    state.togglePriority('urgent', selected: false);
+    state.setSearchQuery('fahrzeug'); // vehicle category in German
+    final vehicleItems = state.filteredItemsFor(l10n);
+    expect(vehicleItems, isEmpty); // None has vehicle category in this dataset
+
+    state.setSearchQuery('dringend'); // urgent in German
+    final urgentItems = state.filteredItemsFor(l10n);
+    expect(urgentItems.length, 1);
+    expect(urgentItems.first['title'], 'RTW auffüllen');
+
     state.dispose();
   });
 

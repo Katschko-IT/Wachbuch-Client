@@ -20,22 +20,27 @@ class DemoBanner extends StatelessWidget {
     final text = serviceLabel == null || serviceLabel!.isEmpty
         ? label
         : '$label · $serviceLabel';
+    final c = WachbuchColors.of(context);
     return Material(
-      color: WachbuchTokens.warning.withValues(alpha: 0.92),
+      color: c.warningSoft,
+      shape: Border(bottom: BorderSide(color: c.warningAccent, width: 2)),
       child: Semantics(
         liveRegion: true,
         label: text,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          padding: const EdgeInsets.symmetric(
+            horizontal: WachbuchTokens.space4,
+            vertical: WachbuchTokens.space2,
+          ),
           child: Row(
             children: [
-              const Icon(Icons.science_outlined, color: WachbuchTokens.brandDeep),
-              const SizedBox(width: 12),
+              Icon(Icons.science_outlined, color: c.warning),
+              const SizedBox(width: WachbuchTokens.space3),
               Expanded(
                 child: Text(
                   text,
-                  style: const TextStyle(
-                    color: WachbuchTokens.brandDeep,
+                  style: TextStyle(
+                    color: c.warning,
                     fontWeight: FontWeight.w600,
                     fontSize: WachbuchTokens.textBody,
                   ),

@@ -74,7 +74,7 @@ void main() {
     );
   });
 
-  test('store release 1.0 version and policy files stay aligned', () async {
+  test('store release version and policy files stay aligned', () async {
     final pubspec = await File('pubspec.yaml').readAsString();
     final androidRelease = await File(
       '.github/workflows/android-release.yml',
@@ -84,17 +84,19 @@ void main() {
     ).readAsString();
     final iosCi = await File('.github/workflows/ios.yml').readAsString();
 
-    expect(pubspec, contains('version: 1.0.0+12'));
+    expect(pubspec, contains('version: 1.1.0+13'));
     expect(pubspec, contains('sdk: ^3.12.0'));
-    expect(androidRelease, contains('default: 1.0.0'));
-    expect(androidRelease, contains('default: "12"'));
+    expect(androidRelease, contains('default: 1.1.0'));
+    expect(androidRelease, contains('default: "13"'));
+    expect(androidRelease, contains('test -f docs/STORE-RELEASE-1.1.md'));
     expect(androidRelease, contains('target_sdk'));
     expect(androidRelease, contains('-ge 36'));
     expect(androidRelease, contains('Store releases must be built from main'));
     expect(androidRelease, contains('git diff --exit-code -- pubspec.lock'));
 
-    expect(testflight, contains('default: 1.0.0'));
-    expect(testflight, contains('default: "12"'));
+    expect(testflight, contains('default: 1.1.0'));
+    expect(testflight, contains('default: "13"'));
+    expect(testflight, contains('test -f docs/STORE-RELEASE-1.1.md'));
     expect(testflight, contains('Xcode 26 or later'));
     expect(testflight, contains('iOS 26 SDK or later'));
     expect(testflight, contains('xcrun altool --validate-app'));
@@ -108,6 +110,7 @@ void main() {
       'docs/SUPPORT.md',
       'docs/STORE-METADATA.md',
       'docs/STORE-RELEASE-1.0.md',
+      'docs/STORE-RELEASE-1.1.md',
       'docs/SECURE-STORAGE-MIGRATION-1.0.md',
     ]) {
       expect(await File(path).exists(), isTrue, reason: '$path must exist');

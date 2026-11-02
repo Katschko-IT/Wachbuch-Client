@@ -142,3 +142,23 @@ int _readInt(Object? value) {
   if (value is int) return value;
   return int.tryParse(value?.toString() ?? '') ?? 0;
 }
+
+/// Eine Seite aus GET /api/v1/defects/ (`count`, `results`, `next`,
+/// `previous`). `next` ist ein relativer Pfad samt Query oder `null`.
+class DefectPage {
+  const DefectPage({
+    required this.items,
+    required this.count,
+    this.next,
+    this.previous,
+  });
+
+  final List<Defect> items;
+
+  /// Gesamtzahl aller passenden Mängel (nicht nur dieser Seite).
+  final int count;
+  final String? next;
+  final String? previous;
+
+  bool get hasMore => next != null && next!.isNotEmpty;
+}

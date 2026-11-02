@@ -12,10 +12,11 @@ class _FakeDefectApi extends WachbuchApi {
   Defect Function(int id, String status)? onUpdate;
 
   @override
-  Future<List<Defect>> defects() async {
+  Future<DefectPage> defectsPage({bool includeDone = false, int limit = 100}) async {
     final err = error;
     if (err != null) throw err;
-    return List<Defect>.from(items ?? const []);
+    final list = List<Defect>.from(items ?? const []);
+    return DefectPage(items: list, count: list.length);
   }
 
   @override

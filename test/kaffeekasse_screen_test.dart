@@ -24,6 +24,29 @@ class _ErrorApi extends WachbuchApi {
 }
 
 void main() {
+  for (final (scope, label) in [
+    ('station', 'Kassenstand der Wache'),
+    ('own', 'Mein Saldo'),
+    (null, 'Aktueller Kassenstand'),
+  ]) {
+    testWidgets('Beschriftung für scope $scope', (tester) async {
+      await tester.pumpWidget(
+        localizedApp(
+          home: KaffeekasseScreen(
+            api: _KaffeekasseApi(Kaffeekasse(
+              balance: '4,00 €',
+              currency: 'EUR',
+              scope: scope,
+            )),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text(label), findsOneWidget);
+    });
+  }
+
   testWidgets('renders balance, payment hint and ledger', (tester) async {
     await tester.pumpWidget(
       localizedApp(

@@ -216,10 +216,19 @@ class AppLocalizationsDe extends AppLocalizations {
   String get assetStatusLimited => 'Eingeschränkt';
 
   @override
-  String get assetStatusOob => 'Außer Betrieb';
+  String get assetStatusDisinfection => 'Desinfektion';
 
   @override
   String get assetStatusWorkshop => 'Werkstatt';
+
+  @override
+  String get assetStatusOutOfService => 'Außer Dienst';
+
+  @override
+  String get assetStatusOob => 'Außer Betrieb';
+
+  @override
+  String get assetStatusUnknown => 'Status unbekannt';
 
   @override
   String get inventoryTitle => 'Schlüssel & Pools';
@@ -288,12 +297,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get reportsDays => 'Tage';
-
-  @override
-  String get reportsByOwner => 'Offene Mängel nach Zuständigkeit';
-
-  @override
-  String get reportsNoOwner => 'Ohne Zuständigkeit';
 
   @override
   String get reportsPrivacyHint =>
@@ -397,6 +400,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get kalenderEmpty => 'Keine anstehenden Termine.';
 
   @override
+  String get kalenderEmptyTitle => 'Keine Termine';
+
+  @override
   String get kalenderEntryFallback => 'Termin';
 
   @override
@@ -422,6 +428,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get kaffeekasseEmptyLedger => 'Noch keine Buchungen.';
 
   @override
+  String get kaffeekasseEmptyLedgerTitle => 'Keine Buchungen';
+
+  @override
   String get kaffeekasseEntryFallback => 'Buchung';
 
   @override
@@ -429,6 +438,9 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get checklistenEmpty => 'Keine Checklisten verfügbar.';
+
+  @override
+  String get checklistenEmptyTitle => 'Keine Checklisten';
 
   @override
   String get checklistFallback => 'Checkliste';
@@ -1085,4 +1097,45 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get defectDueClear => 'Frist entfernen';
+
+  @override
+  String get attachmentPreviewUnavailable => 'Vorschau nicht verfügbar';
+
+  @override
+  String attachmentFileInfo(String filename, String contentType) {
+    return '$filename ($contentType)';
+  }
+
+  @override
+  String get sessionInvalidNotice =>
+      'Anmeldung abgelaufen oder widerrufen. Bitte erneut anmelden.';
+
+  @override
+  String get sessionNoMembershipNotice =>
+      'Für dieses Konto gibt es keinen aktiven Wachenzugang. Bitte an die Wachenleitung wenden.';
+
+  @override
+  String get freeTextBoundaryHint =>
+      'Keine Patienten- oder Einsatzdaten eintragen.';
+
+  @override
+  String get handoverNoAutoRetryHint =>
+      'Wird einmal gesendet. Bei einem Fehler bitte die Liste prüfen, bevor Sie erneut senden.';
+
+  @override
+  String get defectsShowDone => 'Erledigte anzeigen';
+
+  @override
+  String get defectsLoadMore => 'Mehr laden';
+
+  @override
+  String defectsShownOfTotal(int shown, int total) {
+    return '$shown von $total Mängeln';
+  }
+
+  @override
+  String get kaffeekasseBalanceStation => 'Kassenstand der Wache';
+
+  @override
+  String get kaffeekasseBalanceOwn => 'Mein Saldo';
 }

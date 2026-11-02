@@ -133,7 +133,9 @@ class UpdateService {
         '$baseUrl$_checkUpdateUrl?current_version=$currentVersion&platform=$platform',
       );
 
-      final response = await client.get(uri);
+      final response = await client
+          .get(uri)
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;

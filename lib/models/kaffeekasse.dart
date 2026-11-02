@@ -4,7 +4,7 @@ class Kaffeekasse {
     required this.currency,
     this.ledger = const [],
     this.paymentHint = '',
-    this.scope = '',
+    this.scope,
     this.monthlyFee = 0,
     this.own,
     this.payment,
@@ -31,12 +31,18 @@ class Kaffeekasse {
       ledger: _readLedger(
         json['results'] ?? json['ledger'] ?? json['transactions'] ?? const [],
       ),
+      // `payment` ist seit dem Monatsbeitrag ein Objekt (Zahlungswege); nie
+      // als Text in den Hinweis übernehmen.
       paymentHint: (json['payment_hint'] ??
               payment?.note ??
               (rawPayment is String ? rawPayment : ''))
           .toString()
           .trim(),
-      scope: (json['scope'] ?? '').toString(),
+      scope: switch (json['scope']) {
+        'station' => 'station',
+        'own' => 'own',
+        _ => null,
+      },
       monthlyFee: _parseMoney(json['monthly_fee_euros']),
       own: rawOwn is Map ? CoffeeOwnStatus.fromJson(Map<String, dynamic>.from(rawOwn)) : null,
       payment: payment,
@@ -48,8 +54,9 @@ class Kaffeekasse {
   final List<KaffeekasseEntry> ledger;
   final String paymentHint;
 
-  /// `station` (Kassenwart: Saldo aller) oder `own` (eigene Buchungen).
-  final String scope;
+  /// `station`: Wachensaldo (Kassenwart/Admin), `own`: eigene Buchungen.
+  /// `null` bei älteren Servern ohne dieses Feld.
+  final String? scope;
   final num monthlyFee;
   final CoffeeOwnStatus? own;
   final CoffeePayment? payment;

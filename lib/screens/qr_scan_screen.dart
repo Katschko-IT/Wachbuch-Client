@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wachbuch_mobile/theme/design_tokens.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:wachbuch_mobile/api/server_address.dart';
@@ -86,7 +87,7 @@ class _QrScanScreenState extends State<QrScanScreen> {
                     height: 240,
                     decoration: BoxDecoration(
                       border: Border.all(color: scheme.primary, width: 3),
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(WachbuchTokens.radiusLg),
                     ),
                   ),
                 ),

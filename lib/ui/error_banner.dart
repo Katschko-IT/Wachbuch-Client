@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wachbuch_mobile/theme/design_tokens.dart';
 import 'package:wachbuch_mobile/l10n/generated/app_localizations.dart';
 
 /// High-contrast error feedback with icon and live-region semantics.
@@ -17,11 +18,11 @@ class ErrorBanner extends StatelessWidget {
       child: Material(
         color: scheme.errorContainer,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(WachbuchTokens.radiusMd),
           side: BorderSide(color: scheme.error.withValues(alpha: 0.45)),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(14),
+          padding: const EdgeInsets.all(WachbuchTokens.space4),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -30,7 +31,7 @@ class ErrorBanner extends StatelessWidget {
                 color: scheme.onErrorContainer,
                 size: 24,
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: WachbuchTokens.space3),
               Expanded(
                 child: Text(
                   message,
