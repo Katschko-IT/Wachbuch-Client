@@ -133,17 +133,22 @@ class _AssetsScreenState extends State<AssetsScreen> {
                         for (final status in const [
                           'ready',
                           'limited',
+                          'disinfection',
                           'workshop',
-                          'oob',
+                          'out_of_service',
                         ])
                           ChoiceChip(
                             label: Text(switch (status) {
                               'ready' => l.assetStatusReady,
                               'limited' => l.assetStatusLimited,
+                              'disinfection' => l.assetStatusDisinfection,
                               'workshop' => l.assetStatusWorkshop,
-                              _ => l.assetStatusOob,
+                              'out_of_service' => l.assetStatusOutOfService,
+                              'oob' => l.assetStatusOob,
+                              _ => l.assetStatusUnknown,
                             }),
-                            selected: selectedStatus == status,
+                            selected: selectedStatus == status ||
+                                (status == 'out_of_service' && selectedStatus == 'oob'),
                             onSelected: (_) =>
                                 setSheetState(() => selectedStatus = status),
                           ),

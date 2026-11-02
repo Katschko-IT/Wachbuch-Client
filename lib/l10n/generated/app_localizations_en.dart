@@ -216,10 +216,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetStatusLimited => 'Limited';
 
   @override
-  String get assetStatusOob => 'Out of service';
+  String get assetStatusDisinfection => 'Disinfection';
 
   @override
   String get assetStatusWorkshop => 'Workshop';
+
+  @override
+  String get assetStatusOutOfService => 'Out of service';
+
+  @override
+  String get assetStatusOob => 'Out of service';
 
   @override
   String get assetStatusUnknown => 'Status unknown';

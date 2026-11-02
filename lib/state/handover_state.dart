@@ -2,6 +2,7 @@ import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
 import 'package:wachbuch_mobile/api/client.dart';
+import 'package:wachbuch_mobile/l10n/generated/app_localizations.dart';
 import 'package:wachbuch_mobile/ui/handover_filter.dart';
 
 class HandoverState extends ChangeNotifier {
@@ -27,12 +28,16 @@ class HandoverState extends ChangeNotifier {
   Set<String> get statuses => Set.unmodifiable(_statuses);
   Set<String> get priorities => Set.unmodifiable(_priorities);
 
-  List<Map<String, dynamic>> get filteredItems => filterHandovers(
+  List<Map<String, dynamic>> filteredItemsFor([AppLocalizations? l10n]) =>
+      filterHandovers(
         _items,
+        l10n: l10n,
         query: _searchQuery,
         statuses: _statuses,
         priorities: _priorities,
       );
+
+  List<Map<String, dynamic>> get filteredItems => filteredItemsFor();
 
   Future<void> reload() async {
     _loading = true;

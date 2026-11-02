@@ -216,10 +216,16 @@ class AppLocalizationsDe extends AppLocalizations {
   String get assetStatusLimited => 'Eingeschränkt';
 
   @override
-  String get assetStatusOob => 'Außer Betrieb';
+  String get assetStatusDisinfection => 'Desinfektion';
 
   @override
   String get assetStatusWorkshop => 'Werkstatt';
+
+  @override
+  String get assetStatusOutOfService => 'Außer Dienst';
+
+  @override
+  String get assetStatusOob => 'Außer Betrieb';
 
   @override
   String get assetStatusUnknown => 'Status unbekannt';

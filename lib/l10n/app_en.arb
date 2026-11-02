@@ -72,8 +72,10 @@
   "assetsEmpty": "No assets or pools available.",
   "assetStatusReady": "Ready",
   "assetStatusLimited": "Limited",
-  "assetStatusOob": "Out of service",
+  "assetStatusDisinfection": "Disinfection",
   "assetStatusWorkshop": "Workshop",
+  "assetStatusOutOfService": "Out of service",
+  "assetStatusOob": "Out of service",
   "assetStatusUnknown": "Status unknown",
 
   "inventoryTitle": "Keys & pools",

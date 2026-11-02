@@ -257,6 +257,8 @@ void main() {
     expect(me['membership']['station']['name'], 'Wache Nord');
     expect(handovers.single['title'], 'RTW 1 auffüllen');
     expect(handovers.single['priority'], 'urgent');
+    expect(handovers.single['status'], 'open');
+    expect(handovers.single['category'], 'vehicle');
   });
 
   test('ohne online bestätigte Sitzung wird kein Cache gelesen', () async {
@@ -277,8 +279,19 @@ void main() {
 
     final data = cache.values['handovers']!['data'] as Map<String, dynamic>;
     final item = (data['results'] as List).single as Map<String, dynamic>;
-    expect(item.keys.toSet(), {'id', 'title', 'updated_at', 'urgent'});
+    expect(item.keys.toSet(), {
+      'id',
+      'title',
+      'category',
+      'status',
+      'priority',
+      'updated_at',
+      'urgent',
+    });
     expect(item['urgent'], isTrue);
+    expect(item['status'], 'open');
+    expect(item['category'], 'vehicle');
+    expect(item['priority'], 'urgent');
     expect(jsonEncode(cache.values), isNot(contains('Freitext')));
   });
 
@@ -292,6 +305,9 @@ void main() {
     expect(item['items'], ['Sauerstoff', 'Defi']);
     expect(item['last_completed_by'], 'Anna B');
     expect(item.containsKey('note'), isFalse);
+    expect(item['interval'], 'daily');
+    expect(item['due_next'], '2026-10-25T06:00:00+00:00');
+    expect(item['overdue'], isFalse);
   });
 
   test('Kaffeekasse, Übergabe-Details, Mängel und Anhänge werden nie gespeichert', () async {
@@ -318,7 +334,16 @@ void main() {
     final item = (data['results'] as List).single as Map<String, dynamic>;
     expect(item['id'], 1);
     expect(
-      item.keys.toSet().difference({'id', 'title', 'created_at', 'updated_at', 'urgent'}),
+      item.keys.toSet().difference({
+        'id',
+        'title',
+        'category',
+        'status',
+        'priority',
+        'created_at',
+        'updated_at',
+        'urgent',
+      }),
       isEmpty,
     );
     final stored = jsonEncode(cache.values);

@@ -931,7 +931,7 @@ class _HandoversTabState extends State<_HandoversTab> {
     final width = MediaQuery.sizeOf(context).width;
     final cols = AppLayout.handoverColumns(width);
     final maxW = AppLayout.contentMaxWidth(width);
-    final filtered = state.filteredItems;
+    final filtered = state.filteredItemsFor(l);
     final availableStatuses = _orderedValues(
       [
         ...items.map((item) => item['status']?.toString() ?? ''),

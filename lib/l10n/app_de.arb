@@ -74,8 +74,10 @@
   "assetsEmpty": "Keine Geräte oder Pools verfügbar.",
   "assetStatusReady": "Einsatzklar",
   "assetStatusLimited": "Eingeschränkt",
-  "assetStatusOob": "Außer Betrieb",
+  "assetStatusDisinfection": "Desinfektion",
   "assetStatusWorkshop": "Werkstatt",
+  "assetStatusOutOfService": "Außer Dienst",
+  "assetStatusOob": "Außer Betrieb",
   "assetStatusUnknown": "Status unbekannt",
 
   "inventoryTitle": "Schlüssel & Pools",

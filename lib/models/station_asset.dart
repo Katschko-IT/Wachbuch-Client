@@ -30,8 +30,10 @@ class StationAsset {
   /// „Einsatzklar“.
   bool get needsAttention =>
       status == 'limited' ||
-      status == 'oob' ||
+      status == 'disinfection' ||
       status == 'workshop' ||
+      status == 'out_of_service' ||
+      status == 'oob' ||
       status == 'unknown';
 
   Map<String, dynamic> toJson() => {
@@ -81,13 +83,18 @@ String _readKind(Object? value) {
 /// Fail closed: Nur ausdrückliches `ready` ist einsatzklar. Fehlende oder
 /// unbekannte Werte (z. B. neue Zustände eines späteren Servers) werden zu
 /// `unknown` und erscheinen als „Status unbekannt“.
+///
+/// Server 0.27 definiert fünf neutrale Statuswerte (#134):
+/// `ready`, `limited`, `disinfection`, `workshop`, `out_of_service`.
 String _readStatus(Object? value) {
   final raw = value?.toString().trim().toLowerCase() ?? '';
   return switch (raw) {
-    'ready' => 'ready',
-    'limited' => 'limited',
-    'oob' || 'out_of_order' || 'außer_betrieb' => 'oob',
+    'ready' || 'einsatzklar' || 'einsatzbereit' => 'ready',
+    'limited' || 'eingeschränkt' => 'limited',
+    'disinfection' || 'desinfektion' => 'disinfection',
     'workshop' || 'werkstatt' => 'workshop',
+    'out_of_service' || 'außer_dienst' => 'out_of_service',
+    'oob' || 'out_of_order' || 'außer_betrieb' => 'oob',
     _ => 'unknown',
   };
 }

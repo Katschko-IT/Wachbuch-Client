@@ -84,7 +84,11 @@ class _LoginScreenState extends State<LoginScreen> {
         if (token.isEmpty) {
           throw ApiException(400, l.loginTokenPasteHint);
         }
-        await api.copyWithToken(token).me();
+        final me = await api.copyWithToken(token).me();
+        final rawExpires = (me['token'] as Map?)?['expires_at']?.toString();
+        if (rawExpires != null && rawExpires.isNotEmpty) {
+          expiresAt = DateTime.tryParse(rawExpires);
+        }
       } else {
         final auth = await api.obtainToken(
           username: _userCtrl.text.trim(),

@@ -123,9 +123,10 @@ class _WachbuchAppState extends State<WachbuchApp> with WidgetsBindingObserver {
   }
 
   Future<void> _checkForUpdates() async {
+    final base = _serverUrl ?? '';
+    final client = ServerTrust.clientFor(base);
     try {
-      final base = _serverUrl ?? '';
-      final updateService = UpdateService(baseUrl: base, client: ServerTrust.clientFor(base));
+      final updateService = UpdateService(baseUrl: base, client: client);
       final updateInfo = await updateService.checkForUpdates();
       
       if (updateInfo != null && updateInfo.hasUpdate) {
@@ -160,6 +161,8 @@ class _WachbuchAppState extends State<WachbuchApp> with WidgetsBindingObserver {
       }
     } catch (e) {
       debugPrint('Failed to check for updates: $e');
+    } finally {
+      client.close();
     }
   }
 

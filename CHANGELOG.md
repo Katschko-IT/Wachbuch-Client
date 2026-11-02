@@ -2,7 +2,7 @@
 
 Alle wesentlichen Änderungen an Wachwerk Mobile werden hier dokumentiert.
 
-## 1.1.0 – Releasedatum offen
+## 1.1.0 – 2026-11-02
 
 Build `1.1.0+13`. Server mindestens **0.25.0** (Paginierung, `scope`); der
 Monatsbeitrag der Kaffeekasse braucht **0.26.0**; empfohlen **0.26.1**.

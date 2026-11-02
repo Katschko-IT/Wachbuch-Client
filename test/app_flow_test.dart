@@ -85,6 +85,33 @@ class _ClosableApi extends WachbuchApi {
   }
 }
 
+class _TokenPasteApi extends WachbuchApi {
+  _TokenPasteApi({this.expiresAtStr}) : super(baseUrl: 'https://wache.example.org');
+
+  final String? expiresAtStr;
+  bool closed = false;
+
+  @override
+  WachbuchApi copyWithToken(String token) => this;
+
+  @override
+  Future<Map<String, dynamic>> me() async => {
+    'ok': true,
+    'user': {'id': 1, 'username': 'test'},
+    'membership': {'role': 'member'},
+    'token': {
+      'id': 1,
+      if (expiresAtStr != null) 'expires_at': expiresAtStr,
+    },
+  };
+
+  @override
+  void close() {
+    closed = true;
+    super.close();
+  }
+}
+
 class _FakeLinkSource implements ServerLinkSource {
   _FakeLinkSource({this.initialLink});
 
@@ -204,6 +231,43 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(loggedIn, isTrue);
+    expect(api.closed, isTrue);
+  });
+
+  testWidgets('token paste extracts expires_at and passes it to onLoggedIn', (tester) async {
+    final expectedExpiry = DateTime.utc(2026, 12, 31, 23, 59, 59);
+    final api = _TokenPasteApi(expiresAtStr: expectedExpiry.toIso8601String());
+    DateTime? loggedInExpiresAt;
+    String? loggedInToken;
+
+    await tester.pumpWidget(
+      localizedApp(
+        home: LoginScreen(
+          store: _MemorySessionStore(),
+          serverUrl: 'https://wache.example.org',
+          apiFactory: (_) => api,
+          onLoggedIn: (_, token, {DateTime? expiresAt}) async {
+            loggedInToken = token;
+            loggedInExpiresAt = expiresAt;
+          },
+          onChangeServer: () async {},
+        ),
+      ),
+    );
+
+    // Switch to token paste mode
+    await tester.tap(find.widgetWithText(TextButton, 'Stattdessen App-Token nutzen'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'App-Token (wb_…)'),
+      'wb_pasted_token',
+    );
+    await tester.tap(find.widgetWithText(FilledButton, 'Anmelden'));
+    await tester.pumpAndSettle();
+
+    expect(loggedInToken, 'wb_pasted_token');
+    expect(loggedInExpiresAt, expectedExpiry);
     expect(api.closed, isTrue);
   });
 

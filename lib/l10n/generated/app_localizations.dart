@@ -494,17 +494,29 @@ abstract class AppLocalizations {
   /// **'Eingeschränkt'**
   String get assetStatusLimited;
 
-  /// No description provided for @assetStatusOob.
+  /// No description provided for @assetStatusDisinfection.
   ///
   /// In de, this message translates to:
-  /// **'Außer Betrieb'**
-  String get assetStatusOob;
+  /// **'Desinfektion'**
+  String get assetStatusDisinfection;
 
   /// No description provided for @assetStatusWorkshop.
   ///
   /// In de, this message translates to:
   /// **'Werkstatt'**
   String get assetStatusWorkshop;
+
+  /// No description provided for @assetStatusOutOfService.
+  ///
+  /// In de, this message translates to:
+  /// **'Außer Dienst'**
+  String get assetStatusOutOfService;
+
+  /// No description provided for @assetStatusOob.
+  ///
+  /// In de, this message translates to:
+  /// **'Außer Betrieb'**
+  String get assetStatusOob;
 
   /// No description provided for @assetStatusUnknown.
   ///

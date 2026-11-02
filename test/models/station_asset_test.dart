@@ -49,12 +49,58 @@ void main() {
         'id': 'rtw-2',
         'label': 'RTW 2',
         'kind': 'vehicle',
-        'status': 'disinfection',
+        'status': 'quarantine',
       });
 
       expect(asset.status, 'unknown');
       expect(asset.isReady, isFalse);
       expect(asset.needsAttention, isTrue);
+    });
+
+    test('parst alle 5 neutralen Statuswerte aus Server 0.27 (#134)', () {
+      final dis = StationAsset.fromJson({
+        'id': 'rtw-2',
+        'label': 'RTW 2',
+        'kind': 'vehicle',
+        'status': 'disinfection',
+      });
+      expect(dis.status, 'disinfection');
+      expect(dis.isReady, isFalse);
+      expect(dis.needsAttention, isTrue);
+
+      final oos = StationAsset.fromJson({
+        'id': 'rtw-3',
+        'label': 'RTW 3',
+        'kind': 'vehicle',
+        'status': 'out_of_service',
+      });
+      expect(oos.status, 'out_of_service');
+      expect(oos.isReady, isFalse);
+      expect(oos.needsAttention, isTrue);
+
+      final ready = StationAsset.fromJson({
+        'id': 'rtw-1',
+        'status': 'ready',
+      });
+      expect(ready.status, 'ready');
+      expect(ready.isReady, isTrue);
+      expect(ready.needsAttention, isFalse);
+
+      final limited = StationAsset.fromJson({
+        'id': 'rtw-4',
+        'status': 'limited',
+      });
+      expect(limited.status, 'limited');
+      expect(limited.isReady, isFalse);
+      expect(limited.needsAttention, isTrue);
+
+      final workshop = StationAsset.fromJson({
+        'id': 'rtw-5',
+        'status': 'workshop',
+      });
+      expect(workshop.status, 'workshop');
+      expect(workshop.isReady, isFalse);
+      expect(workshop.needsAttention, isTrue);
     });
 
     test('ausdrückliches ready bleibt einsatzklar', () {

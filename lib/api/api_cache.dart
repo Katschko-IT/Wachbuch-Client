@@ -100,6 +100,12 @@ class OfflineCachePolicy {
               {
                 'id': item['id'],
                 'title': item['title'],
+                if (item['category'] != null) 'category': item['category'],
+                if (item['status'] != null) 'status': item['status'],
+                if (item['priority'] != null)
+                  'priority': item['priority']
+                else if (item['urgent'] == true)
+                  'priority': 'urgent',
                 if (item['created_at'] != null) 'created_at': item['created_at'],
                 if (item['updated_at'] != null) 'updated_at': item['updated_at'],
                 'urgent': item['urgent'] == true || item['priority'] == 'urgent',
@@ -117,6 +123,9 @@ class OfflineCachePolicy {
                   'description',
                   'last_completed_at',
                   'last_completed_by',
+                  'interval',
+                  'due_next',
+                  'overdue',
                 ]),
                 'items': [
                   for (final entry in (item['items'] is List ? item['items'] as List : const []))
@@ -141,6 +150,12 @@ class OfflineCachePolicy {
           {
             'id': item['id'],
             'title': item['title'],
+            if (item['category'] != null) 'category': item['category'],
+            if (item['status'] != null) 'status': item['status'],
+            if (item['priority'] != null)
+              'priority': item['priority']
+            else if (item['urgent'] == true)
+              'priority': 'urgent',
             if (item['created_at'] != null) 'created_at': item['created_at'],
             if (item['updated_at'] != null) 'updated_at': item['updated_at'],
             if (item['urgent'] == true) 'priority': 'urgent',
