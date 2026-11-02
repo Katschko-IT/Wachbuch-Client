@@ -34,6 +34,22 @@ class _MemoryCache implements ApiCache {
 
   @override
   Future<void> remove(String key) async => values.remove(key);
+
+  @override
+  Future<DateTime?> lastUpdatedAt() async {
+    DateTime? latest;
+    for (final entry in values.values) {
+      final tsStr = entry['cached_at'] ?? entry['fetched_at'];
+      final ts = DateTime.tryParse(tsStr?.toString() ?? '');
+      if (ts != null && (latest == null || ts.isAfter(latest))) {
+        latest = ts;
+      }
+    }
+    return latest;
+  }
+
+  @override
+  Future<DateTime?> oldestOrLatestTimestamp() => lastUpdatedAt();
 }
 
 /// Antwortformen aus core/api/views.py bzw. core/api/wachalltag.py.

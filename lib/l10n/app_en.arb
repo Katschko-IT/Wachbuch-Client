@@ -133,6 +133,14 @@
   "accountRefreshProfile": "Refresh profile",
   "accountLogout": "Sign out",
   "accountChangeServer": "Set up another server",
+  "accountPrivacy": "Privacy",
+
+  "offlineCacheTitle": "Offline data",
+  "offlineCacheEmpty": "Keine Offline-Daten gespeichert",
+  "offlineCacheStatus": "Zwischengespeicherte Offline-Daten (Stand: {age})",
+  "@offlineCacheStatus": {"placeholders": {"age": {"type": "String"}}},
+  "offlineCacheClear": "Offline-Daten löschen",
+  "offlineCacheCleared": "Offline-Daten wurden gelöscht.",
 
   "kalenderTitle": "Calendar",
   "kalenderEmpty": "No upcoming appointments.",

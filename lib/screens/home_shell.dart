@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wachbuch_mobile/api/api_cache.dart';
 import 'package:wachbuch_mobile/api/client.dart';
 import 'package:wachbuch_mobile/demo/demo_api.dart';
 import 'package:wachbuch_mobile/demo/demo_profiles.dart';
@@ -13,6 +14,7 @@ import 'package:wachbuch_mobile/screens/groups_screen.dart';
 import 'package:wachbuch_mobile/screens/kaffeekasse_screen.dart';
 import 'package:wachbuch_mobile/screens/kalender_screen.dart';
 import 'package:wachbuch_mobile/screens/pinnwand_screen.dart';
+import 'package:wachbuch_mobile/screens/privacy_screen.dart';
 import 'package:wachbuch_mobile/screens/reports_screen.dart';
 import 'package:wachbuch_mobile/services/connectivity_service.dart';
 import 'package:wachbuch_mobile/state/auth_state.dart';
@@ -26,6 +28,7 @@ import 'package:wachbuch_mobile/ui/error_banner.dart';
 import 'package:wachbuch_mobile/ui/handover_filter.dart';
 import 'package:wachbuch_mobile/ui/layout.dart';
 import 'package:wachbuch_mobile/ui/offline_banner.dart';
+import 'package:wachbuch_mobile/ui/offline_cache_card.dart';
 import 'package:wachbuch_mobile/ui/priority_badge.dart';
 import 'package:wachbuch_mobile/ui/section_title.dart';
 import 'package:wachbuch_mobile/ui/status_chip.dart';
@@ -176,6 +179,8 @@ class _HomeShellState extends State<HomeShell> {
               onRefresh: _reload,
             ),
             _AccountTab(
+              api: widget.api,
+              apiCache: widget.api.cache,
               me: _authState.me,
               serverUrl: widget.api.baseUrl,
               loading: loading,
@@ -1678,6 +1683,8 @@ class _AccountTab extends StatelessWidget {
     required this.onLogout,
     required this.onChangeServer,
     required this.onRefresh,
+    this.apiCache,
+    this.api,
   });
 
   final Map<String, dynamic>? me;
@@ -1686,6 +1693,8 @@ class _AccountTab extends StatelessWidget {
   final Future<void> Function() onLogout;
   final Future<void> Function() onChangeServer;
   final Future<void> Function() onRefresh;
+  final ApiCache? apiCache;
+  final WachbuchApi? api;
 
   @override
   Widget build(BuildContext context) {
@@ -1717,6 +1726,10 @@ class _AccountTab extends StatelessWidget {
               subtitle: Text(l.accountLicenseValue),
             ),
             const SizedBox(height: 12),
+            OfflineCacheCard(
+              apiCache: apiCache ?? api?.cache,
+            ),
+            const SizedBox(height: 16),
             OutlinedButton(
               onPressed: loading ? null : onRefresh,
               child: Text(l.accountRefreshProfile),
@@ -1730,6 +1743,21 @@ class _AccountTab extends StatelessWidget {
             TextButton(
               onPressed: loading ? null : onChangeServer,
               child: Text(l.accountChangeServer),
+            ),
+            const SizedBox(height: 8),
+            TextButton.icon(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => PrivacyScreen(
+                      apiCache: apiCache ?? api?.cache,
+                      api: api,
+                    ),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.privacy_tip_outlined, size: 18),
+              label: Text(l.accountPrivacy),
             ),
           ],
         ),

@@ -394,6 +394,26 @@ class AppLocalizationsDe extends AppLocalizations {
   String get accountChangeServer => 'Anderen Server einrichten';
 
   @override
+  String get accountPrivacy => 'Datenschutz';
+
+  @override
+  String get offlineCacheTitle => 'Offline-Daten';
+
+  @override
+  String get offlineCacheEmpty => 'Keine Offline-Daten gespeichert';
+
+  @override
+  String offlineCacheStatus(String age) {
+    return 'Zwischengespeicherte Offline-Daten (Stand: $age)';
+  }
+
+  @override
+  String get offlineCacheClear => 'Offline-Daten löschen';
+
+  @override
+  String get offlineCacheCleared => 'Offline-Daten wurden gelöscht.';
+
+  @override
   String get kalenderTitle => 'Kalender';
 
   @override

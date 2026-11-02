@@ -141,6 +141,17 @@ class WachbuchApi {
   /// bestätigt wurde (CLIENT-OFFLINE-CONTRACT §3.5/§5).
   bool _sessionConfirmed = false;
 
+  /// Optionaler Lese- und Offline-Cache dieser Sitzung.
+  ApiCache? get cache => _cache;
+  ApiCache? get apiCache => _cache;
+
+  /// Liefert den Zeitstempel der jüngsten zwischengespeicherten Daten
+  /// oder `null`, falls keine Daten zwischengespeichert sind.
+  Future<DateTime?> lastCacheUpdate() async => _cache?.lastUpdatedAt();
+
+  /// Löscht alle zwischengespeicherten Offline-Daten dieser Sitzung.
+  Future<void> clearOfflineCache() async => _cache?.clear();
+
   Uri _uri(String path) {
     final root = baseUrl.endsWith('/')
         ? baseUrl.substring(0, baseUrl.length - 1)
@@ -502,20 +513,9 @@ class WachbuchApi {
   /// `/api/v1/` oder absolute Adressen desselben Servers. Fremde Hosts
   /// bekämen sonst das Token.
   String? nextPagePath(Map<String, dynamic> body) {
-    final raw = body['next'];
-    if (raw is! String || raw.trim().isEmpty) return null;
-    final next = raw.trim();
-    if (next.startsWith('/api/v1/')) return next;
-    final parsed = Uri.tryParse(next);
     final base = Uri.tryParse(baseUrl);
-    if (parsed == null || base == null || !parsed.hasScheme) return null;
-    if (parsed.scheme != base.scheme ||
-        parsed.host != base.host ||
-        parsed.port != base.port ||
-        !parsed.path.startsWith('/api/v1/')) {
-      return null;
-    }
-    return parsed.hasQuery ? '${parsed.path}?${parsed.query}' : parsed.path;
+    if (base == null) return null;
+    return sameOriginPath(base, body['next'], prefix: '/api/v1/');
   }
 
   /// Erste Seite plus alle Folgeseiten über `next`. Nur die erste Seite darf
@@ -780,19 +780,9 @@ class WachbuchApi {
   /// Pfad samt Query eines Folgelinks, wenn er auf diesen Server und unter
   /// [prefix] zeigt; sonst `null`.
   String? _sameOriginPath(String link, String prefix) {
-    final uri = Uri.tryParse(link.trim());
-    if (uri == null) return null;
-    if (uri.hasScheme || uri.hasAuthority) {
-      final base = Uri.tryParse(baseUrl);
-      if (base == null ||
-          uri.scheme != base.scheme ||
-          uri.host != base.host ||
-          uri.port != base.port) {
-        return null;
-      }
-    }
-    if (!uri.path.startsWith(prefix)) return null;
-    return uri.hasQuery ? '${uri.path}?${uri.query}' : uri.path;
+    final base = Uri.tryParse(baseUrl);
+    if (base == null) return null;
+    return sameOriginPath(base, link, prefix: prefix);
   }
 
   Future<Defect> createDefect({
@@ -1331,6 +1321,44 @@ class WachbuchApi {
       clock: _clock,
     );
   }
+}
+
+/// Pfad samt Query eines Folgelinks, wenn er auf [baseUri] und unter
+/// [prefix] zeigt; sonst `null`.
+///
+/// Akzeptiert sowohl relative Pfade (z. B. `/api/v1/defects/?page=2`) als auch
+/// absolute URLs desselben Ursprungs. Fremde Schemata, Hosts oder Ports werden
+/// abgewiesen, damit kein Token an fremde Server übermittelt wird.
+String? sameOriginPath(
+  Uri baseUri,
+  Object? rawUrl, {
+  String prefix = '/api/v1/',
+}) {
+  if (rawUrl is! String) return null;
+  final trimmed = rawUrl.trim();
+  if (trimmed.isEmpty) return null;
+  final uri = Uri.tryParse(trimmed);
+  if (uri == null) return null;
+  if (uri.hasScheme || uri.hasAuthority) {
+    if (uri.scheme != baseUri.scheme ||
+        uri.host != baseUri.host ||
+        uri.port != baseUri.port) {
+      return null;
+    }
+  }
+  if (!uri.path.startsWith(prefix)) return null;
+  return uri.hasQuery ? '${uri.path}?${uri.query}' : uri.path;
+}
+
+/// Extrahiert den Folgelink aus einer Antwortkarte oder einem URL-String,
+/// sofern er auf [baseUri] und unter [prefix] zeigt.
+String? nextPagePath(
+  Uri baseUri,
+  Object? next, {
+  String prefix = '/api/v1/',
+}) {
+  final raw = next is Map ? next['next'] : next;
+  return sameOriginPath(baseUri, raw, prefix: prefix);
 }
 
 /// Validates that a discovery payload looks like a Wachwerk API root.

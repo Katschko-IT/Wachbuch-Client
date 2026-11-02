@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:wachbuch_mobile/theme/design_tokens.dart';
 import 'package:url_launcher/link.dart';
+import 'package:wachbuch_mobile/api/api_cache.dart';
+import 'package:wachbuch_mobile/api/client.dart';
+import 'package:wachbuch_mobile/theme/design_tokens.dart';
+import 'package:wachbuch_mobile/ui/offline_cache_card.dart';
 
 const _privacyPolicyUri =
     'https://github.com/Katschko-IT/Wachbuch-Client/'
@@ -15,7 +18,14 @@ const _supportUri =
 /// screen intentionally contains the operational essentials and a real public
 /// privacy-policy link so the store disclosure does not depend on a WebView.
 class PrivacyScreen extends StatelessWidget {
-  const PrivacyScreen({super.key});
+  const PrivacyScreen({
+    super.key,
+    this.apiCache,
+    this.api,
+  });
+
+  final ApiCache? apiCache;
+  final WachbuchApi? api;
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +56,17 @@ class PrivacyScreen extends StatelessWidget {
                 Text(section.body),
                 const SizedBox(height: 18),
               ],
+              Text(
+                german ? 'Offline-Daten' : 'Offline data',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 6),
+              OfflineCacheCard(
+                apiCache: apiCache ?? api?.cache,
+              ),
+              const SizedBox(height: 18),
               Material(
                 color: scheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(WachbuchTokens.radiusMd),

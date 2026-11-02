@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wachbuch_mobile/security/secure_storage.dart';
 
 /// Small encrypted cache for read-only API snapshots.
@@ -14,7 +15,17 @@ abstract class ApiCache {
   Future<void> writeJson(String key, Map<String, dynamic> value);
   Future<void> remove(String key);
   Future<void> clear();
+
+  /// Zeitstempel der jüngsten zwischengespeicherten Daten oder `null`,
+  /// falls keine Daten im Offline-Cache liegen.
+  Future<DateTime?> lastUpdatedAt() async => null;
+
+  /// Alias für [lastUpdatedAt].
+  Future<DateTime?> oldestOrLatestTimestamp() => lastUpdatedAt();
 }
+
+/// Alias für [SecureApiCache] zur eindeutigen Kennzeichnung als Offline-API-Cache.
+typedef OfflineApiCache = SecureApiCache;
 
 /// Regeln für den Offline-Lesecache nach `docs/CLIENT-OFFLINE-CONTRACT.md`
 /// im Server-Repository (§2, §3, §5, §6).
@@ -57,6 +68,7 @@ class OfflineCachePolicy {
     return {
       'schema_version': schemaVersion,
       'fetched_at': fetchedAt.toIso8601String(),
+      'cached_at': fetchedAt.toIso8601String(),
       'expires_at': fetchedAt.add(maxAge).toIso8601String(),
       'data': data,
     };
@@ -70,7 +82,9 @@ class OfflineCachePolicy {
   }) {
     if (entry == null || entry['schema_version'] != schemaVersion) return null;
     final data = entry['data'];
-    final fetchedAt = DateTime.tryParse(entry['fetched_at']?.toString() ?? '');
+    final fetchedAt = DateTime.tryParse(
+      entry['fetched_at']?.toString() ?? entry['cached_at']?.toString() ?? '',
+    );
     if (data is! Map || fetchedAt == null) return null;
     if (!ignoreAge) {
       final age = now.toUtc().difference(fetchedAt.toUtc());
@@ -231,6 +245,56 @@ class SecureApiCache implements ApiCache {
   }
 
   @override
+  Future<DateTime?> lastUpdatedAt() async {
+    DateTime? latest;
+
+    void consider(Object? raw) {
+      if (raw == null) return;
+      try {
+        final decoded = raw is Map ? raw : jsonDecode(raw.toString());
+        if (decoded is Map) {
+          final tsStr = decoded['cached_at'] ??
+              decoded['fetched_at'] ??
+              decoded['updated_at'] ??
+              decoded['created_at'];
+          final ts = DateTime.tryParse(tsStr?.toString() ?? '');
+          if (ts != null && (latest == null || ts.isAfter(latest!))) {
+            latest = ts;
+          }
+        }
+      } catch (_) {}
+    }
+
+    try {
+      final all = await _storage.readAll();
+      for (final entry in all.entries) {
+        if (!entry.key.startsWith(_prefix)) continue;
+        consider(entry.value);
+      }
+    } catch (_) {}
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      for (final key in prefs.getKeys()) {
+        if (key.startsWith(_prefix) || key.startsWith('wachbuch_cache_')) {
+          final val = prefs.get(key);
+          if (val is String) {
+            consider(val);
+          } else if (val is int) {
+            final ts = DateTime.fromMillisecondsSinceEpoch(val);
+            if (latest == null || ts.isAfter(latest!)) latest = ts;
+          }
+        }
+      }
+    } catch (_) {}
+
+    return latest;
+  }
+
+  @override
+  Future<DateTime?> oldestOrLatestTimestamp() => lastUpdatedAt();
+
+  @override
   Future<void> clear() async {
     // Enumerate secure storage instead of relying only on this process' memory.
     // Snapshot the matching keys before deleting: the secure-storage mock (and
@@ -243,5 +307,66 @@ class SecureApiCache implements ApiCache {
       await _storage.delete(key: storageKey);
     }
     _knownKeys.clear();
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final prefsKeys = prefs
+          .getKeys()
+          .where((k) => k.startsWith(_prefix) || k.startsWith('wachbuch_cache_'))
+          .toList(growable: false);
+      for (final k in prefsKeys) {
+        await prefs.remove(k);
+      }
+    } catch (_) {}
   }
+}
+
+/// Formatiert das Alter bzw. den Status des Offline-Caches für die UI.
+///
+/// Beispiele:
+/// - `null` -> 'Keine Offline-Daten gespeichert'
+/// - vor 5 Min. -> 'Zwischengespeicherte Offline-Daten (Stand: vor 5 Min.)'
+/// - vor 2 Std. heute -> 'Zwischengespeicherte Offline-Daten (Stand: 14:30 Uhr)'
+String formatOfflineCacheStatus(
+  DateTime? timestamp, {
+  DateTime? now,
+  bool isGerman = true,
+}) {
+  if (timestamp == null) {
+    return isGerman
+        ? 'Keine Offline-Daten gespeichert'
+        : 'No offline data stored';
+  }
+  final current = now ?? DateTime.now();
+  final diff = current.difference(timestamp);
+
+  String ageStr;
+  if (diff.isNegative) {
+    final local = timestamp.toLocal();
+    final hour = local.hour.toString().padLeft(2, '0');
+    final min = local.minute.toString().padLeft(2, '0');
+    ageStr = isGerman ? '$hour:$min Uhr' : '$hour:$min';
+  } else if (diff.inMinutes < 60) {
+    final mins = diff.inMinutes == 0 ? 1 : diff.inMinutes;
+    ageStr = isGerman ? 'vor $mins Min.' : '$mins min ago';
+  } else {
+    final local = timestamp.toLocal();
+    final currentLocal = current.toLocal();
+    final hour = local.hour.toString().padLeft(2, '0');
+    final min = local.minute.toString().padLeft(2, '0');
+    final isSameDay = local.year == currentLocal.year &&
+        local.month == currentLocal.month &&
+        local.day == currentLocal.day;
+    if (isSameDay) {
+      ageStr = isGerman ? '$hour:$min Uhr' : '$hour:$min';
+    } else {
+      final day = local.day.toString().padLeft(2, '0');
+      final month = local.month.toString().padLeft(2, '0');
+      ageStr = isGerman ? '$day.$month., $hour:$min Uhr' : '$day/$month, $hour:$min';
+    }
+  }
+
+  return isGerman
+      ? 'Zwischengespeicherte Offline-Daten (Stand: $ageStr)'
+      : 'Cached offline data (as of: $ageStr)';
 }

@@ -824,6 +824,42 @@ abstract class AppLocalizations {
   /// **'Anderen Server einrichten'**
   String get accountChangeServer;
 
+  /// No description provided for @accountPrivacy.
+  ///
+  /// In de, this message translates to:
+  /// **'Datenschutz'**
+  String get accountPrivacy;
+
+  /// No description provided for @offlineCacheTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Offline-Daten'**
+  String get offlineCacheTitle;
+
+  /// No description provided for @offlineCacheEmpty.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine Offline-Daten gespeichert'**
+  String get offlineCacheEmpty;
+
+  /// No description provided for @offlineCacheStatus.
+  ///
+  /// In de, this message translates to:
+  /// **'Zwischengespeicherte Offline-Daten (Stand: {age})'**
+  String offlineCacheStatus(String age);
+
+  /// No description provided for @offlineCacheClear.
+  ///
+  /// In de, this message translates to:
+  /// **'Offline-Daten löschen'**
+  String get offlineCacheClear;
+
+  /// No description provided for @offlineCacheCleared.
+  ///
+  /// In de, this message translates to:
+  /// **'Offline-Daten wurden gelöscht.'**
+  String get offlineCacheCleared;
+
   /// No description provided for @kalenderTitle.
   ///
   /// In de, this message translates to:
