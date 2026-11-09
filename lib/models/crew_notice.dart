@@ -44,16 +44,36 @@ class CrewNotice {
     required this.body,
     required this.read,
     this.kind = '',
+    this.url = '',
     this.createdAt,
   });
 
-  /// Arten, die App 1.1 kennt (`UserNotification.Kind` des Servers 0.24 bis
-  /// 0.26). Nur diese erscheinen als Benachrichtigung und werden als gelesen
-  /// gemeldet. Neue Arten späterer Server (z. B. technische Hinweise für
-  /// Admins) bleiben unberührt: kein Text auf dem Sperrbildschirm, dessen
-  /// Inhalt die App nicht kennt, und kein `read_at`, das eine Eskalation auf
-  /// dem Server beenden könnte.
-  static const shownKinds = {'vehicle_ready', 'coffee_due'};
+  static const vehicleReady = 'vehicle_ready';
+  static const coffeeDue = 'coffee_due';
+  static const systemHealth = 'system_health';
+  static const mpgTrainingMissing = 'mpg_training_missing';
+  static const deadlineDue = 'deadline_due';
+  static const sopDue = 'sop_due';
+
+  /// Arten, die App 1.2 kennt (`UserNotification.Kind` des Servers 0.28):
+  /// Fahrzeugfreigabe, Kaffeekasse, technische Hinweise (nur Master-Admins),
+  /// fehlende MPG-Einweisung, Fristen-Erinnerungen samt Wochenübersicht und
+  /// Lesefristen von Dienstanweisungen. Die App fragt mit `?kinds=` genau
+  /// diese ab; nur sie erscheinen als Benachrichtigung und werden einzeln als
+  /// gelesen gemeldet. Arten späterer Server bleiben unberührt: kein Text auf
+  /// dem Sperrbildschirm, dessen Inhalt die App nicht kennt, und kein
+  /// `read_at`, das eine Eskalation auf dem Server beenden könnte.
+  static const shownKinds = {
+    vehicleReady,
+    coffeeDue,
+    systemHealth,
+    mpgTrainingMissing,
+    deadlineDue,
+    sopDue,
+  };
+
+  /// Wert für `?kinds=` (kommagetrennt, feste Reihenfolge).
+  static String get kindsQuery => shownKinds.join(',');
 
   factory CrewNotice.fromJson(Map<String, dynamic> json) {
     return CrewNotice(
@@ -63,6 +83,7 @@ class CrewNotice {
       title: (json['title'] ?? '').toString(),
       body: (json['body'] ?? '').toString(),
       read: json['read'] == true,
+      url: (json['url'] ?? '').toString().trim(),
       createdAt: DateTime.tryParse((json['created_at'] ?? '').toString()),
     );
   }
@@ -75,10 +96,17 @@ class CrewNotice {
   final String title;
   final String body;
   final bool read;
+
+  /// Webseite zum Hinweis (Pfad auf dem Server, z. B. die Dienstanweisung).
+  final String url;
   final DateTime? createdAt;
 
   /// Fail closed: fehlende oder unbekannte Art wird nicht angezeigt.
   bool get isShownKind => shownKinds.contains(kind);
+
+  /// Wochenübersicht der Fristen (Art `deadline_due`, eigener Schlüssel).
+  bool get isWeeklyDigest =>
+      kind == deadlineDue && key.startsWith('deadline_weekly_digest:');
 }
 
 int _readInt(Object? value) {

@@ -1434,4 +1434,141 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get defectQrCameraDenied =>
       'Without camera access you cannot scan the QR code. Choose the reference from the list or allow the camera in the system settings.';
+
+  @override
+  String get sopScreenTitle => 'Work instructions to read';
+
+  @override
+  String get sopStartCardTitle => 'Work instructions to read';
+
+  @override
+  String sopOpenCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count open',
+      one: '$count open',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sopOverdueCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count overdue',
+      one: '$count overdue',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sopRevision(String version) {
+    return 'Version $version';
+  }
+
+  @override
+  String sopDue(String date) {
+    return 'Read by $date';
+  }
+
+  @override
+  String sopOverdue(String date) {
+    return 'Overdue since $date';
+  }
+
+  @override
+  String sopAcknowledgedAt(String date) {
+    return 'Confirmed on $date';
+  }
+
+  @override
+  String get sopOpenText => 'Open text';
+
+  @override
+  String get sopAcknowledge => 'Read and understood';
+
+  @override
+  String get sopAckConfirmTitle => 'Confirm reading?';
+
+  @override
+  String get sopAckConfirmMessage =>
+      'Only confirm what you have read and understood. Your name, the version and the time are stored.';
+
+  @override
+  String get sopAckConfirm => 'Confirm';
+
+  @override
+  String get sopAckDone => 'Read confirmation saved.';
+
+  @override
+  String get sopAckNewerVersion =>
+      'There is a newer version. Please read the current version first.';
+
+  @override
+  String get sopEmptyTitle => 'All read';
+
+  @override
+  String get sopEmpty => 'No open work instructions.';
+
+  @override
+  String get sopUnavailable =>
+      'This server offers read confirmations in the app from Wachwerk 0.28.';
+
+  @override
+  String get sopShowAcknowledged => 'Show confirmed ones too';
+
+  @override
+  String get sopOpenFailed => 'The page could not be opened.';
+
+  @override
+  String get noticesTitle => 'Notices';
+
+  @override
+  String get noticesEmpty => 'No notices.';
+
+  @override
+  String get noticesHint =>
+      'Notices also appear as device notifications and count as read afterwards.';
+
+  @override
+  String get noticeKindVehicleReady => 'Vehicle release';
+
+  @override
+  String get noticeKindCoffeeDue => 'Coffee fund';
+
+  @override
+  String get noticeKindDeadline => 'Deadline';
+
+  @override
+  String get noticeKindDigest => 'Weekly overview';
+
+  @override
+  String get noticeKindSop => 'Reading deadline';
+
+  @override
+  String get noticeKindMpgTraining => 'Device training';
+
+  @override
+  String get noticeKindSystemHealth => 'System';
+
+  @override
+  String get noticeUnread => 'new';
+
+  @override
+  String get noticeOpenInBrowser => 'Open in browser';
+
+  @override
+  String get handoverPaperBackfill => 'Paper backfill';
+
+  @override
+  String handoverPaperBackfillEvent(String occurred) {
+    return 'Paper backfill · event $occurred';
+  }
+
+  @override
+  String handoverPaperBackfillFull(String occurred, String recorded) {
+    return 'Paper backfill · event $occurred · recorded $recorded';
+  }
 }

@@ -1442,4 +1442,141 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get defectQrCameraDenied =>
       'Ohne Kamerazugriff kannst du den QR-Code nicht scannen. Wähle den Bezug aus der Liste oder aktiviere die Kamera in den Systemeinstellungen.';
+
+  @override
+  String get sopScreenTitle => 'Dienstanweisungen lesen';
+
+  @override
+  String get sopStartCardTitle => 'Dienstanweisungen lesen';
+
+  @override
+  String sopOpenCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count offen',
+      one: '$count offen',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sopOverdueCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count überfällig',
+      one: '$count überfällig',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sopRevision(String version) {
+    return 'Version $version';
+  }
+
+  @override
+  String sopDue(String date) {
+    return 'Lesen bis $date';
+  }
+
+  @override
+  String sopOverdue(String date) {
+    return 'Überfällig seit $date';
+  }
+
+  @override
+  String sopAcknowledgedAt(String date) {
+    return 'Bestätigt am $date';
+  }
+
+  @override
+  String get sopOpenText => 'Text öffnen';
+
+  @override
+  String get sopAcknowledge => 'Gelesen und verstanden';
+
+  @override
+  String get sopAckConfirmTitle => 'Lesen bestätigen?';
+
+  @override
+  String get sopAckConfirmMessage =>
+      'Bestätige nur, was du gelesen und verstanden hast. Gespeichert werden Person, Version und Zeitpunkt.';
+
+  @override
+  String get sopAckConfirm => 'Bestätigen';
+
+  @override
+  String get sopAckDone => 'Lesebestätigung gespeichert.';
+
+  @override
+  String get sopAckNewerVersion =>
+      'Es gibt eine neuere Version. Bitte zuerst die aktuelle Fassung lesen.';
+
+  @override
+  String get sopEmptyTitle => 'Alles gelesen';
+
+  @override
+  String get sopEmpty => 'Keine offenen Dienstanweisungen.';
+
+  @override
+  String get sopUnavailable =>
+      'Dieser Server bietet Lesebestätigungen in der App erst ab Wachwerk 0.28.';
+
+  @override
+  String get sopShowAcknowledged => 'Auch bestätigte anzeigen';
+
+  @override
+  String get sopOpenFailed => 'Die Seite konnte nicht geöffnet werden.';
+
+  @override
+  String get noticesTitle => 'Hinweise';
+
+  @override
+  String get noticesEmpty => 'Keine Hinweise.';
+
+  @override
+  String get noticesHint =>
+      'Hinweise erscheinen auch als Benachrichtigung auf dem Gerät und gelten danach als gelesen.';
+
+  @override
+  String get noticeKindVehicleReady => 'Fahrzeugfreigabe';
+
+  @override
+  String get noticeKindCoffeeDue => 'Kaffeekasse';
+
+  @override
+  String get noticeKindDeadline => 'Frist';
+
+  @override
+  String get noticeKindDigest => 'Wochenübersicht';
+
+  @override
+  String get noticeKindSop => 'Lesefrist';
+
+  @override
+  String get noticeKindMpgTraining => 'MPG-Einweisung';
+
+  @override
+  String get noticeKindSystemHealth => 'Technik';
+
+  @override
+  String get noticeUnread => 'neu';
+
+  @override
+  String get noticeOpenInBrowser => 'Im Browser öffnen';
+
+  @override
+  String get handoverPaperBackfill => 'Nachtrag vom Papierbogen';
+
+  @override
+  String handoverPaperBackfillEvent(String occurred) {
+    return 'Nachtrag vom Papierbogen · Ereignis $occurred';
+  }
+
+  @override
+  String handoverPaperBackfillFull(String occurred, String recorded) {
+    return 'Nachtrag vom Papierbogen · Ereignis $occurred · erfasst $recorded';
+  }
 }

@@ -18,7 +18,10 @@ import 'package:wachbuch_mobile/models/crew_notice.dart';
 /// und ohne Netz. Eine Sperre ohne `locked_until` plant nichts. Zusätzlich
 /// zeigt sie neue Einträge aus dem Posteingang an, sofern dieselbe Sperre
 /// nicht schon lokal erinnert wurde – aber nur bekannte Arten
-/// ([CrewNotice.shownKinds]); andere bleiben ungelesen auf dem Server.
+/// ([CrewNotice.shownKinds]: ab App 1.2 auch Fristen-Erinnerungen,
+/// Wochenübersicht, Lesefristen, MPG-Einweisung und technische Hinweise);
+/// andere bleiben ungelesen auf dem Server. Gemeldet wird genau jeder
+/// angezeigte Hinweis einzeln (`/benachrichtigungen/<id>/gelesen/`).
 class CrewReminderService {
   CrewReminderService({
     required this.api,

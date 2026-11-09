@@ -5,6 +5,7 @@ import 'package:wachbuch_mobile/demo/demo_api.dart';
 import 'package:wachbuch_mobile/demo/demo_profiles.dart';
 import 'package:wachbuch_mobile/l10n/generated/app_localizations.dart';
 import 'package:wachbuch_mobile/models/handover_ack.dart';
+import 'package:wachbuch_mobile/models/reading_obligation.dart';
 import 'package:wachbuch_mobile/models/station_asset.dart';
 import 'package:wachbuch_mobile/screens/assets_screen.dart';
 import 'package:wachbuch_mobile/screens/chat_screen.dart';
@@ -13,8 +14,10 @@ import 'package:wachbuch_mobile/screens/defects_screen.dart';
 import 'package:wachbuch_mobile/screens/groups_screen.dart';
 import 'package:wachbuch_mobile/screens/kaffeekasse_screen.dart';
 import 'package:wachbuch_mobile/screens/kalender_screen.dart';
+import 'package:wachbuch_mobile/screens/notices_screen.dart';
 import 'package:wachbuch_mobile/screens/pinnwand_screen.dart';
 import 'package:wachbuch_mobile/screens/privacy_screen.dart';
+import 'package:wachbuch_mobile/screens/reading_obligations_screen.dart';
 import 'package:wachbuch_mobile/screens/reports_screen.dart';
 import 'package:wachbuch_mobile/services/connectivity_service.dart';
 import 'package:wachbuch_mobile/state/auth_state.dart';
@@ -23,6 +26,7 @@ import 'package:wachbuch_mobile/state/handover_state.dart';
 import 'package:wachbuch_mobile/state/station_roles.dart';
 import 'package:wachbuch_mobile/theme/design_tokens.dart';
 import 'package:wachbuch_mobile/ui/asset_status_board.dart';
+import 'package:wachbuch_mobile/ui/date_time_text.dart';
 import 'package:wachbuch_mobile/ui/demo_banner.dart';
 import 'package:wachbuch_mobile/ui/error_banner.dart';
 import 'package:wachbuch_mobile/ui/handover_filter.dart';
@@ -159,6 +163,7 @@ class _HomeShellState extends State<HomeShell> {
           children: [
             _OverviewTab(
               api: widget.api,
+              refreshToken: _reloadGeneration,
               stationName: stationName,
               roleLabel: _authState.roleLabel,
               role: _authState.role,
@@ -203,6 +208,16 @@ class _HomeShellState extends State<HomeShell> {
             overflow: TextOverflow.ellipsis,
           ),
           actions: [
+            IconButton(
+              key: const Key('open-notices'),
+              tooltip: l.noticesTitle,
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => NoticesScreen(api: widget.api),
+                ),
+              ),
+              icon: const Icon(Icons.notifications_outlined),
+            ),
             IconButton(
               tooltip: l.refreshTooltip,
               onPressed: loading ? null : _reload,
@@ -298,6 +313,7 @@ class _HomeShellState extends State<HomeShell> {
 class _OverviewTab extends StatelessWidget {
   const _OverviewTab({
     required this.api,
+    required this.refreshToken,
     required this.stationName,
     required this.roleLabel,
     required this.modules,
@@ -311,6 +327,9 @@ class _OverviewTab extends StatelessWidget {
   });
 
   final WachbuchApi api;
+
+  /// Wechselt bei jedem Neuladen der Übersicht; lädt die Lesepflicht neu.
+  final int refreshToken;
   final String stationName;
   final String roleLabel;
   final String? role;
@@ -352,6 +371,7 @@ class _OverviewTab extends StatelessWidget {
             children: [
               _StationHero(stationName: stationName, roleLabel: roleLabel),
               const SizedBox(height: 16),
+              _ReadingObligationsEntry(api: api, refreshToken: refreshToken),
               if (error != null) ...[
                 ErrorBanner(message: error!),
                 const SizedBox(height: 16),
@@ -467,6 +487,117 @@ class _OverviewTab extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Startseite: Lesepflicht sichtbar, sobald etwas offen ist (Server ab
+/// 0.28). Ältere Server, Fehler oder nichts Offenes blenden den Eintrag aus.
+class _ReadingObligationsEntry extends StatefulWidget {
+  const _ReadingObligationsEntry({required this.api, required this.refreshToken});
+
+  final WachbuchApi api;
+  final int refreshToken;
+
+  @override
+  State<_ReadingObligationsEntry> createState() =>
+      _ReadingObligationsEntryState();
+}
+
+class _ReadingObligationsEntryState extends State<_ReadingObligationsEntry> {
+  List<ReadingObligation> _open = const [];
+  int _generation = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  @override
+  void didUpdateWidget(covariant _ReadingObligationsEntry oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.refreshToken != widget.refreshToken ||
+        oldWidget.api != widget.api) {
+      _load();
+    }
+  }
+
+  Future<void> _load() async {
+    final generation = ++_generation;
+    List<ReadingObligation> open = const [];
+    try {
+      open = (await widget.api.readingObligations(openOnly: true)) ?? const [];
+    } catch (_) {
+      // Optional: ohne Antwort bleibt die Startseite wie bisher.
+    }
+    if (!mounted || generation != _generation) return;
+    setState(() => _open = open.where((item) => item.isOpen).toList());
+  }
+
+  Future<void> _openScreen() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ReadingObligationsScreen(api: widget.api),
+      ),
+    );
+    if (mounted) await _load();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_open.isEmpty) return const SizedBox.shrink();
+    final l = AppLocalizations.of(context)!;
+    final c = WachbuchColors.of(context);
+    final overdue = _open.where((item) => item.overdue).length;
+    final subtitle = [
+      l.sopOpenCount(_open.length),
+      if (overdue > 0) l.sopOverdueCount(overdue),
+    ].join(' · ');
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Card(
+        key: const Key('overview-reading-obligations'),
+        color: overdue > 0 ? c.dangerSoft : c.warningSoft,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(WachbuchTokens.radiusMd),
+          side: BorderSide(color: overdue > 0 ? c.danger : c.warningAccent),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: _openScreen,
+          child: Padding(
+            padding: const EdgeInsets.all(WachbuchTokens.space4),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.menu_book_outlined,
+                  color: overdue > 0 ? c.danger : c.warning,
+                  size: 28,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l.sopStartCardTitle,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              color: c.text,
+                              fontWeight: FontWeight.w700,
+                            ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(subtitle, style: TextStyle(color: c.text)),
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_right, color: c.text),
+              ],
+            ),
           ),
         ),
       ),
@@ -1214,6 +1345,8 @@ class _HandoverCard extends StatelessWidget {
                         const SizedBox(height: 6),
                         Text(
                           handoverCategoryLabel(item['category'], l),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: Theme.of(context).textTheme.bodyMedium
                               ?.copyWith(
                                 color: Theme.of(
@@ -1221,6 +1354,19 @@ class _HandoverCard extends StatelessWidget {
                                 ).colorScheme.onSurfaceVariant,
                               ),
                         ),
+                        if (paperBackfillText(context, item, detail: false)
+                            case final backfill?)
+                          Text(
+                            backfill,
+                            key: Key('handover-backfill-${item['id']}'),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(
+                                  color: WachbuchColors.of(context).brandDeep,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                          ),
                         const Spacer(),
                         Wrap(
                           spacing: 8,
@@ -1510,6 +1656,15 @@ class _HandoverDetailSheetState extends State<_HandoverDetailSheet> {
                     ),
                   ],
                 ),
+                if (paperBackfillText(context, item, detail: true)
+                    case final backfill?) ...[
+                  const SizedBox(height: 12),
+                  _DetailRow(
+                    key: const Key('handover-detail-backfill'),
+                    icon: Icons.history_edu_outlined,
+                    value: backfill,
+                  ),
+                ],
                 if (widget.canChangeStatus) ...[
                   const SizedBox(height: 16),
                   Text(
@@ -1632,7 +1787,7 @@ class _HandoverDetailSheetState extends State<_HandoverDetailSheet> {
 }
 
 class _DetailRow extends StatelessWidget {
-  const _DetailRow({required this.icon, required this.value});
+  const _DetailRow({super.key, required this.icon, required this.value});
 
   final IconData icon;
   final String value;
@@ -1650,6 +1805,30 @@ class _DetailRow extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Kennzeichen „Nachtrag vom Papierbogen“ (Server ab 0.28:
+/// `is_paper_backfill`, `occurred_at`); `null` für normale Übergaben.
+/// Die Liste kennt nur die Ereigniszeit, das Detail auch die Erfassung
+/// (`created_at`).
+String? paperBackfillText(
+  BuildContext context,
+  Map<String, dynamic> item, {
+  required bool detail,
+}) {
+  if (item['is_paper_backfill'] != true) return null;
+  final l = AppLocalizations.of(context)!;
+  final occurred = DateTime.tryParse(item['occurred_at']?.toString() ?? '');
+  final recorded = DateTime.tryParse(item['created_at']?.toString() ?? '');
+  if (occurred == null) return l.handoverPaperBackfill;
+  final occurredText = formatDateTimeShort(context, occurred);
+  if (!detail || recorded == null) {
+    return l.handoverPaperBackfillEvent(occurredText);
+  }
+  return l.handoverPaperBackfillFull(
+    occurredText,
+    formatDateTimeShort(context, recorded),
+  );
 }
 
 List<String> _orderedValues(Iterable<String> values, List<String> order) {

@@ -17,6 +17,7 @@ import 'package:wachbuch_mobile/models/crew_notice.dart';
 import 'package:wachbuch_mobile/models/kaffeekasse.dart';
 import 'package:wachbuch_mobile/models/kalender_entry.dart';
 import 'package:wachbuch_mobile/models/pinboard_note.dart';
+import 'package:wachbuch_mobile/models/reading_obligation.dart';
 import 'package:wachbuch_mobile/models/report_stats.dart';
 import 'package:wachbuch_mobile/models/station_asset.dart';
 
@@ -500,10 +501,73 @@ class WachbuchApi {
         .toList(growable: false);
   }
 
-  /// GET /api/v1/benachrichtigungen/ – persönlicher Posteingang.
+  /// GET /api/v1/benachrichtigungen/?kinds=… – persönlicher Posteingang,
+  /// nur die Arten, die die App anzeigt ([CrewNotice.shownKinds]). Ab Server
+  /// 0.28 filtert der Server; ältere Server ignorieren den Parameter, die App
+  /// filtert dann selbst ([CrewNotice.isShownKind]).
   Future<List<CrewNotice>> crewNotices() async {
-    final body = await _getOptionalJson('/api/v1/benachrichtigungen/');
+    final path = Uri(
+      path: '/api/v1/benachrichtigungen/',
+      queryParameters: {'kinds': CrewNotice.kindsQuery},
+    ).toString();
+    final body = await _getOptionalJson(path);
     return _readList(body).map(CrewNotice.fromJson).toList(growable: false);
+  }
+
+  /// GET /api/v1/dienstanweisungen/ (Server ab 0.28) – eigene Lesepflichten.
+  /// Mit [openOnly] nur noch nicht bestätigte (`?offen=1`). `null`, wenn der
+  /// Server den Endpunkt nicht kennt (ältere Version): Die App blendet die
+  /// Funktion dann aus. Nie im Offline-Cache.
+  Future<List<ReadingObligation>?> readingObligations({bool openOnly = true}) async {
+    final path = openOnly
+        ? '/api/v1/dienstanweisungen/?offen=1'
+        : '/api/v1/dienstanweisungen/';
+    final response = await _withRetry(
+      () => _send(_client.get(_uri(path), headers: _headers())),
+    );
+    if (response.statusCode == 404 || response.statusCode == 501) return null;
+    final body = _decode(response);
+    if (token != null && token!.isNotEmpty) _sessionConfirmed = true;
+    return _readList(body).map(ReadingObligation.fromJson).toList(growable: false);
+  }
+
+  /// POST /api/v1/dienstanweisungen/{id}/quittieren/ – aktuelle Version
+  /// bestätigen, mit derselben Prüfung wie im Web. [revisionId] ist die
+  /// gelesene Version; gibt es inzwischen eine neuere, antwortet der Server
+  /// mit 409. Der Server speichert die Bestätigung idempotent (201 neu, 200
+  /// schon bestätigt), eine Wiederholung nach verlorener Antwort ist daher
+  /// unschädlich.
+  Future<ReadingObligation> acknowledgeReadingObligation(
+    int id, {
+    int? revisionId,
+  }) async {
+    return _withRetry(() async {
+      final response = await _send(
+        _client.post(
+          _uri('/api/v1/dienstanweisungen/$id/quittieren/'),
+          headers: _headers(),
+          body: jsonEncode({'revision': ?revisionId}),
+        ),
+      );
+      return ReadingObligation.fromJson(_decode(response));
+    });
+  }
+
+  /// Webseite des Servers für einen Pfad aus der API (z. B. `url` einer
+  /// Dienstanweisung oder eines Hinweises). Nur Pfade auf diesem Server.
+  Uri? webPage(String path) {
+    final base = Uri.tryParse(baseUrl);
+    final trimmed = path.trim();
+    if (base == null || !trimmed.startsWith('/') || trimmed.startsWith('//')) {
+      return null;
+    }
+    final target = Uri.tryParse(trimmed);
+    if (target == null || target.hasScheme || target.hasAuthority) return null;
+    return base.replace(
+      path: target.path,
+      query: target.hasQuery ? target.query : null,
+      fragment: target.hasFragment ? target.fragment : null,
+    );
   }
 
   /// POST /api/v1/benachrichtigungen/{id}/gelesen/

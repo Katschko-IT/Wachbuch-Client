@@ -2653,6 +2653,216 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Ohne Kamerazugriff kannst du den QR-Code nicht scannen. Wähle den Bezug aus der Liste oder aktiviere die Kamera in den Systemeinstellungen.'**
   String get defectQrCameraDenied;
+
+  /// No description provided for @sopScreenTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Dienstanweisungen lesen'**
+  String get sopScreenTitle;
+
+  /// No description provided for @sopStartCardTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Dienstanweisungen lesen'**
+  String get sopStartCardTitle;
+
+  /// No description provided for @sopOpenCount.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, one {{count} offen} other {{count} offen}}'**
+  String sopOpenCount(int count);
+
+  /// No description provided for @sopOverdueCount.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, one {{count} überfällig} other {{count} überfällig}}'**
+  String sopOverdueCount(int count);
+
+  /// No description provided for @sopRevision.
+  ///
+  /// In de, this message translates to:
+  /// **'Version {version}'**
+  String sopRevision(String version);
+
+  /// No description provided for @sopDue.
+  ///
+  /// In de, this message translates to:
+  /// **'Lesen bis {date}'**
+  String sopDue(String date);
+
+  /// No description provided for @sopOverdue.
+  ///
+  /// In de, this message translates to:
+  /// **'Überfällig seit {date}'**
+  String sopOverdue(String date);
+
+  /// No description provided for @sopAcknowledgedAt.
+  ///
+  /// In de, this message translates to:
+  /// **'Bestätigt am {date}'**
+  String sopAcknowledgedAt(String date);
+
+  /// No description provided for @sopOpenText.
+  ///
+  /// In de, this message translates to:
+  /// **'Text öffnen'**
+  String get sopOpenText;
+
+  /// No description provided for @sopAcknowledge.
+  ///
+  /// In de, this message translates to:
+  /// **'Gelesen und verstanden'**
+  String get sopAcknowledge;
+
+  /// No description provided for @sopAckConfirmTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Lesen bestätigen?'**
+  String get sopAckConfirmTitle;
+
+  /// No description provided for @sopAckConfirmMessage.
+  ///
+  /// In de, this message translates to:
+  /// **'Bestätige nur, was du gelesen und verstanden hast. Gespeichert werden Person, Version und Zeitpunkt.'**
+  String get sopAckConfirmMessage;
+
+  /// No description provided for @sopAckConfirm.
+  ///
+  /// In de, this message translates to:
+  /// **'Bestätigen'**
+  String get sopAckConfirm;
+
+  /// No description provided for @sopAckDone.
+  ///
+  /// In de, this message translates to:
+  /// **'Lesebestätigung gespeichert.'**
+  String get sopAckDone;
+
+  /// No description provided for @sopAckNewerVersion.
+  ///
+  /// In de, this message translates to:
+  /// **'Es gibt eine neuere Version. Bitte zuerst die aktuelle Fassung lesen.'**
+  String get sopAckNewerVersion;
+
+  /// No description provided for @sopEmptyTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Alles gelesen'**
+  String get sopEmptyTitle;
+
+  /// No description provided for @sopEmpty.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine offenen Dienstanweisungen.'**
+  String get sopEmpty;
+
+  /// No description provided for @sopUnavailable.
+  ///
+  /// In de, this message translates to:
+  /// **'Dieser Server bietet Lesebestätigungen in der App erst ab Wachwerk 0.28.'**
+  String get sopUnavailable;
+
+  /// No description provided for @sopShowAcknowledged.
+  ///
+  /// In de, this message translates to:
+  /// **'Auch bestätigte anzeigen'**
+  String get sopShowAcknowledged;
+
+  /// No description provided for @sopOpenFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Seite konnte nicht geöffnet werden.'**
+  String get sopOpenFailed;
+
+  /// No description provided for @noticesTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Hinweise'**
+  String get noticesTitle;
+
+  /// No description provided for @noticesEmpty.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine Hinweise.'**
+  String get noticesEmpty;
+
+  /// No description provided for @noticesHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Hinweise erscheinen auch als Benachrichtigung auf dem Gerät und gelten danach als gelesen.'**
+  String get noticesHint;
+
+  /// No description provided for @noticeKindVehicleReady.
+  ///
+  /// In de, this message translates to:
+  /// **'Fahrzeugfreigabe'**
+  String get noticeKindVehicleReady;
+
+  /// No description provided for @noticeKindCoffeeDue.
+  ///
+  /// In de, this message translates to:
+  /// **'Kaffeekasse'**
+  String get noticeKindCoffeeDue;
+
+  /// No description provided for @noticeKindDeadline.
+  ///
+  /// In de, this message translates to:
+  /// **'Frist'**
+  String get noticeKindDeadline;
+
+  /// No description provided for @noticeKindDigest.
+  ///
+  /// In de, this message translates to:
+  /// **'Wochenübersicht'**
+  String get noticeKindDigest;
+
+  /// No description provided for @noticeKindSop.
+  ///
+  /// In de, this message translates to:
+  /// **'Lesefrist'**
+  String get noticeKindSop;
+
+  /// No description provided for @noticeKindMpgTraining.
+  ///
+  /// In de, this message translates to:
+  /// **'MPG-Einweisung'**
+  String get noticeKindMpgTraining;
+
+  /// No description provided for @noticeKindSystemHealth.
+  ///
+  /// In de, this message translates to:
+  /// **'Technik'**
+  String get noticeKindSystemHealth;
+
+  /// No description provided for @noticeUnread.
+  ///
+  /// In de, this message translates to:
+  /// **'neu'**
+  String get noticeUnread;
+
+  /// No description provided for @noticeOpenInBrowser.
+  ///
+  /// In de, this message translates to:
+  /// **'Im Browser öffnen'**
+  String get noticeOpenInBrowser;
+
+  /// No description provided for @handoverPaperBackfill.
+  ///
+  /// In de, this message translates to:
+  /// **'Nachtrag vom Papierbogen'**
+  String get handoverPaperBackfill;
+
+  /// No description provided for @handoverPaperBackfillEvent.
+  ///
+  /// In de, this message translates to:
+  /// **'Nachtrag vom Papierbogen · Ereignis {occurred}'**
+  String handoverPaperBackfillEvent(String occurred);
+
+  /// No description provided for @handoverPaperBackfillFull.
+  ///
+  /// In de, this message translates to:
+  /// **'Nachtrag vom Papierbogen · Ereignis {occurred} · erfasst {recorded}'**
+  String handoverPaperBackfillFull(String occurred, String recorded);
 }
 
 class _AppLocalizationsDelegate
