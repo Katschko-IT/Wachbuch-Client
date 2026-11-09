@@ -308,4 +308,52 @@ void main() {
       expect(find.byType(ChecklistRunScreen), findsOneWidget);
     },
   );
+
+  testWidgets('Lauf bleibt bei 200 % Schrift auf dem Telefon ohne Überlauf', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(360, 740);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final api = _RunApi(
+      completeError: ApiException(
+        400,
+        'x',
+        errors: const ['Pflichtpunkt „Plombe intakt“ ist nicht ausgefüllt.'],
+      ),
+    );
+    await tester.pumpWidget(
+      localizedApp(
+        home: ChecklistRunScreen(api: api, checklist: _checklist()),
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(
+            context,
+          ).copyWith(textScaler: const TextScaler.linear(2)),
+          child: child!,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('run-status-43-na')),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.byKey(const Key('run-status-43-na')));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('run-finish')),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.byKey(const Key('run-finish')));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('run-item-error-43')),
+      -200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.byKey(const Key('run-item-error-43')), findsOneWidget);
+  });
 }

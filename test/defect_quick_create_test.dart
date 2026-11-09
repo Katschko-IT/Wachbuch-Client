@@ -507,4 +507,39 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('asset-report-defect-rtw-1')), findsNothing);
   });
+
+  testWidgets('Formular bei 200 % Schrift auf dem Telefon ohne Überlauf', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(360, 740);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      localizedApp(
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(
+            context,
+          ).copyWith(textScaler: const TextScaler.linear(2)),
+          child: child!,
+        ),
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: TextButton(
+              onPressed: () => showDefectReportSheet(
+                context,
+                api: _DefectApi(),
+                preselected: _rtw,
+                photoPicker: (_) async => _photo,
+              ),
+              child: const Text('öffnen'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('öffnen'));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(find.byKey(const Key('defect-duplicates')), findsOneWidget);
+  });
 }
