@@ -14,7 +14,8 @@ import 'package:wachbuch_mobile/ui/server_page.dart';
 ///
 /// Bestätigt wird immer die Version, die die App zuletzt geladen hat
 /// (`revision`); hat der Server inzwischen eine neuere, lehnt er mit 409 ab
-/// und die App lädt neu. Gespeichert werden laut Server nur Person, Version
+/// und die App lädt neu. Andere 409 (außer Kraft, Entwurf, kein Textstand)
+/// zeigen die Meldung des Servers. Gespeichert werden laut Server nur Person, Version
 /// und Zeitpunkt.
 class ReadingObligationsScreen extends StatefulWidget {
   const ReadingObligationsScreen({
@@ -127,9 +128,17 @@ class _ReadingObligationsScreenState extends State<ReadingObligationsScreen> {
     } on ApiException catch (error) {
       if (!mounted) return;
       if (error.statusCode == 409) {
-        setState(() => _error = l.sopAckNewerVersion);
+        // 409 heißt nicht immer „neuere Version“: Der Server lehnt auch ab,
+        // wenn die Dienstanweisung außer Kraft, noch ein Entwurf oder ohne
+        // freigegebenen Text ist. Erst nach dem Neuladen entscheiden.
         await _reload();
-        if (mounted) setState(() => _error = l.sopAckNewerVersion);
+        if (!mounted) return;
+        final current = _items.where((entry) => entry.id == item.id);
+        final newer =
+            current.isNotEmpty &&
+            current.first.revisionId != null &&
+            current.first.revisionId != item.revisionId;
+        setState(() => _error = newer ? l.sopAckNewerVersion : error.message);
       } else {
         setState(() => _error = error.message);
       }

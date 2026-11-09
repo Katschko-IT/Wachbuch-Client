@@ -34,7 +34,8 @@ Freigabeplan: [`docs/STORE-RELEASE-1.2.md`](docs/STORE-RELEASE-1.2.md).
   Gerät und per QR-Code am Fahrzeug oder Gerät.
 - **Lesepflicht:** Dienstanweisungen mit Version, Lesefrist und
   Überfällig-Markierung lesen (Webseite des Servers) und mit „Gelesen und
-  verstanden“ bestätigen – mit derselben Versionsprüfung wie im Web. Auf der
+  verstanden“ bestätigen – mit derselben Versionsprüfung wie im Web („neuere
+  Version“ nur, wenn es eine gibt; sonst die Meldung des Servers). Auf der
   Startseite erscheint der Eintrag, sobald etwas offen ist.
 - **Hinweise von 0.28:** Fristen-Erinnerungen, Wochenübersicht, Lesefristen,
   fehlende MPG-Einweisungen und technische Hinweise erscheinen als lokale

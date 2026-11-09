@@ -36,11 +36,15 @@ class _SopApi extends WachbuchApi {
   _SopApi({
     required this.items,
     this.conflictOnce = false,
+    this.archivedOnce = false,
     this.supported = true,
   }) : super(baseUrl: 'https://wache.example.org', token: 'wb_test');
 
   List<Map<String, dynamic>> items;
   bool conflictOnce;
+
+  /// Zwischen Liste und Bestätigen außer Kraft gesetzt (auch 409).
+  bool archivedOnce;
   final bool supported;
   final acks = <(int, int?)>[];
   final openOnlyCalls = <bool>[];
@@ -65,6 +69,15 @@ class _SopApi extends WachbuchApi {
     int? revisionId,
   }) async {
     acks.add((id, revisionId));
+    if (archivedOnce) {
+      archivedOnce = false;
+      items = [];
+      throw ApiException(
+        409,
+        'Diese Dienstanweisung ist außer Kraft und kann nicht mehr quittiert werden.',
+        code: 'conflict',
+      );
+    }
     if (conflictOnce) {
       conflictOnce = false;
       // Inzwischen gibt es Version 1.2.
@@ -257,6 +270,37 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('Version 1.2'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'Lesepflicht: 409 „außer Kraft“ zeigt die Meldung des Servers, nicht „neuere Version“',
+    (tester) async {
+      final api = _SopApi(items: [_sop()], archivedOnce: true);
+      await tester.pumpWidget(
+        localizedApp(home: ReadingObligationsScreen(api: api)),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('sop-ack-5')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('sop-ack-confirm')));
+      await tester.pumpAndSettle();
+
+      expect(api.acks.single, (5, 11));
+      expect(
+        find.text(
+          'Diese Dienstanweisung ist außer Kraft und kann nicht mehr quittiert werden.',
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.text(
+          'Es gibt eine neuere Version. Bitte zuerst die aktuelle Fassung lesen.',
+        ),
+        findsNothing,
+      );
+      expect(find.text('Alles gelesen'), findsOneWidget);
     },
   );
 
