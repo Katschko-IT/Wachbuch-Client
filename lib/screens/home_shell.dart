@@ -705,7 +705,7 @@ class _ModuleTiles extends StatelessWidget {
       case 'module-tile-coffee':
         screen = KaffeekasseScreen(api: api);
       case 'module-tile-checklists':
-        screen = ChecklistenScreen(api: api);
+        screen = ChecklistenScreen(api: api, role: role);
       case 'module-tile-defects':
         screen = DefectsScreen(api: api, role: role);
       case 'module-tile-assets':

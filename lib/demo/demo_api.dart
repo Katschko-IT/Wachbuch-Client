@@ -372,6 +372,33 @@ class DemoWachbuchApi extends WachbuchApi {
     return Checklist.fromJson({...match, 'completed': true});
   }
 
+  // Demo-Checklisten tragen keine `item_details`: Sie zeigen den Abschluss
+  // mit einem Tipp. Zwischenstände gibt es in der Demo nicht.
+  @override
+  Future<ChecklistDraft?> checklistDraft(int id) async => null;
+
+  @override
+  Future<ChecklistDraft?> saveChecklistDraft(
+    int id, {
+    required Map<int, ChecklistItemResult> results,
+    String note = '',
+  }) async =>
+      null;
+
+  @override
+  Future<ChecklistRunResult> completeChecklistRun(
+    int id, {
+    required Map<int, ChecklistItemResult> results,
+    String note = '',
+  }) async {
+    _completedChecklists.add(id);
+    return ChecklistRunResult(
+      id: id,
+      checklistId: id,
+      createdAt: DateTime.now(),
+    );
+  }
+
   @override
   Future<List<PinboardNote>> pinboard() async =>
       List<PinboardNote>.unmodifiable(_pinboard);

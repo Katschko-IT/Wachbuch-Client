@@ -2203,6 +2203,228 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Mein Saldo'**
   String get kaffeekasseBalanceOwn;
+
+  /// No description provided for @checklistRunStart.
+  ///
+  /// In de, this message translates to:
+  /// **'Prüfung starten'**
+  String get checklistRunStart;
+
+  /// No description provided for @checklistRunResume.
+  ///
+  /// In de, this message translates to:
+  /// **'Zwischenstand fortsetzen'**
+  String get checklistRunResume;
+
+  /// No description provided for @checklistRunAgain.
+  ///
+  /// In de, this message translates to:
+  /// **'Erneut prüfen'**
+  String get checklistRunAgain;
+
+  /// No description provided for @checklistItemCount.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, one {{count} Prüfpunkt} other {{count} Prüfpunkte}}'**
+  String checklistItemCount(int count);
+
+  /// No description provided for @checklistRequiredBadge.
+  ///
+  /// In de, this message translates to:
+  /// **'Pflicht'**
+  String get checklistRequiredBadge;
+
+  /// No description provided for @checklistRequiredSemantics.
+  ///
+  /// In de, this message translates to:
+  /// **'Pflichtpunkt: {item}'**
+  String checklistRequiredSemantics(String item);
+
+  /// No description provided for @checklistLimitsRange.
+  ///
+  /// In de, this message translates to:
+  /// **'Grenzwerte {min} bis {max}'**
+  String checklistLimitsRange(String min, String max);
+
+  /// No description provided for @checklistLimitsMin.
+  ///
+  /// In de, this message translates to:
+  /// **'mindestens {min}'**
+  String checklistLimitsMin(String min);
+
+  /// No description provided for @checklistLimitsMax.
+  ///
+  /// In de, this message translates to:
+  /// **'höchstens {max}'**
+  String checklistLimitsMax(String max);
+
+  /// No description provided for @checklistValueLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Messwert'**
+  String get checklistValueLabel;
+
+  /// No description provided for @checklistValueOutOfLimits.
+  ///
+  /// In de, this message translates to:
+  /// **'Außerhalb der Grenzwerte: Beim Abschluss wird der Punkt „nicht in Ordnung“.'**
+  String get checklistValueOutOfLimits;
+
+  /// No description provided for @checklistStatusOk.
+  ///
+  /// In de, this message translates to:
+  /// **'In Ordnung'**
+  String get checklistStatusOk;
+
+  /// No description provided for @checklistStatusNotOk.
+  ///
+  /// In de, this message translates to:
+  /// **'Nicht in Ordnung'**
+  String get checklistStatusNotOk;
+
+  /// No description provided for @checklistStatusNa.
+  ///
+  /// In de, this message translates to:
+  /// **'Entfällt'**
+  String get checklistStatusNa;
+
+  /// No description provided for @checklistStatusOpen.
+  ///
+  /// In de, this message translates to:
+  /// **'nicht bewertet'**
+  String get checklistStatusOpen;
+
+  /// No description provided for @checklistReasonRequiredLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Begründung (Pflicht)'**
+  String get checklistReasonRequiredLabel;
+
+  /// No description provided for @checklistFindingLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Feststellung (optional)'**
+  String get checklistFindingLabel;
+
+  /// No description provided for @checklistNoteLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Notiz zum Lauf (optional)'**
+  String get checklistNoteLabel;
+
+  /// No description provided for @checklistSaveDraft.
+  ///
+  /// In de, this message translates to:
+  /// **'Zwischenstand speichern'**
+  String get checklistSaveDraft;
+
+  /// No description provided for @checklistDraftSaved.
+  ///
+  /// In de, this message translates to:
+  /// **'Zwischenstand gespeichert. Die nächste Person kann fortsetzen.'**
+  String get checklistDraftSaved;
+
+  /// No description provided for @checklistFinish.
+  ///
+  /// In de, this message translates to:
+  /// **'Abschließen'**
+  String get checklistFinish;
+
+  /// No description provided for @checklistDraftInfo.
+  ///
+  /// In de, this message translates to:
+  /// **'Zwischenstand vom {time} · {name}'**
+  String checklistDraftInfo(String time, String name);
+
+  /// No description provided for @checklistDraftLoaded.
+  ///
+  /// In de, this message translates to:
+  /// **'Zwischenstand vom {time} · {name} geladen.'**
+  String checklistDraftLoaded(String time, String name);
+
+  /// No description provided for @checklistDraftLoadFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Zwischenstand konnte nicht geladen werden: {message}'**
+  String checklistDraftLoadFailed(String message);
+
+  /// No description provided for @checklistDraftShared.
+  ///
+  /// In de, this message translates to:
+  /// **'Der Zwischenstand gehört der Wache: Speichern ersetzt ihn für alle.'**
+  String get checklistDraftShared;
+
+  /// No description provided for @checklistValidationFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Der Server hat den Lauf nicht angenommen. Deine Eingaben sind erhalten.'**
+  String get checklistValidationFailed;
+
+  /// No description provided for @checklistRunDoneTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Checkliste abgeschlossen'**
+  String get checklistRunDoneTitle;
+
+  /// No description provided for @checklistRunResultsTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Ergebnis wie gespeichert'**
+  String get checklistRunResultsTitle;
+
+  /// No description provided for @checklistRunDefectCreated.
+  ///
+  /// In de, this message translates to:
+  /// **'Mangel #{id} angelegt'**
+  String checklistRunDefectCreated(int id);
+
+  /// No description provided for @checklistRunDefectLinked.
+  ///
+  /// In de, this message translates to:
+  /// **'Mit offenem Mangel #{id} verknüpft'**
+  String checklistRunDefectLinked(int id);
+
+  /// No description provided for @checklistRunOpenDefects.
+  ///
+  /// In de, this message translates to:
+  /// **'Mängel öffnen'**
+  String get checklistRunOpenDefects;
+
+  /// No description provided for @checklistRunDone.
+  ///
+  /// In de, this message translates to:
+  /// **'Fertig'**
+  String get checklistRunDone;
+
+  /// No description provided for @checklistDiscardTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Eingaben verwerfen?'**
+  String get checklistDiscardTitle;
+
+  /// No description provided for @checklistDiscardMessage.
+  ///
+  /// In de, this message translates to:
+  /// **'Nicht gespeicherte Eingaben gehen verloren. Mit „Zwischenstand speichern“ kann die nächste Person weitermachen.'**
+  String get checklistDiscardMessage;
+
+  /// No description provided for @checklistDiscardConfirm.
+  ///
+  /// In de, this message translates to:
+  /// **'Verwerfen'**
+  String get checklistDiscardConfirm;
+
+  /// No description provided for @checklistContinueEditing.
+  ///
+  /// In de, this message translates to:
+  /// **'Weiter bearbeiten'**
+  String get checklistContinueEditing;
+
+  /// No description provided for @checklistPaperBackfillMarker.
+  ///
+  /// In de, this message translates to:
+  /// **'Nachtrag vom Papierbogen'**
+  String get checklistPaperBackfillMarker;
 }
 
 class _AppLocalizationsDelegate

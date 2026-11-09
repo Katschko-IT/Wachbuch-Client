@@ -1158,4 +1158,146 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get kaffeekasseBalanceOwn => 'Mein Saldo';
+
+  @override
+  String get checklistRunStart => 'Prüfung starten';
+
+  @override
+  String get checklistRunResume => 'Zwischenstand fortsetzen';
+
+  @override
+  String get checklistRunAgain => 'Erneut prüfen';
+
+  @override
+  String checklistItemCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Prüfpunkte',
+      one: '$count Prüfpunkt',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get checklistRequiredBadge => 'Pflicht';
+
+  @override
+  String checklistRequiredSemantics(String item) {
+    return 'Pflichtpunkt: $item';
+  }
+
+  @override
+  String checklistLimitsRange(String min, String max) {
+    return 'Grenzwerte $min bis $max';
+  }
+
+  @override
+  String checklistLimitsMin(String min) {
+    return 'mindestens $min';
+  }
+
+  @override
+  String checklistLimitsMax(String max) {
+    return 'höchstens $max';
+  }
+
+  @override
+  String get checklistValueLabel => 'Messwert';
+
+  @override
+  String get checklistValueOutOfLimits =>
+      'Außerhalb der Grenzwerte: Beim Abschluss wird der Punkt „nicht in Ordnung“.';
+
+  @override
+  String get checklistStatusOk => 'In Ordnung';
+
+  @override
+  String get checklistStatusNotOk => 'Nicht in Ordnung';
+
+  @override
+  String get checklistStatusNa => 'Entfällt';
+
+  @override
+  String get checklistStatusOpen => 'nicht bewertet';
+
+  @override
+  String get checklistReasonRequiredLabel => 'Begründung (Pflicht)';
+
+  @override
+  String get checklistFindingLabel => 'Feststellung (optional)';
+
+  @override
+  String get checklistNoteLabel => 'Notiz zum Lauf (optional)';
+
+  @override
+  String get checklistSaveDraft => 'Zwischenstand speichern';
+
+  @override
+  String get checklistDraftSaved =>
+      'Zwischenstand gespeichert. Die nächste Person kann fortsetzen.';
+
+  @override
+  String get checklistFinish => 'Abschließen';
+
+  @override
+  String checklistDraftInfo(String time, String name) {
+    return 'Zwischenstand vom $time · $name';
+  }
+
+  @override
+  String checklistDraftLoaded(String time, String name) {
+    return 'Zwischenstand vom $time · $name geladen.';
+  }
+
+  @override
+  String checklistDraftLoadFailed(String message) {
+    return 'Zwischenstand konnte nicht geladen werden: $message';
+  }
+
+  @override
+  String get checklistDraftShared =>
+      'Der Zwischenstand gehört der Wache: Speichern ersetzt ihn für alle.';
+
+  @override
+  String get checklistValidationFailed =>
+      'Der Server hat den Lauf nicht angenommen. Deine Eingaben sind erhalten.';
+
+  @override
+  String get checklistRunDoneTitle => 'Checkliste abgeschlossen';
+
+  @override
+  String get checklistRunResultsTitle => 'Ergebnis wie gespeichert';
+
+  @override
+  String checklistRunDefectCreated(int id) {
+    return 'Mangel #$id angelegt';
+  }
+
+  @override
+  String checklistRunDefectLinked(int id) {
+    return 'Mit offenem Mangel #$id verknüpft';
+  }
+
+  @override
+  String get checklistRunOpenDefects => 'Mängel öffnen';
+
+  @override
+  String get checklistRunDone => 'Fertig';
+
+  @override
+  String get checklistDiscardTitle => 'Eingaben verwerfen?';
+
+  @override
+  String get checklistDiscardMessage =>
+      'Nicht gespeicherte Eingaben gehen verloren. Mit „Zwischenstand speichern“ kann die nächste Person weitermachen.';
+
+  @override
+  String get checklistDiscardConfirm => 'Verwerfen';
+
+  @override
+  String get checklistContinueEditing => 'Weiter bearbeiten';
+
+  @override
+  String get checklistPaperBackfillMarker => 'Nachtrag vom Papierbogen';
 }

@@ -63,12 +63,21 @@ class ApiException implements Exception {
     this.message, {
     this.code,
     this.correlationId,
+    this.errors = const [],
+    this.fields = const {},
   });
 
   final int statusCode;
   final String message;
   final String? code;
   final String? correlationId;
+
+  /// Einzelmeldungen eines `validation_error` (z. B. Checklisten-Lauf:
+  /// `errors` mit je einer Meldung pro Prüfpunkt, Server ab 0.28).
+  final List<String> errors;
+
+  /// Feldfehler (`fields`, z. B. `occurred_at` bei Übergaben).
+  final Map<String, dynamic> fields;
 
   /// 403 aus `api_token_required`: Konto ohne aktive Mitgliedschaft.
   /// Der Server liefert dafür nur den allgemeinen Code `forbidden`, daher wird
@@ -242,11 +251,21 @@ class WachbuchApi {
           ? message! + _retryAfterHint(response)
           : _proxyErrorMessage(response) ??
               'Anfrage fehlgeschlagen (${response.statusCode})';
+      final rawErrors = body['errors'];
+      final rawFields = body['fields'];
       _raise(ApiException(
         response.statusCode,
         resolved,
         code: code,
         correlationId: correlationId,
+        errors: rawErrors is List
+            ? List.unmodifiable(rawErrors
+                .map((entry) => entry?.toString().trim() ?? '')
+                .where((entry) => entry.isNotEmpty))
+            : const [],
+        fields: rawFields is Map
+            ? Map.unmodifiable(Map<String, dynamic>.from(rawFields))
+            : const {},
       ));
     }
     return body;
@@ -352,6 +371,7 @@ class WachbuchApi {
     String? cacheKey,
     String? moduleLabel,
     Future<void> Function(Map<String, dynamic> body)? onOnline,
+    Map<String, dynamic> Function(Map<String, dynamic> body)? beforeCache,
   }) async {
     try {
       final body = await _withRetry(() async {
@@ -365,7 +385,9 @@ class WachbuchApi {
       });
       if (token != null && token!.isNotEmpty) _sessionConfirmed = true;
       if (onOnline != null) await onOnline(body);
-      if (cacheKey != null) await _cacheWrite(cacheKey, body);
+      if (cacheKey != null) {
+        await _cacheWrite(cacheKey, beforeCache == null ? body : beforeCache(body));
+      }
       return body;
     } on ApiException catch (error) {
       if (error.statusCode == 0 && cacheKey != null) {
@@ -649,9 +671,113 @@ class WachbuchApi {
   }
 
   /// GET /api/v1/checklisten/
+  ///
+  /// Ab Server 0.28 enthält jede Checkliste den gemeinsamen Zwischenstand
+  /// (`draft` mit Begründungen, Notiz und Namen). Er wird vor dem Schreiben in
+  /// den Offline-Lesecache entfernt (CLIENT-OFFLINE-CONTRACT §2) und nur online
+  /// über [checklistDraft] geladen.
   Future<List<Checklist>> checklisten() async {
-    final body = await _getJson('/api/v1/checklisten/', cacheKey: 'checklists');
+    final body = await _getJson(
+      '/api/v1/checklisten/',
+      cacheKey: 'checklists',
+      beforeCache: withoutChecklistDrafts,
+    );
     return _readList(body).map(Checklist.fromJson).toList(growable: false);
+  }
+
+  /// Kopie der Listenantwort ohne `results[].draft`.
+  static Map<String, dynamic> withoutChecklistDrafts(Map<String, dynamic> body) {
+    final results = body['results'];
+    if (results is! List) return body;
+    return {
+      ...body,
+      'results': [
+        for (final entry in results)
+          if (entry is Map)
+            {
+              for (final field in entry.entries)
+                if (field.key != 'draft') field.key.toString(): field.value,
+            }
+          else
+            entry,
+      ],
+    };
+  }
+
+  /// GET /api/v1/checklisten/{id}/zwischenstand/ (Server ab 0.28) – der
+  /// gemeinsame Zwischenstand der Wache oder `null`. Nie im Offline-Cache.
+  Future<ChecklistDraft?> checklistDraft(int id) async {
+    final body = await _getJson(
+      '/api/v1/checklisten/$id/zwischenstand/',
+      moduleLabel: 'Checklisten',
+    );
+    final draft = body['draft'];
+    return draft is Map
+        ? ChecklistDraft.fromJson(Map<String, dynamic>.from(draft))
+        : null;
+  }
+
+  /// PUT /api/v1/checklisten/{id}/zwischenstand/ – Zwischenstand ersetzen.
+  /// Einmal senden: Jede Speicherung schreibt auf dem Server einen
+  /// Audit-Eintrag.
+  Future<ChecklistDraft?> saveChecklistDraft(
+    int id, {
+    required Map<int, ChecklistItemResult> results,
+    String note = '',
+  }) async {
+    final response = await _send(
+      _client.put(
+        _uri('/api/v1/checklisten/$id/zwischenstand/'),
+        headers: _headers(),
+        body: jsonEncode(checklistRunBody(results: results, note: note)),
+      ),
+    );
+    final body = _decode(_requireModule(response, 'Checklisten'));
+    final draft = body['draft'];
+    return draft is Map
+        ? ChecklistDraft.fromJson(Map<String, dynamic>.from(draft))
+        : null;
+  }
+
+  /// POST /api/v1/checklisten/{id}/abschluss/ mit `item_results` (Server ab
+  /// 0.28). Ein Lauf ist append-only und legt ggf. Mängel an: keine
+  /// automatische Wiederholung. Prüffehler kommen als 400 mit `errors`.
+  Future<ChecklistRunResult> completeChecklistRun(
+    int id, {
+    required Map<int, ChecklistItemResult> results,
+    String note = '',
+  }) async {
+    final response = await _send(
+      _client.post(
+        _uri('/api/v1/checklisten/$id/abschluss/'),
+        headers: _headers(),
+        body: jsonEncode(checklistRunBody(results: results, note: note)),
+      ),
+    );
+    return ChecklistRunResult.fromJson(
+      _decode(_requireModule(response, 'Checklisten')),
+    );
+  }
+
+  /// JSON-Körper für Lauf und Zwischenstand: Schlüssel sind ausschließlich
+  /// Server-Kennungen aus `item_details`. Messwerte gehen als Text, damit der
+  /// Server Dezimalkomma und Grenzen selbst auswertet.
+  static Map<String, dynamic> checklistRunBody({
+    required Map<int, ChecklistItemResult> results,
+    String note = '',
+  }) {
+    return {
+      'item_results': {
+        for (final entry in results.entries)
+          if (entry.key > 0)
+            '${entry.key}': {
+              'status': entry.value.status,
+              'value': entry.value.valueText,
+              'reason': entry.value.reason.trim(),
+            },
+      },
+      'note': note.trim(),
+    };
   }
 
   /// GET /api/v1/pinnwand/

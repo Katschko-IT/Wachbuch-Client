@@ -1150,4 +1150,146 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get kaffeekasseBalanceOwn => 'My balance';
+
+  @override
+  String get checklistRunStart => 'Start check';
+
+  @override
+  String get checklistRunResume => 'Resume saved progress';
+
+  @override
+  String get checklistRunAgain => 'Check again';
+
+  @override
+  String checklistItemCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '$count item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get checklistRequiredBadge => 'Required';
+
+  @override
+  String checklistRequiredSemantics(String item) {
+    return 'Required item: $item';
+  }
+
+  @override
+  String checklistLimitsRange(String min, String max) {
+    return 'Limits $min to $max';
+  }
+
+  @override
+  String checklistLimitsMin(String min) {
+    return 'at least $min';
+  }
+
+  @override
+  String checklistLimitsMax(String max) {
+    return 'at most $max';
+  }
+
+  @override
+  String get checklistValueLabel => 'Measured value';
+
+  @override
+  String get checklistValueOutOfLimits =>
+      'Outside the limits: the item is marked “not OK” when you finish.';
+
+  @override
+  String get checklistStatusOk => 'OK';
+
+  @override
+  String get checklistStatusNotOk => 'Not OK';
+
+  @override
+  String get checklistStatusNa => 'Not applicable';
+
+  @override
+  String get checklistStatusOpen => 'not rated';
+
+  @override
+  String get checklistReasonRequiredLabel => 'Reason (required)';
+
+  @override
+  String get checklistFindingLabel => 'Finding (optional)';
+
+  @override
+  String get checklistNoteLabel => 'Note for this run (optional)';
+
+  @override
+  String get checklistSaveDraft => 'Save progress';
+
+  @override
+  String get checklistDraftSaved =>
+      'Progress saved. The next person can continue.';
+
+  @override
+  String get checklistFinish => 'Finish';
+
+  @override
+  String checklistDraftInfo(String time, String name) {
+    return 'Saved progress from $time · $name';
+  }
+
+  @override
+  String checklistDraftLoaded(String time, String name) {
+    return 'Loaded saved progress from $time · $name.';
+  }
+
+  @override
+  String checklistDraftLoadFailed(String message) {
+    return 'Saved progress could not be loaded: $message';
+  }
+
+  @override
+  String get checklistDraftShared =>
+      'Saved progress belongs to the station: saving replaces it for everyone.';
+
+  @override
+  String get checklistValidationFailed =>
+      'The server did not accept the run. Your input is kept.';
+
+  @override
+  String get checklistRunDoneTitle => 'Checklist completed';
+
+  @override
+  String get checklistRunResultsTitle => 'Result as stored';
+
+  @override
+  String checklistRunDefectCreated(int id) {
+    return 'Defect #$id created';
+  }
+
+  @override
+  String checklistRunDefectLinked(int id) {
+    return 'Linked to open defect #$id';
+  }
+
+  @override
+  String get checklistRunOpenDefects => 'Open defects';
+
+  @override
+  String get checklistRunDone => 'Done';
+
+  @override
+  String get checklistDiscardTitle => 'Discard input?';
+
+  @override
+  String get checklistDiscardMessage =>
+      'Unsaved input will be lost. With “Save progress” the next person can continue.';
+
+  @override
+  String get checklistDiscardConfirm => 'Discard';
+
+  @override
+  String get checklistContinueEditing => 'Keep editing';
+
+  @override
+  String get checklistPaperBackfillMarker => 'Paper backfill';
 }

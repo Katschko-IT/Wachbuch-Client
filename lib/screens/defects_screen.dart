@@ -15,13 +15,22 @@ import 'package:wachbuch_mobile/ui/status_chip.dart';
 
 /// Persistent station defects: list, create, status workflow and photos.
 class DefectsScreen extends StatefulWidget {
-  const DefectsScreen({super.key, required this.api, this.role});
+  const DefectsScreen({
+    super.key,
+    required this.api,
+    this.role,
+    this.initialDefectId,
+  });
 
   final WachbuchApi api;
 
   /// Rolle aus `/me/`. Fehlt sie, lädt der Bildschirm `/me/` selbst; bis
   /// dahin bleiben „Bearbeiten“ und „erledigt“ ausgeblendet.
   final String? role;
+
+  /// Öffnet nach dem ersten Laden diesen Mangel (z. B. aus einem
+  /// Checklisten-Lauf), sofern er auf der ersten Seite steht.
+  final int? initialDefectId;
 
   @override
   State<DefectsScreen> createState() => _DefectsScreenState();
@@ -36,8 +45,20 @@ class _DefectsScreenState extends State<DefectsScreen> {
   void initState() {
     super.initState();
     _role = widget.role;
-    _state = DefectState(api: widget.api)..reload();
+    _state = DefectState(api: widget.api);
+    _state.reload().then((_) => _openInitialDefect());
     if (_role == null) _loadRole();
+  }
+
+  void _openInitialDefect() {
+    final id = widget.initialDefectId;
+    if (id == null || !mounted) return;
+    for (final defect in _state.items) {
+      if (defect.id == id) {
+        _openDetail(defect);
+        return;
+      }
+    }
   }
 
   Future<void> _loadRole() async {
