@@ -163,7 +163,7 @@ Texte, Positionierung und Screenshotplan liegen in [`STORE-METADATA.md`](STORE-M
 
 ## Upload-Reihenfolge
 
-Für 1.1 (`1.1.0+13`) gilt [`STORE-RELEASE-1.1.md`](STORE-RELEASE-1.1.md): interner Test → geschlossener Test → gestaffelte Produktion. Die folgende Liste beschreibt die Ersteinrichtung mit 1.0.
+Für 1.2 (`1.2.0+14`) gilt [`STORE-RELEASE-1.2.md`](STORE-RELEASE-1.2.md), für 1.1 (`1.1.0+13`) galt [`STORE-RELEASE-1.1.md`](STORE-RELEASE-1.1.md): interner Test → geschlossener Test → gestaffelte Produktion. Die folgende Liste beschreibt die Ersteinrichtung mit 1.0.
 
 1. App `de.wachbuch.mobile` in Play Console anlegen.
 2. Play App Signing aktivieren.

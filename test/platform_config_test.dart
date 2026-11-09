@@ -84,19 +84,19 @@ void main() {
     ).readAsString();
     final iosCi = await File('.github/workflows/ios.yml').readAsString();
 
-    expect(pubspec, contains('version: 1.1.0+13'));
+    expect(pubspec, contains('version: 1.2.0+14'));
     expect(pubspec, contains('sdk: ^3.12.0'));
-    expect(androidRelease, contains('default: 1.1.0'));
-    expect(androidRelease, contains('default: "13"'));
-    expect(androidRelease, contains('test -f docs/STORE-RELEASE-1.1.md'));
+    expect(androidRelease, contains('default: 1.2.0'));
+    expect(androidRelease, contains('default: "14"'));
+    expect(androidRelease, contains('test -f docs/STORE-RELEASE-1.2.md'));
     expect(androidRelease, contains('target_sdk'));
     expect(androidRelease, contains('-ge 36'));
     expect(androidRelease, contains('Store releases must be built from main'));
     expect(androidRelease, contains('git diff --exit-code -- pubspec.lock'));
 
-    expect(testflight, contains('default: 1.1.0'));
-    expect(testflight, contains('default: "13"'));
-    expect(testflight, contains('test -f docs/STORE-RELEASE-1.1.md'));
+    expect(testflight, contains('default: 1.2.0'));
+    expect(testflight, contains('default: "14"'));
+    expect(testflight, contains('test -f docs/STORE-RELEASE-1.2.md'));
     expect(testflight, contains('Xcode 26 or later'));
     expect(testflight, contains('iOS 26 SDK or later'));
     expect(testflight, contains('xcrun altool --validate-app'));

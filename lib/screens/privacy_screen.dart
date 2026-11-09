@@ -166,8 +166,9 @@ const _de = _PolicyCopy(
       'Die App speichert die ausgewählte Serveradresse lokal. App-Token und '
           'der Offline-Lesecache werden über den sicheren Speicher des '
           'Betriebssystems geschützt. Der Offline-Lesecache enthält nur die '
-          'eigene Mitgliedschaft, Checklisten und die Übergabeliste ohne '
-          'Freitext, höchstens 24 Stunden lang. Für Master-Admin, Kassenwart '
+          'eigene Mitgliedschaft, Checklisten (Prüfpunkte mit Pflicht, Einheit '
+          'und Grenzwerten, ohne den Zwischenstand der Wache) und die '
+          'Übergabeliste ohne Freitext, höchstens 24 Stunden lang. Für Master-Admin, Kassenwart '
           'und Auditor gibt es keinen Offline-Cache. Gelesen wird er erst, '
           'nachdem die Sitzung online bestätigt wurde; ein Kaltstart ohne Netz '
           'zeigt keine Wachendaten.',
@@ -186,7 +187,10 @@ const _de = _PolicyCopy(
           'übertragen, den du selbst eingerichtet hast. Das gilt auch für '
           'neu angelegte Übergaben und Termine, Änderungen an Mängeln, die '
           'Meldung „Ich habe bezahlt“ der Kaffeekasse (Betrag, Zahlungsweg, '
-          'Notiz) und den Gelesen-Status persönlicher Hinweise. Ein Passwort '
+          'Notiz), Ergebnisse von Checklisten-Läufen und Zwischenständen '
+          '(Status, Messwerte, Begründungen, Notiz), Lesebestätigungen für '
+          'Dienstanweisungen (der Server speichert Person, Version und '
+          'Zeitpunkt) und den Gelesen-Status persönlicher Hinweise. Ein Passwort '
           'für den Token-Austausch wird von der App nicht dauerhaft '
           'gespeichert.',
     ),
@@ -194,14 +198,16 @@ const _de = _PolicyCopy(
       'Benachrichtigungen',
       'Mit deiner Erlaubnis plant die App lokale Benachrichtigungen, zum '
           'Beispiel wenn ein Fahrzeug nach der Desinfektion freigegeben werden '
-          'kann, und zeigt bekannte persönliche Hinweise deines Servers an. '
+          'kann, und zeigt bekannte persönliche Hinweise deines Servers an '
+          '(etwa Fristen, Wochenübersicht und Lesefristen). '
           'Dafür werden keine Daten an den App-Entwickler oder an Dritte '
           'übertragen.',
     ),
     _PolicySection(
       'Kamera und Fotos',
       'Beim QR-Scan werden Kameraframes nur zur Erkennung der Serveradresse '
-          'verarbeitet und nicht als Foto hochgeladen. Ein Mängelfoto wird nur '
+          'oder des QR-Codes an einem Fahrzeug oder Gerät verarbeitet und nicht '
+          'als Foto hochgeladen. Ein Mängelfoto wird nur '
           'übertragen, wenn du es ausdrücklich aufnimmst oder aus der '
           'Fotomediathek auswählst. Patienten- oder Einsatzdaten gehören nicht '
           'in Mängelfotos.',
@@ -244,8 +250,9 @@ const _en = _PolicyCopy(
       'The selected server address is stored locally. App tokens and the '
           'offline read cache are protected using operating system secure '
           'storage. The offline read cache holds only your own membership, '
-          'checklists and the handover list without free text, for at most '
-          '24 hours. There is no offline cache for master admins, treasurers '
+          'checklists (items with required flag, unit and limits, without the '
+          "station's saved progress) and the handover list without free text, "
+          'for at most 24 hours. There is no offline cache for master admins, treasurers '
           'and auditors. It is read only after the session has been confirmed '
           'online; a cold start without network shows no station data.',
     ),
@@ -262,21 +269,24 @@ const _en = _PolicyCopy(
           'defects, asset/vehicle status and inventory are sent only to the '
           'server you configured. This includes newly created handovers and '
           'calendar entries, defect edits, the coffee fund "I have paid" report '
-          '(amount, payment method, note) and the read status of personal '
-          'notices. A password used for token exchange is not persistently '
+          '(amount, payment method, note), checklist results and saved progress '
+          '(status, measured values, reasons, note), read confirmations for '
+          'work instructions (the server stores person, version and time) and '
+          'the read status of personal notices. A password used for token exchange is not persistently '
           'stored by the app.',
     ),
     _PolicySection(
       'Notifications',
       'With your permission the app schedules local notifications, for '
           'example when a vehicle can be released after disinfection, and '
-          'shows known personal notices from your server. No data is sent to '
+          'shows known personal notices from your server (such as deadlines, '
+          'the weekly overview and reading deadlines). No data is sent to '
           'the app developer or third parties for this.',
     ),
     _PolicySection(
       'Camera and photos',
-      'QR camera frames are processed only to recognise the server address and '
-          'are not uploaded as photos. A defect photo is transmitted only when '
+      'QR camera frames are processed only to recognise the server address or '
+          'the QR code on a vehicle or device and are not uploaded as photos. A defect photo is transmitted only when '
           'you explicitly capture or select one. Patient or incident data '
           'should never be included in defect photos.',
     ),

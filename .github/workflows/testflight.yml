@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       build_name:
-        description: Semantic version from pubspec.yaml, for example 1.1.0
+        description: Semantic version from pubspec.yaml, for example 1.2.0
         required: true
-        default: 1.1.0
+        default: 1.2.0
       build_number:
         description: Unique and strictly increasing App Store build number
         required: true
-        default: "13"
+        default: "14"
 
 permissions:
   contents: read
@@ -56,6 +56,7 @@ jobs:
           test -f docs/PRIVACY-POLICY.md
           test -f docs/STORE-RELEASE-1.0.md
           test -f docs/STORE-RELEASE-1.1.md
+          test -f docs/STORE-RELEASE-1.2.md
           test -f docs/STORE-METADATA.md
           test -f docs/SECURE-STORAGE-MIGRATION-1.0.md
 
