@@ -2425,6 +2425,234 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Nachtrag vom Papierbogen'**
   String get checklistPaperBackfillMarker;
+
+  /// No description provided for @defectQuickTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Mangel melden'**
+  String get defectQuickTitle;
+
+  /// No description provided for @defectQuickWithPhoto.
+  ///
+  /// In de, this message translates to:
+  /// **'Mangel mit Foto'**
+  String get defectQuickWithPhoto;
+
+  /// No description provided for @defectQuickPhotoCamera.
+  ///
+  /// In de, this message translates to:
+  /// **'Foto aufnehmen'**
+  String get defectQuickPhotoCamera;
+
+  /// No description provided for @defectQuickPhotoGallery.
+  ///
+  /// In de, this message translates to:
+  /// **'Aus Mediathek'**
+  String get defectQuickPhotoGallery;
+
+  /// No description provided for @defectQuickPhotoRemove.
+  ///
+  /// In de, this message translates to:
+  /// **'Foto entfernen'**
+  String get defectQuickPhotoRemove;
+
+  /// No description provided for @defectQuickPhotoReady.
+  ///
+  /// In de, this message translates to:
+  /// **'Foto bereit ({size})'**
+  String defectQuickPhotoReady(String size);
+
+  /// No description provided for @defectQuickPhotoDownscaled.
+  ///
+  /// In de, this message translates to:
+  /// **'Das Foto wurde für den Versand verkleinert.'**
+  String get defectQuickPhotoDownscaled;
+
+  /// No description provided for @defectQuickPhotoUnsupported.
+  ///
+  /// In de, this message translates to:
+  /// **'Dieses Bildformat wird nicht unterstützt (JPEG, PNG oder WebP).'**
+  String get defectQuickPhotoUnsupported;
+
+  /// No description provided for @defectQuickPhotoUnavailable.
+  ///
+  /// In de, this message translates to:
+  /// **'Kamera oder Mediathek ist nicht verfügbar.'**
+  String get defectQuickPhotoUnavailable;
+
+  /// No description provided for @defectReferenceNone.
+  ///
+  /// In de, this message translates to:
+  /// **'Ohne Bezug'**
+  String get defectReferenceNone;
+
+  /// No description provided for @defectReferenceOther.
+  ///
+  /// In de, this message translates to:
+  /// **'Anderer Bezug (Freitext)'**
+  String get defectReferenceOther;
+
+  /// No description provided for @defectReferenceText.
+  ///
+  /// In de, this message translates to:
+  /// **'Bezug als Text'**
+  String get defectReferenceText;
+
+  /// No description provided for @defectReferenceGroupVehicles.
+  ///
+  /// In de, this message translates to:
+  /// **'Fahrzeuge'**
+  String get defectReferenceGroupVehicles;
+
+  /// No description provided for @defectReferenceGroupDevices.
+  ///
+  /// In de, this message translates to:
+  /// **'Geräte'**
+  String get defectReferenceGroupDevices;
+
+  /// No description provided for @defectReferenceGroupKeys.
+  ///
+  /// In de, this message translates to:
+  /// **'Schlüssel'**
+  String get defectReferenceGroupKeys;
+
+  /// No description provided for @defectReferenceScanQr.
+  ///
+  /// In de, this message translates to:
+  /// **'QR-Code am Fahrzeug oder Gerät scannen'**
+  String get defectReferenceScanQr;
+
+  /// No description provided for @defectReferenceQrNoMatch.
+  ///
+  /// In de, this message translates to:
+  /// **'Zu diesem QR-Code gibt es keinen Eintrag in „Geräte & Fahrzeuge“ dieser Wache.'**
+  String get defectReferenceQrNoMatch;
+
+  /// No description provided for @defectTitleOptionalLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Titel (optional)'**
+  String get defectTitleOptionalLabel;
+
+  /// No description provided for @defectTitleAutoHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Leer lassen ergibt: {title}'**
+  String defectTitleAutoHint(String title);
+
+  /// No description provided for @defectAutoTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'{category}: {reference}'**
+  String defectAutoTitle(String category, String reference);
+
+  /// No description provided for @defectAutoTitleNoReference.
+  ///
+  /// In de, this message translates to:
+  /// **'{category}: ohne Bezug'**
+  String defectAutoTitleNoReference(String category);
+
+  /// No description provided for @defectNeedsContent.
+  ///
+  /// In de, this message translates to:
+  /// **'Bitte ein Foto, einen Bezug, einen Titel oder eine Beschreibung angeben.'**
+  String get defectNeedsContent;
+
+  /// No description provided for @defectDuplicateTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Bereits gemeldet'**
+  String get defectDuplicateTitle;
+
+  /// No description provided for @defectDuplicateCount.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, one {{count} offener Mangel zu diesem Bezug. Bitte prüfen, ob es derselbe ist.} other {{count} offene Mängel zu diesem Bezug. Bitte prüfen, ob es derselbe ist.}}'**
+  String defectDuplicateCount(int count);
+
+  /// No description provided for @defectCreated.
+  ///
+  /// In de, this message translates to:
+  /// **'Mangel angelegt.'**
+  String get defectCreated;
+
+  /// No description provided for @defectCreatedWithPhoto.
+  ///
+  /// In de, this message translates to:
+  /// **'Mangel mit Foto angelegt.'**
+  String get defectCreatedWithPhoto;
+
+  /// No description provided for @defectCreatedPhotoFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Mangel angelegt, Foto nicht hochgeladen: {message} Das Foto kann im Mangel erneut hinzugefügt werden.'**
+  String defectCreatedPhotoFailed(String message);
+
+  /// No description provided for @defectCategoryVehicle.
+  ///
+  /// In de, this message translates to:
+  /// **'Fahrzeug'**
+  String get defectCategoryVehicle;
+
+  /// No description provided for @defectCategoryMaterial.
+  ///
+  /// In de, this message translates to:
+  /// **'Material'**
+  String get defectCategoryMaterial;
+
+  /// No description provided for @defectCategorySafety.
+  ///
+  /// In de, this message translates to:
+  /// **'Sicherheit'**
+  String get defectCategorySafety;
+
+  /// No description provided for @defectCategoryFacility.
+  ///
+  /// In de, this message translates to:
+  /// **'Gebäude'**
+  String get defectCategoryFacility;
+
+  /// No description provided for @defectCategoryKey.
+  ///
+  /// In de, this message translates to:
+  /// **'Schlüssel'**
+  String get defectCategoryKey;
+
+  /// No description provided for @defectCategoryDevice.
+  ///
+  /// In de, this message translates to:
+  /// **'Gerät'**
+  String get defectCategoryDevice;
+
+  /// No description provided for @defectCategoryTask.
+  ///
+  /// In de, this message translates to:
+  /// **'Aufgabe'**
+  String get defectCategoryTask;
+
+  /// No description provided for @defectQrCameraMessage.
+  ///
+  /// In de, this message translates to:
+  /// **'Wachwerk nutzt die Kamera hier nur, um den QR-Code am Fahrzeug oder Gerät zu lesen. Es wird dabei kein Foto gespeichert.'**
+  String get defectQrCameraMessage;
+
+  /// No description provided for @defectQrScanTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'QR-Code am Fahrzeug oder Gerät'**
+  String get defectQrScanTitle;
+
+  /// No description provided for @defectQrScanInvalid.
+  ///
+  /// In de, this message translates to:
+  /// **'Kein QR-Code eines Fahrzeugs oder Geräts dieses Servers.'**
+  String get defectQrScanInvalid;
+
+  /// No description provided for @defectQrCameraDenied.
+  ///
+  /// In de, this message translates to:
+  /// **'Ohne Kamerazugriff kannst du den QR-Code nicht scannen. Wähle den Bezug aus der Liste oder aktiviere die Kamera in den Systemeinstellungen.'**
+  String get defectQrCameraDenied;
 }
 
 class _AppLocalizationsDelegate

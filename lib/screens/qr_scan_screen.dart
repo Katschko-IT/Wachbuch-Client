@@ -11,7 +11,21 @@ import 'package:wachbuch_mobile/ui/error_banner.dart';
 /// Camera is only used for this setup step (Play User Data / Camera policy:
 /// permission requested just-in-time with an on-screen purpose explanation).
 class QrScanScreen extends StatefulWidget {
-  const QrScanScreen({super.key});
+  const QrScanScreen({
+    super.key,
+    this.accept,
+    this.title,
+    this.cameraHint,
+    this.invalidMessage,
+    this.footer,
+  });
+
+  /// Prüft den gelesenen Inhalt; Standard ist ein Wachwerk-Server-Link.
+  final bool Function(String raw)? accept;
+  final String? title;
+  final String? cameraHint;
+  final String? invalidMessage;
+  final String? footer;
 
   @override
   State<QrScanScreen> createState() => _QrScanScreenState();
@@ -40,7 +54,12 @@ class _QrScanScreenState extends State<QrScanScreen> {
       try {
         // Nur prüfen; zurückgegeben wird der vollständige Inhalt, damit
         // Zertifikats-Fingerabdruck und Kopplungscode erhalten bleiben.
-        parseServerLink(raw);
+        final accept = widget.accept;
+        if (accept == null) {
+          parseServerLink(raw);
+        } else if (!accept(raw.trim())) {
+          throw ArgumentError('QR-Code passt nicht');
+        }
         _handled = true;
         await _controller.stop();
         if (!mounted) return;
@@ -49,7 +68,9 @@ class _QrScanScreenState extends State<QrScanScreen> {
       } catch (_) {
         if (!mounted) return;
         setState(
-          () => _error = AppLocalizations.of(context)!.qrScanInvalid,
+          () => _error =
+              widget.invalidMessage ??
+              AppLocalizations.of(context)!.qrScanInvalid,
         );
       }
     }
@@ -60,7 +81,7 @@ class _QrScanScreenState extends State<QrScanScreen> {
     final l = AppLocalizations.of(context)!;
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(title: Text(l.qrScanTitle)),
+      appBar: AppBar(title: Text(widget.title ?? l.qrScanTitle)),
       body: Column(
         children: [
           Material(
@@ -68,7 +89,7 @@ class _QrScanScreenState extends State<QrScanScreen> {
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Text(
-                l.qrScanCameraHint,
+                widget.cameraHint ?? l.qrScanCameraHint,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: scheme.onSecondaryContainer,
                 ),
@@ -87,7 +108,9 @@ class _QrScanScreenState extends State<QrScanScreen> {
                     height: 240,
                     decoration: BoxDecoration(
                       border: Border.all(color: scheme.primary, width: 3),
-                      borderRadius: BorderRadius.circular(WachbuchTokens.radiusLg),
+                      borderRadius: BorderRadius.circular(
+                        WachbuchTokens.radiusLg,
+                      ),
                     ),
                   ),
                 ),
@@ -99,16 +122,17 @@ class _QrScanScreenState extends State<QrScanScreen> {
               padding: const EdgeInsets.all(12),
               child: ErrorBanner(message: _error!),
             ),
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(
-                l.qrScanWebHint,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium,
+          if (widget.footer?.isEmpty != true)
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  widget.footer ?? l.qrScanWebHint,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
               ),
             ),
-          ),
         ],
       ),
     );
@@ -116,13 +140,26 @@ class _QrScanScreenState extends State<QrScanScreen> {
 }
 
 /// Explains camera use (Play policy) then requests permission and opens scanner.
-Future<String?> openServerQrScanner(BuildContext context) async {
+Future<String?> openServerQrScanner(BuildContext context) =>
+    openQrScanner(context);
+
+/// Kamera-Hinweis, Berechtigung und Scanner; mit [accept] für andere
+/// QR-Codes als den Server-Link (z. B. Fahrzeug- oder Geräteaufkleber).
+Future<String?> openQrScanner(
+  BuildContext context, {
+  bool Function(String raw)? accept,
+  String? purpose,
+  String? title,
+  String? invalidMessage,
+  String? footer,
+  String? deniedMessage,
+}) async {
   final l = AppLocalizations.of(context)!;
   final proceed = await showDialog<bool>(
     context: context,
     builder: (ctx) => AlertDialog(
       title: Text(l.qrCameraDialogTitle),
-      content: Text(l.qrCameraDialogMessage),
+      content: Text(purpose ?? l.qrCameraDialogMessage),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(ctx, false),
@@ -144,7 +181,7 @@ Future<String?> openServerQrScanner(BuildContext context) async {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(l.qrCameraDeniedTitle),
-        content: Text(l.qrCameraDeniedMessage),
+        content: Text(deniedMessage ?? l.qrCameraDeniedMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
@@ -164,7 +201,15 @@ Future<String?> openServerQrScanner(BuildContext context) async {
     return null;
   }
 
-  return Navigator.of(
-    context,
-  ).push<String>(MaterialPageRoute(builder: (_) => const QrScanScreen()));
+  return Navigator.of(context).push<String>(
+    MaterialPageRoute(
+      builder: (_) => QrScanScreen(
+        accept: accept,
+        title: title,
+        cameraHint: purpose,
+        invalidMessage: invalidMessage,
+        footer: footer,
+      ),
+    ),
+  );
 }

@@ -1292,4 +1292,146 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get checklistPaperBackfillMarker => 'Paper backfill';
+
+  @override
+  String get defectQuickTitle => 'Report defect';
+
+  @override
+  String get defectQuickWithPhoto => 'Defect with photo';
+
+  @override
+  String get defectQuickPhotoCamera => 'Take photo';
+
+  @override
+  String get defectQuickPhotoGallery => 'From library';
+
+  @override
+  String get defectQuickPhotoRemove => 'Remove photo';
+
+  @override
+  String defectQuickPhotoReady(String size) {
+    return 'Photo ready ($size)';
+  }
+
+  @override
+  String get defectQuickPhotoDownscaled =>
+      'The photo was reduced in size for upload.';
+
+  @override
+  String get defectQuickPhotoUnsupported =>
+      'This image format is not supported (JPEG, PNG or WebP).';
+
+  @override
+  String get defectQuickPhotoUnavailable =>
+      'Camera or photo library is not available.';
+
+  @override
+  String get defectReferenceNone => 'No reference';
+
+  @override
+  String get defectReferenceOther => 'Other reference (free text)';
+
+  @override
+  String get defectReferenceText => 'Reference as text';
+
+  @override
+  String get defectReferenceGroupVehicles => 'Vehicles';
+
+  @override
+  String get defectReferenceGroupDevices => 'Devices';
+
+  @override
+  String get defectReferenceGroupKeys => 'Keys';
+
+  @override
+  String get defectReferenceScanQr => 'Scan QR code on vehicle or device';
+
+  @override
+  String get defectReferenceQrNoMatch =>
+      'There is no entry for this QR code in this station\'s vehicles and devices.';
+
+  @override
+  String get defectTitleOptionalLabel => 'Title (optional)';
+
+  @override
+  String defectTitleAutoHint(String title) {
+    return 'If left empty: $title';
+  }
+
+  @override
+  String defectAutoTitle(String category, String reference) {
+    return '$category: $reference';
+  }
+
+  @override
+  String defectAutoTitleNoReference(String category) {
+    return '$category: no reference';
+  }
+
+  @override
+  String get defectNeedsContent =>
+      'Please add a photo, a reference, a title or a description.';
+
+  @override
+  String get defectDuplicateTitle => 'Already reported';
+
+  @override
+  String defectDuplicateCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count open defects for this reference. Please check whether it is the same one.',
+      one:
+          '$count open defect for this reference. Please check whether it is the same one.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get defectCreated => 'Defect created.';
+
+  @override
+  String get defectCreatedWithPhoto => 'Defect created with photo.';
+
+  @override
+  String defectCreatedPhotoFailed(String message) {
+    return 'Defect created, photo not uploaded: $message You can add the photo again in the defect.';
+  }
+
+  @override
+  String get defectCategoryVehicle => 'Vehicle';
+
+  @override
+  String get defectCategoryMaterial => 'Material';
+
+  @override
+  String get defectCategorySafety => 'Safety';
+
+  @override
+  String get defectCategoryFacility => 'Building';
+
+  @override
+  String get defectCategoryKey => 'Key';
+
+  @override
+  String get defectCategoryDevice => 'Device';
+
+  @override
+  String get defectCategoryTask => 'Task';
+
+  @override
+  String get defectQrCameraMessage =>
+      'Wachwerk uses the camera here only to read the QR code on the vehicle or device. No photo is stored.';
+
+  @override
+  String get defectQrScanTitle => 'QR code on vehicle or device';
+
+  @override
+  String get defectQrScanInvalid =>
+      'Not a QR code of a vehicle or device on this server.';
+
+  @override
+  String get defectQrCameraDenied =>
+      'Without camera access you cannot scan the QR code. Choose the reference from the list or allow the camera in the system settings.';
 }

@@ -903,6 +903,42 @@ class WachbuchApi {
     );
   }
 
+  /// GET /api/v1/defects/?active=1&asset=… (Server ab 0.28) – offene Mängel
+  /// zu genau einem Bezug für den Hinweis „bereits gemeldet“.
+  ///
+  /// [reference] ist die `asset_id` eines Eintrags aus „Geräte & Fahrzeuge“
+  /// oder der Bezug als Text. Der Server vergleicht exakt (Groß-/Klein-
+  /// schreibung und Leerraum egal, nie Teilstrings) und zählt verknüpfte
+  /// Fahrzeuge und Geräte mit. Ältere Server kennen den Filter nicht und
+  /// lieferten alle offenen Mängel; Aufrufer prüfen vorher
+  /// [ServerInfo.supportsDefectReferenceFilter].
+  Future<DefectPage> defectsForReference(String reference, {int limit = 5}) async {
+    final path = Uri(
+      path: '/api/v1/defects/',
+      queryParameters: {
+        'active': '1',
+        'asset': reference.trim(),
+        'limit': '${limit.clamp(1, 200)}',
+      },
+    ).toString();
+    return _defectPage(await _getJson(path, moduleLabel: 'Mängel'));
+  }
+
+  ServerInfo? _serverInfo;
+
+  /// Version und Fähigkeiten des Servers aus `GET /api/v1/` (einmal je
+  /// Sitzung). Bei Fehlern gilt „unbekannt“; neue Funktionen bleiben dann
+  /// ausgeblendet, und der nächste Aufruf fragt erneut.
+  Future<ServerInfo> serverInfo() async {
+    final cached = _serverInfo;
+    if (cached != null) return cached;
+    try {
+      return _serverInfo = ServerInfo.fromDiscovery(await discover());
+    } catch (_) {
+      return const ServerInfo();
+    }
+  }
+
   /// Pfad samt Query eines Folgelinks, wenn er auf diesen Server und unter
   /// [prefix] zeigt; sonst `null`.
   String? _sameOriginPath(String link, String prefix) {
@@ -1485,6 +1521,52 @@ String? nextPagePath(
 }) {
   final raw = next is Map ? next['next'] : next;
   return sameOriginPath(baseUri, raw, prefix: prefix);
+}
+
+/// Version und Fähigkeiten eines Servers aus der Discovery (`GET /api/v1/`).
+class ServerInfo {
+  const ServerInfo({this.version, this.capabilities = const {}});
+
+  factory ServerInfo.fromDiscovery(Map<String, dynamic> body) {
+    final raw = body['app_version']?.toString() ?? '';
+    final match = RegExp(r'^\s*v?(\d+)\.(\d+)(?:\.(\d+))?').firstMatch(raw);
+    final capabilities = body['capabilities'];
+    return ServerInfo(
+      version: match == null
+          ? null
+          : [
+              int.parse(match.group(1)!),
+              int.parse(match.group(2)!),
+              int.tryParse(match.group(3) ?? '') ?? 0,
+            ],
+      capabilities: capabilities is Map
+          ? {
+              for (final entry in capabilities.entries)
+                entry.key.toString(): entry.value == true,
+            }
+          : const {},
+    );
+  }
+
+  /// `[major, minor, patch]` aus `app_version`, sonst `null`.
+  final List<int>? version;
+  final Map<String, bool> capabilities;
+
+  /// Mindestversion für die Funktionen von App 1.2.
+  static const minimumFor12 = [0, 28, 0];
+
+  bool atLeast(List<int> minimum) {
+    final current = version;
+    if (current == null) return false;
+    for (var i = 0; i < 3; i++) {
+      if (current[i] != minimum[i]) return current[i] > minimum[i];
+    }
+    return true;
+  }
+
+  /// `?asset=` mit exakter Zuordnung gibt es erst ab 0.28; ältere Server
+  /// ignorieren den Parameter und liefern alle offenen Mängel.
+  bool get supportsDefectReferenceFilter => atLeast(minimumFor12);
 }
 
 /// Validates that a discovery payload looks like a Wachwerk API root.

@@ -1300,4 +1300,146 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get checklistPaperBackfillMarker => 'Nachtrag vom Papierbogen';
+
+  @override
+  String get defectQuickTitle => 'Mangel melden';
+
+  @override
+  String get defectQuickWithPhoto => 'Mangel mit Foto';
+
+  @override
+  String get defectQuickPhotoCamera => 'Foto aufnehmen';
+
+  @override
+  String get defectQuickPhotoGallery => 'Aus Mediathek';
+
+  @override
+  String get defectQuickPhotoRemove => 'Foto entfernen';
+
+  @override
+  String defectQuickPhotoReady(String size) {
+    return 'Foto bereit ($size)';
+  }
+
+  @override
+  String get defectQuickPhotoDownscaled =>
+      'Das Foto wurde für den Versand verkleinert.';
+
+  @override
+  String get defectQuickPhotoUnsupported =>
+      'Dieses Bildformat wird nicht unterstützt (JPEG, PNG oder WebP).';
+
+  @override
+  String get defectQuickPhotoUnavailable =>
+      'Kamera oder Mediathek ist nicht verfügbar.';
+
+  @override
+  String get defectReferenceNone => 'Ohne Bezug';
+
+  @override
+  String get defectReferenceOther => 'Anderer Bezug (Freitext)';
+
+  @override
+  String get defectReferenceText => 'Bezug als Text';
+
+  @override
+  String get defectReferenceGroupVehicles => 'Fahrzeuge';
+
+  @override
+  String get defectReferenceGroupDevices => 'Geräte';
+
+  @override
+  String get defectReferenceGroupKeys => 'Schlüssel';
+
+  @override
+  String get defectReferenceScanQr => 'QR-Code am Fahrzeug oder Gerät scannen';
+
+  @override
+  String get defectReferenceQrNoMatch =>
+      'Zu diesem QR-Code gibt es keinen Eintrag in „Geräte & Fahrzeuge“ dieser Wache.';
+
+  @override
+  String get defectTitleOptionalLabel => 'Titel (optional)';
+
+  @override
+  String defectTitleAutoHint(String title) {
+    return 'Leer lassen ergibt: $title';
+  }
+
+  @override
+  String defectAutoTitle(String category, String reference) {
+    return '$category: $reference';
+  }
+
+  @override
+  String defectAutoTitleNoReference(String category) {
+    return '$category: ohne Bezug';
+  }
+
+  @override
+  String get defectNeedsContent =>
+      'Bitte ein Foto, einen Bezug, einen Titel oder eine Beschreibung angeben.';
+
+  @override
+  String get defectDuplicateTitle => 'Bereits gemeldet';
+
+  @override
+  String defectDuplicateCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count offene Mängel zu diesem Bezug. Bitte prüfen, ob es derselbe ist.',
+      one:
+          '$count offener Mangel zu diesem Bezug. Bitte prüfen, ob es derselbe ist.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get defectCreated => 'Mangel angelegt.';
+
+  @override
+  String get defectCreatedWithPhoto => 'Mangel mit Foto angelegt.';
+
+  @override
+  String defectCreatedPhotoFailed(String message) {
+    return 'Mangel angelegt, Foto nicht hochgeladen: $message Das Foto kann im Mangel erneut hinzugefügt werden.';
+  }
+
+  @override
+  String get defectCategoryVehicle => 'Fahrzeug';
+
+  @override
+  String get defectCategoryMaterial => 'Material';
+
+  @override
+  String get defectCategorySafety => 'Sicherheit';
+
+  @override
+  String get defectCategoryFacility => 'Gebäude';
+
+  @override
+  String get defectCategoryKey => 'Schlüssel';
+
+  @override
+  String get defectCategoryDevice => 'Gerät';
+
+  @override
+  String get defectCategoryTask => 'Aufgabe';
+
+  @override
+  String get defectQrCameraMessage =>
+      'Wachwerk nutzt die Kamera hier nur, um den QR-Code am Fahrzeug oder Gerät zu lesen. Es wird dabei kein Foto gespeichert.';
+
+  @override
+  String get defectQrScanTitle => 'QR-Code am Fahrzeug oder Gerät';
+
+  @override
+  String get defectQrScanInvalid =>
+      'Kein QR-Code eines Fahrzeugs oder Geräts dieses Servers.';
+
+  @override
+  String get defectQrCameraDenied =>
+      'Ohne Kamerazugriff kannst du den QR-Code nicht scannen. Wähle den Bezug aus der Liste oder aktiviere die Kamera in den Systemeinstellungen.';
 }

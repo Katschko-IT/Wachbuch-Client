@@ -10,10 +10,14 @@ class AssetStatusBoard extends StatelessWidget {
     super.key,
     required this.assets,
     this.onAssetTap,
+    this.onReportDefect,
   });
 
   final List<StationAsset> assets;
   final ValueChanged<StationAsset>? onAssetTap;
+
+  /// „Mangel melden“ mit vorgewähltem Bezug (nur Inhaltsrollen).
+  final ValueChanged<StationAsset>? onReportDefect;
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +48,9 @@ class AssetStatusBoard extends StatelessWidget {
                     child: _AssetCard(
                       asset: asset,
                       onTap: onAssetTap == null ? null : () => onAssetTap!(asset),
+                      onReportDefect: onReportDefect == null
+                          ? null
+                          : () => onReportDefect!(asset),
                     ),
                   ),
               ],
@@ -56,10 +63,11 @@ class AssetStatusBoard extends StatelessWidget {
 }
 
 class _AssetCard extends StatelessWidget {
-  const _AssetCard({required this.asset, this.onTap});
+  const _AssetCard({required this.asset, this.onTap, this.onReportDefect});
 
   final StationAsset asset;
   final VoidCallback? onTap;
+  final VoidCallback? onReportDefect;
 
   @override
   Widget build(BuildContext context) {
@@ -145,14 +153,33 @@ class _AssetCard extends StatelessWidget {
       ),
     );
 
+    final card = onTap == null
+        ? content
+        : Semantics(
+            button: true,
+            label: '${asset.label}: $statusLabel',
+            child: InkWell(onTap: onTap, child: content),
+          );
     return Card(
       clipBehavior: Clip.antiAlias,
-      child: onTap == null
-          ? content
-          : Semantics(
-              button: true,
-              label: '${asset.label}: $statusLabel',
-              child: InkWell(onTap: onTap, child: content),
+      child: onReportDefect == null
+          ? card
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                card,
+                const Divider(height: 1),
+                TextButton.icon(
+                  key: Key('asset-report-defect-${asset.id}'),
+                  onPressed: onReportDefect,
+                  icon: const Icon(Icons.report_problem_outlined),
+                  label: Text(
+                    l.defectQuickTitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
             ),
     );
   }
