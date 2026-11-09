@@ -2863,6 +2863,18 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Nachtrag vom Papierbogen · Ereignis {occurred} · erfasst {recorded}'**
   String handoverPaperBackfillFull(String occurred, String recorded);
+
+  /// No description provided for @noticeChannelName.
+  ///
+  /// In de, this message translates to:
+  /// **'Hinweise der Wache'**
+  String get noticeChannelName;
+
+  /// No description provided for @noticeChannelDescription.
+  ///
+  /// In de, this message translates to:
+  /// **'Fristen, Wochenübersicht, Lesefristen und weitere persönliche Hinweise deines Wachwerk-Servers.'**
+  String get noticeChannelDescription;
 }
 
 class _AppLocalizationsDelegate

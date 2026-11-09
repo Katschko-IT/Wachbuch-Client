@@ -144,6 +144,8 @@ Future<DefectReportOutcome> submitDefectReport(
           );
   } on ApiException catch (error) {
     return DefectReportOutcome(error: error.message);
+  } catch (error) {
+    return DefectReportOutcome(error: error.toString());
   }
   final photo = report.photo;
   if (photo == null) return DefectReportOutcome(defect: defect);
@@ -157,6 +159,8 @@ Future<DefectReportOutcome> submitDefectReport(
     return DefectReportOutcome(defect: defect);
   } on ApiException catch (error) {
     return DefectReportOutcome(defect: defect, photoError: error.message);
+  } catch (error) {
+    return DefectReportOutcome(defect: defect, photoError: error.toString());
   }
 }
 

@@ -10,6 +10,7 @@ import 'package:wachbuch_mobile/services/crew_reminder_service.dart';
 class FakeScheduler implements ReminderScheduler {
   final scheduled = <int, DateTime>{};
   final shown = <int, String>{};
+  final channels = <int, ReminderChannel>{};
   final cancelled = <int>[];
   var permissionRequests = 0;
 
@@ -26,8 +27,15 @@ class FakeScheduler implements ReminderScheduler {
       scheduled[id] = at;
 
   @override
-  Future<void> show({required int id, required String title, required String body}) async =>
-      shown[id] = title;
+  Future<void> show({
+    required int id,
+    required String title,
+    required String body,
+    ReminderChannel channel = ReminderChannel.vehicleRelease,
+  }) async {
+    shown[id] = title;
+    channels[id] = channel;
+  }
 
   @override
   Future<void> cancel(int id) async {
@@ -135,6 +143,7 @@ void main() {
 
     expect(scheduler.shown.length, 1);
     expect(scheduler.shown.values.single, contains('RTW 2'));
+    expect(scheduler.channels.values.single, ReminderChannel.vehicleRelease);
   });
 
   test('angezeigte Hinweise werden beim Server als gelesen markiert', () async {
@@ -312,6 +321,9 @@ void main() {
     ]));
     expect(scheduler.shown.values, isNot(contains('Künftige Art')));
     expect(server.readIds, [30, 31, 32, 33, 34]);
+    // Eigener Kanal, damit sich Fristen getrennt von der Fahrzeugfreigabe
+    // stummschalten lassen.
+    expect(scheduler.channels.values.toSet(), {ReminderChannel.stationNotices});
   });
 
   test('Kaffeekasse-Hinweis (coffee_due) wird angezeigt', () async {

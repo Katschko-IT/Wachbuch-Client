@@ -1571,4 +1571,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String handoverPaperBackfillFull(String occurred, String recorded) {
     return 'Paper backfill · event $occurred · recorded $recorded';
   }
+
+  @override
+  String get noticeChannelName => 'Station notices';
+
+  @override
+  String get noticeChannelDescription =>
+      'Deadlines, weekly overview, reading deadlines and other personal notices from your Wachwerk server.';
 }

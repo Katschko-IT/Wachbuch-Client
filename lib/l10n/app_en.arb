@@ -485,5 +485,7 @@
   "noticeOpenInBrowser": "Open in browser",
   "handoverPaperBackfill": "Paper backfill",
   "handoverPaperBackfillEvent": "Paper backfill · event {occurred}",
-  "handoverPaperBackfillFull": "Paper backfill · event {occurred} · recorded {recorded}"
+  "handoverPaperBackfillFull": "Paper backfill · event {occurred} · recorded {recorded}",
+  "noticeChannelName": "Station notices",
+  "noticeChannelDescription": "Deadlines, weekly overview, reading deadlines and other personal notices from your Wachwerk server."
 }

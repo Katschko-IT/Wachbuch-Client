@@ -1,12 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:wachbuch_mobile/api/client.dart';
+import 'package:wachbuch_mobile/l10n/generated/app_localizations.dart';
 import 'package:wachbuch_mobile/models/crew_notice.dart';
 
 /// Erinnert die Besatzung, wenn ein Fahrzeug nach der Desinfektion
@@ -128,6 +130,9 @@ class CrewReminderService {
               id: reminderIdFor(notice.key),
               title: notice.title,
               body: notice.body,
+              channel: notice.kind == CrewNotice.vehicleReady
+                  ? ReminderChannel.vehicleRelease
+                  : ReminderChannel.stationNotices,
             );
           }
           shown.add(notice.key);
@@ -191,6 +196,11 @@ int reminderIdFor(String key) {
   return hash & 0x7fffffff;
 }
 
+/// Benachrichtigungskanal: Fahrzeugfreigabe (wie 1.1) oder die übrigen
+/// Hinweise der Wache (Fristen, Lesefristen …, ab 1.2), damit sich beide in
+/// den Systemeinstellungen getrennt stummschalten lassen.
+enum ReminderChannel { vehicleRelease, stationNotices }
+
 /// Abstraktion über die Plattform-Benachrichtigungen (für Tests ersetzbar).
 abstract class ReminderScheduler {
   Future<void> requestPermission();
@@ -200,7 +210,12 @@ abstract class ReminderScheduler {
     required String body,
     required DateTime at,
   });
-  Future<void> show({required int id, required String title, required String body});
+  Future<void> show({
+    required int id,
+    required String title,
+    required String body,
+    ReminderChannel channel = ReminderChannel.vehicleRelease,
+  });
   Future<void> cancel(int id);
 }
 
@@ -285,6 +300,29 @@ class LocalNotificationScheduler implements ReminderScheduler {
     iOS: DarwinNotificationDetails(presentAlert: true, presentSound: true),
   );
 
+  /// Kanal für Hinweise der Wache; Name und Beschreibung in der Sprache des
+  /// Geräts (ohne BuildContext über [lookupAppLocalizations]).
+  static NotificationDetails _noticeDetails() {
+    final locale = PlatformDispatcher.instance.locale;
+    final l = lookupAppLocalizations(
+      AppLocalizations.supportedLocales.any(
+        (supported) => supported.languageCode == locale.languageCode,
+      )
+          ? Locale(locale.languageCode)
+          : const Locale('de'),
+    );
+    return NotificationDetails(
+      android: AndroidNotificationDetails(
+        'station_notices',
+        l.noticeChannelName,
+        channelDescription: l.noticeChannelDescription,
+        importance: Importance.defaultImportance,
+        priority: Priority.defaultPriority,
+      ),
+      iOS: const DarwinNotificationDetails(presentAlert: true, presentSound: true),
+    );
+  }
+
   Future<bool> _ensureReady() {
     return _ready ??= () async {
       try {
@@ -340,9 +378,17 @@ class LocalNotificationScheduler implements ReminderScheduler {
   }
 
   @override
-  Future<void> show({required int id, required String title, required String body}) async {
+  Future<void> show({
+    required int id,
+    required String title,
+    required String body,
+    ReminderChannel channel = ReminderChannel.vehicleRelease,
+  }) async {
     if (!await _ensureReady()) return;
-    await _guard(() => _plugin.show(id: id, title: title, body: body, notificationDetails: _details));
+    final details = channel == ReminderChannel.vehicleRelease
+        ? _details
+        : _noticeDetails();
+    await _guard(() => _plugin.show(id: id, title: title, body: body, notificationDetails: details));
   }
 
   @override

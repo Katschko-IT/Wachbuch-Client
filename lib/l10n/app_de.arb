@@ -519,5 +519,7 @@
   "handoverPaperBackfillEvent": "Nachtrag vom Papierbogen · Ereignis {occurred}",
   "@handoverPaperBackfillEvent": {"placeholders": {"occurred": {"type": "String"}}},
   "handoverPaperBackfillFull": "Nachtrag vom Papierbogen · Ereignis {occurred} · erfasst {recorded}",
-  "@handoverPaperBackfillFull": {"placeholders": {"occurred": {"type": "String"}, "recorded": {"type": "String"}}}
+  "@handoverPaperBackfillFull": {"placeholders": {"occurred": {"type": "String"}, "recorded": {"type": "String"}}},
+  "noticeChannelName": "Hinweise der Wache",
+  "noticeChannelDescription": "Fristen, Wochenübersicht, Lesefristen und weitere persönliche Hinweise deines Wachwerk-Servers."
 }

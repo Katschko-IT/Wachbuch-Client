@@ -1579,4 +1579,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String handoverPaperBackfillFull(String occurred, String recorded) {
     return 'Nachtrag vom Papierbogen · Ereignis $occurred · erfasst $recorded';
   }
+
+  @override
+  String get noticeChannelName => 'Hinweise der Wache';
+
+  @override
+  String get noticeChannelDescription =>
+      'Fristen, Wochenübersicht, Lesefristen und weitere persönliche Hinweise deines Wachwerk-Servers.';
 }
