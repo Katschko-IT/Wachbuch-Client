@@ -1,0 +1,54 @@
+{
+  "body": {
+    "api_version": "v1",
+    "app_version": "0.27.0",
+    "authentication": [
+      "Token",
+      "Bearer"
+    ],
+    "capabilities": {
+      "assets": true,
+      "checklist_drafts": true,
+      "checklist_item_results": true,
+      "checklist_schedules": true,
+      "defect_attachments": true,
+      "defects": true,
+      "handover_ack": true,
+      "inventory": true,
+      "offline_safe_reads": true,
+      "reports": true
+    },
+    "docs": "/api/v1/openapi.yaml",
+    "endpoints": {
+      "anmeldung": "/api/v1/anmeldung/",
+      "assets": "/api/v1/assets/",
+      "attachments": "/api/v1/attachments/{id}/",
+      "chat": "/api/v1/chat/",
+      "chat_identity": "/api/v1/chat/identity/",
+      "checklisten": "/api/v1/checklisten/",
+      "defects": "/api/v1/defects/",
+      "handovers": "/api/v1/handovers/",
+      "inventory": "/api/v1/inventory/",
+      "kaffeekasse": "/api/v1/kaffeekasse/",
+      "kalender": "/api/v1/kalender/",
+      "me": "/api/v1/me/",
+      "openapi": "/api/v1/openapi.yaml",
+      "pinnwand": "/api/v1/pinnwand/",
+      "post": "/api/v1/post/",
+      "reports": "/api/v1/reports/",
+      "status": "/api/v1/status/",
+      "token": "/api/v1/token/",
+      "token_revoke": "/api/v1/token/",
+      "uebergaben": "/api/v1/uebergaben/",
+      "uebersicht": "/api/v1/uebersicht/"
+    },
+    "mobile_clients": {
+      "notes": "Widerrufbare App-Tokens (wb_…) plus deutsche Alias-Pfade aus PR#12.",
+      "repo": "https://github.com/Katschko-IT/Wachbuch-Client",
+      "status": "unified"
+    },
+    "name": "Wachwerk",
+    "ok": true
+  },
+  "status": 200
+}

@@ -1,0 +1,20 @@
+{
+  "body": {
+    "ack_due_date": "2026-11-01",
+    "acknowledged": true,
+    "acknowledged_at": "2026-11-09T07:00:00+00:00",
+    "created": true,
+    "doc_number": "DA-HYG-1",
+    "id": 1,
+    "in_target_group": true,
+    "ok": true,
+    "overdue": false,
+    "revision": {
+      "id": 2,
+      "version": "1.1"
+    },
+    "title": "Händedesinfektion",
+    "url": "/orga/sop/da-hygiene/"
+  },
+  "status": 201
+}

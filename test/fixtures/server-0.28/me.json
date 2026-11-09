@@ -1,0 +1,61 @@
+{
+  "body": {
+    "api_version": "v1",
+    "membership": {
+      "role": "member",
+      "role_label": "Mitglied",
+      "station": {
+        "id": 1,
+        "modules": {
+          "assets": true,
+          "attachments": true,
+          "birthdays": true,
+          "calendar": true,
+          "chat": true,
+          "checklists": true,
+          "coffee": true,
+          "defects": true,
+          "feeds": false,
+          "holiday_state": "NW",
+          "holidays": true,
+          "inventory": true,
+          "pinboard": true,
+          "reports": true,
+          "tasks": true,
+          "weather": false
+        },
+        "name": "Rettungswache Musterstadt",
+        "slug": "rw-muster"
+      }
+    },
+    "ok": true,
+    "token": {
+      "expires_at": "2027-02-07T07:00:00+00:00",
+      "id": 1,
+      "label": "Mobile App",
+      "prefix": "wb_contract",
+      "scopes": [
+        "read:me",
+        "read:handovers",
+        "write:handovers",
+        "read:calendar",
+        "write:calendar",
+        "read:coffee",
+        "write:coffee",
+        "read:checklists",
+        "write:checklists",
+        "read:chat",
+        "write:chat",
+        "read:pinboard",
+        "write:pinboard"
+      ]
+    },
+    "user": {
+      "first_name": "Alex",
+      "id": 1,
+      "last_name": "Muster",
+      "username": "app.mitglied"
+    }
+  },
+  "status": 200
+}

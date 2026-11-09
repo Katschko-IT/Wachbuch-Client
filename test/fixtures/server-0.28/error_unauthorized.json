@@ -1,0 +1,11 @@
+{
+  "body": {
+    "error": {
+      "code": "auth_required",
+      "correlation_id": "correlation-id",
+      "message": "Ungültiges oder widerrufenes API-Token."
+    },
+    "ok": false
+  },
+  "status": 401
+}

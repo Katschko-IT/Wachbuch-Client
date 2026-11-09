@@ -1628,9 +1628,18 @@ class ServerInfo {
     return true;
   }
 
+  /// API-Stand 0.28: Versionsnummer ab 0.28.0 oder die mit 0.28
+  /// eingeführten Fähigkeiten in der Discovery (`checklist_item_results`,
+  /// `checklist_drafts`). Ein Server-Stand mit den Funktionen von 0.28 kann
+  /// vor der Freigabe noch „0.27.0“ melden.
+  bool get hasApi028 =>
+      atLeast(minimumFor12) ||
+      capabilities['checklist_item_results'] == true ||
+      capabilities['checklist_drafts'] == true;
+
   /// `?asset=` mit exakter Zuordnung gibt es erst ab 0.28; ältere Server
   /// ignorieren den Parameter und liefern alle offenen Mängel.
-  bool get supportsDefectReferenceFilter => atLeast(minimumFor12);
+  bool get supportsDefectReferenceFilter => hasApi028;
 }
 
 /// Validates that a discovery payload looks like a Wachwerk API root.

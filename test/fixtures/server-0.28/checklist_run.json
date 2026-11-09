@@ -1,0 +1,62 @@
+{
+  "body": {
+    "checklist": 2,
+    "completed_by": {
+      "display_name": "Alex Muster",
+      "id": 1,
+      "username": "app.mitglied"
+    },
+    "created_at": "2026-11-09T07:00:00+00:00",
+    "defects_created": [
+      3
+    ],
+    "defects_linked": [],
+    "id": 1,
+    "is_draft": false,
+    "is_paper_backfill": false,
+    "item_results": {
+      "4": {
+        "defect_id": 3,
+        "defect_linked": false,
+        "max": "8.00",
+        "min": "2.00",
+        "position": 1,
+        "reason": "Messwert 9.5 °C außerhalb Grenzwert [2.00..8.00]",
+        "required": true,
+        "status": "not_ok",
+        "text": "Medikamentenkühlschrank Temperatur",
+        "unit": "°C",
+        "value": 9.5
+      },
+      "5": {
+        "defect_id": null,
+        "defect_linked": false,
+        "max": null,
+        "min": null,
+        "position": 2,
+        "reason": "",
+        "required": true,
+        "status": "ok",
+        "text": "Notfallrucksack Plombe intakt",
+        "unit": "",
+        "value": null
+      },
+      "6": {
+        "defect_id": null,
+        "defect_linked": false,
+        "max": null,
+        "min": "0.00",
+        "position": 3,
+        "reason": "Sommerbetrieb",
+        "required": true,
+        "status": "na",
+        "text": "Zusatzheizung Messwert",
+        "unit": "°C",
+        "value": null
+      }
+    },
+    "occurred_at": null,
+    "ok": true
+  },
+  "status": 201
+}

@@ -1,0 +1,32 @@
+{
+  "body": {
+    "ok": true,
+    "results": [
+      {
+        "id": "defi-2",
+        "kind": "device",
+        "label": "Defi 2",
+        "note": "",
+        "status": "ready",
+        "updated_at": "2026-11-09T07:00:00+00:00"
+      },
+      {
+        "id": "rtw-1",
+        "kind": "vehicle",
+        "label": "RTW 1",
+        "note": "",
+        "status": "ready",
+        "updated_at": "2026-11-09T07:00:00+00:00"
+      },
+      {
+        "id": "rtw-10",
+        "kind": "vehicle",
+        "label": "RTW 10",
+        "note": "",
+        "status": "ready",
+        "updated_at": "2026-11-09T07:00:00+00:00"
+      }
+    ]
+  },
+  "status": 200
+}

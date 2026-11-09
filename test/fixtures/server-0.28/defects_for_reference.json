@@ -1,0 +1,25 @@
+{
+  "body": {
+    "count": 1,
+    "next": null,
+    "ok": true,
+    "previous": null,
+    "results": [
+      {
+        "asset_ref": "RTW 1",
+        "attachment_count": 0,
+        "category": "vehicle",
+        "created_at": "2026-11-09T07:00:00+00:00",
+        "description": "Trage rastet nicht ein.",
+        "due_at": null,
+        "id": 1,
+        "owner": "",
+        "priority": "important",
+        "status": "open",
+        "title": "Fahrzeug: RTW 1",
+        "updated_at": "2026-11-09T07:00:00+00:00"
+      }
+    ]
+  },
+  "status": 200
+}
