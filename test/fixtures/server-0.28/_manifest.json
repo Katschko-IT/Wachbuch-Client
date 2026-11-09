@@ -10,6 +10,7 @@
     "checklist_draft_put",
     "checklist_run",
     "checklist_run_invalid",
+    "checklist_run_linked",
     "checklists",
     "checklists_after_run",
     "defect_create",

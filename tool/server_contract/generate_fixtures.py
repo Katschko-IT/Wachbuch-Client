@@ -16,6 +16,10 @@ Aufruf (siehe docs/API-VERTRAG-FIXTURES.md):
         REDIS_URL= REDIS_HOST= DATABASE_URL=
     python tool/server_contract/generate_fixtures.py --server ../Rettungswache-Wachbuch
 
+Der Server-Checkout wird nur gelesen: eigene In-Memory-Testdatenbank, keine
+``__pycache__``-Dateien (``sys.dont_write_bytecode``). ``--out`` gilt relativ
+zum Aufrufort, nicht zum Server.
+
 Keine Patienten-, Einsatz-, Alarmierungs- oder Gesundheitsdaten: Die
 Musterwache enthält nur Wachalltag (Übergaben, Mängel, Checklisten,
 Dienstanweisungen, Hinweise) mit erfundenen Namen.
@@ -62,12 +66,29 @@ def server_commit(server: Path) -> str:
         return "unbekannt"
 
 
+def shown_path(path: Path) -> str:
+    """Pfad für die Ausgabe: relativ zur App, wenn er darin liegt, sonst absolut."""
+    try:
+        return str(path.relative_to(CLIENT_ROOT))
+    except ValueError:
+        return str(path)
+
+
 def main() -> int:
     args = parse_args()
     server = Path(args.server).resolve()
     if not (server / "manage.py").exists():
         print(f"Kein Wachwerk-Server unter {server}", file=sys.stderr)
         return 2
+    # Vor dem Wechsel ins Server-Verzeichnis auflösen: ``--out`` meint den
+    # Aufrufort, nie einen Ordner im Server-Checkout.
+    out = (Path(args.out).resolve() if args.out
+           else CLIENT_ROOT / "test" / "fixtures" / f"server-{args.api}")
+    if out == server or server in out.parents:
+        print(f"--out darf nicht im Server-Checkout liegen: {out}", file=sys.stderr)
+        return 2
+    # Den Server nur lesen: keine .pyc-Dateien in seinem Checkout.
+    sys.dont_write_bytecode = True
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.test_settings")
     os.environ.setdefault("DJANGO_SECRET_KEY", "ci-only-secret")
     os.environ.setdefault("DJANGO_DEBUG", "false")
@@ -97,7 +118,6 @@ def main() -> int:
     # Versionsnummer des Servers: Ein Server-Checkout kann die Funktionen von
     # 0.28 schon enthalten, bevor seine Versionsnummer angehoben ist. Die
     # tatsächliche Version und der Commit stehen im Manifest.
-    out = Path(args.out) if args.out else CLIENT_ROOT / "test" / "fixtures" / f"server-{args.api}"
     out.mkdir(parents=True, exist_ok=True)
     for old in out.glob("*.json"):
         old.unlink()
@@ -116,7 +136,7 @@ def main() -> int:
     (out / "_manifest.json").write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8",
     )
-    print(f"{len(fixtures)} Fixtures nach {out.relative_to(CLIENT_ROOT)} geschrieben (Server {version}).")
+    print(f"{len(fixtures)} Fixtures nach {shown_path(out)} geschrieben (Server {version}).")
     return 0
 
 
@@ -250,6 +270,16 @@ def collect():
         "note": "",
     }, 201)
     get("checklists_after_run", "/api/v1/checklisten/")
+    # Zweiter Lauf, solange der Mangel aus dem ersten offen ist: Der Server
+    # legt keinen zweiten an, sondern verknüpft (defect_linked, defects_linked).
+    send("checklist_run_linked", "post", f"{path}/abschluss/", {
+        "item_results": {
+            str(temp.pk): {"status": "not_ok", "value": "9,0", "reason": "Tür schließt nicht"},
+            str(seal.pk): {"status": "ok", "value": None, "reason": ""},
+            str(heat.pk): {"status": "ok", "value": "3", "reason": ""},
+        },
+        "note": "",
+    }, 201)
 
     # --- Lesepflicht --------------------------------------------------------
     sop = SOPDocument.objects.create(
@@ -284,8 +314,12 @@ def collect():
          "Wochenübersicht KW 46: 2 Fristen", "STK RTW 1 · Lesefrist DA-FUNK-2", "/papier/fristen/"),
         (UserNotification.Kind.SOP_DUE, f"deadline:sop:{later.pk}:7:{member.pk}:7:2026-12-01",
          "Lesefrist Dienstanweisung DA-FUNK-2", "Bitte bestätigen.", f"/orga/sop/{later.slug}/"),
-        (UserNotification.Kind.MPG_TRAINING_MISSING, "mpg_training:2", "MPG: Fehlende Einweisung",
-         "Defi 2", "/mpg/"),
+        # Wie core/mpg_views.py: Der Text nennt die Person (die App zeigt ihn
+        # deshalb nicht auf dem Sperrbildschirm).
+        (UserNotification.Kind.MPG_TRAINING_MISSING, f"mpg_training_missing:2:1:{member.pk}",
+         "Funktionskontrolle ohne Einweisung: Defi 2",
+         "Kim Leitung hat eine Funktionskontrolle an „Defi 2“ durchgeführt, ohne dass eine gültige "
+         "Geräteeinweisung vorliegt.", "/mpg/d/defi-2/"),
     ]
     for kind, key, title, body, url in notices:
         UserNotification.objects.create(

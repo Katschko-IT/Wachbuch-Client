@@ -18,9 +18,12 @@ sondern mit Antworten, die der echte Server-Code erzeugt hat (Befund T1 der
 Discovery, `/me/`, Übergaben (Liste, Detail, Nachtrag vom Papierbogen),
 Geräte & Fahrzeuge, Mängel (anlegen, Liste, exakter Filter `?asset=`),
 Checklisten (`item_details`, gemeinsamer Zwischenstand, Abschluss mit
-Prüffehlern 400 und mit angelegtem Mangel 201), Lesepflicht
-(`/dienstanweisungen/`, Bestätigen mit 201 und 409), Hinweise aller Arten von
-0.28 mit `?kinds=`, Fahrzeugsperren sowie der Fehlervertrag (401, 422).
+Prüffehlern 400, mit angelegtem Mangel 201 und – zweiter Lauf, solange der
+Mangel offen ist – mit verknüpftem Mangel `defect_linked`/`defects_linked`),
+Lesepflicht (`/dienstanweisungen/` mit Titel, Nummer, Version, Frist;
+Bestätigen mit 201 und 409), Hinweise aller Arten von 0.28 mit `?kinds=`
+(der Text der MPG-Einweisung nennt wie auf dem Server eine Person),
+Fahrzeugsperren sowie der Fehlervertrag (401, 422).
 
 Der Test schickt jede Antwort durch die echten Aufrufe und Modelle der App
 (`WachbuchApi`, `Checklist`, `ReadingObligation`, `CrewNotice`,
@@ -41,8 +44,13 @@ python tool/server_contract/generate_fixtures.py --server ../Rettungswache-Wachb
 flutter test test/api_contract_fixtures_test.dart
 ```
 
+Zum Vergleichen ohne die Fixtures im Repository zu überschreiben:
+`--out /tmp/fixtures-neu` (relativ zum Aufrufort, nie im Server-Checkout),
+danach `diff -r test/fixtures/server-0.28 /tmp/fixtures-neu`.
+
 Das Skript nutzt `config.test_settings` des Servers, legt eine eigene leere
-SQLite-Testdatenbank an (die Datenbank des Servers bleibt unberührt), friert
+SQLite-Testdatenbank an (die Datenbank des Servers bleibt unberührt), schreibt
+keine `__pycache__`-Dateien in den Server-Checkout, friert
 die Uhr auf `2026-11-09T07:00:00Z` ein und ersetzt nur die zufälligen
 Korrelations-IDs. Danach `git diff test/fixtures/` lesen: Jede Änderung ist
 eine Änderung des Vertrags und gehört in CHANGELOG und Modelle.

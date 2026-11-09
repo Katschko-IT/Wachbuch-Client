@@ -53,14 +53,14 @@
         "url": "/orga/sop/da-funk/"
       },
       {
-        "body": "Defi 2",
+        "body": "Kim Leitung hat eine Funktionskontrolle an „Defi 2“ durchgeführt, ohne dass eine gültige Geräteeinweisung vorliegt.",
         "created_at": "2026-11-09T07:00:00+00:00",
         "id": 6,
-        "key": "mpg_training:2",
+        "key": "mpg_training_missing:2:1:1",
         "kind": "mpg_training_missing",
         "read": false,
-        "title": "MPG: Fehlende Einweisung",
-        "url": "/mpg/"
+        "title": "Funktionskontrolle ohne Einweisung: Defi 2",
+        "url": "/mpg/d/defi-2/"
       }
     ],
     "unread_count": 6

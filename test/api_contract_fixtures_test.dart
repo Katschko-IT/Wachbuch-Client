@@ -283,6 +283,7 @@ void main() {
         expect(temp.reason, isNotEmpty);
         expect(temp.defectId, run.defectsCreated.first);
         expect(temp.defectLinked, isFalse);
+        expect(run.defectsLinked, isEmpty);
 
         final after = Checklist.fromJson(
           Map<String, dynamic>.from(
@@ -296,6 +297,38 @@ void main() {
           isNull,
           reason: 'Der Abschluss löscht den Zwischenstand',
         );
+      },
+    );
+
+    test(
+      'Zweiter Lauf: offener Mangel wird verknüpft, nicht neu angelegt',
+      () async {
+        final list = Checklist.fromJson(
+          Map<String, dynamic>.from(
+            (_body('checklists')['results'] as List).single as Map,
+          ),
+        );
+        final firstDefect =
+            (_body('checklist_run')['defects_created'] as List).single as int;
+        final api = _api({
+          'POST /api/v1/checklisten/${list.id}/abschluss/':
+              'checklist_run_linked',
+        });
+        final run = await api.completeChecklistRun(list.id, results: const {});
+        expect(run.defectsCreated, isEmpty);
+        expect(run.defectsLinked, [firstDefect]);
+        final temp = run.results[list.items.first.serverId]!;
+        expect(temp.status, ChecklistItemStatus.notOk);
+        expect(temp.defectId, firstDefect);
+        expect(temp.defectLinked, isTrue);
+        // Eigene Feststellung bleibt; der Server ersetzt sie nicht.
+        expect(temp.reason, 'Tür schließt nicht');
+        final others = list.items.skip(1).map((i) => run.results[i.serverId]!);
+        for (final result in others) {
+          expect(result.status, ChecklistItemStatus.ok);
+          expect(result.defectId, isNull);
+          expect(result.defectLinked, isFalse);
+        }
       },
     );
   });
@@ -368,6 +401,11 @@ void main() {
         final open = await api.readingObligations();
         expect(open, hasLength(2));
         final overdue = open!.firstWhere((item) => item.overdue);
+        expect(overdue.title, 'Händedesinfektion');
+        expect(overdue.docNumber, 'DA-HYG-1');
+        final later = open.firstWhere((item) => !item.overdue);
+        expect(later.title, 'Funkdisziplin');
+        expect(later.docNumber, 'DA-FUNK-2');
         expect(overdue.revisionId, isNotNull);
         expect(overdue.revisionVersion, isNotEmpty);
         expect(overdue.ackDueDate, isNotNull);
@@ -438,6 +476,16 @@ void main() {
           expect(notice.createdAt, isNotNull);
         }
         expect(notices.where((n) => n.isWeeklyDigest), hasLength(1));
+        // Der Text der MPG-Einweisung nennt eine Person: auf dem Gerät nur
+        // neutral (siehe CrewReminderService).
+        final mpg = notices.singleWhere(
+          (n) => n.kind == CrewNotice.mpgTrainingMissing,
+        );
+        expect(mpg.mayNamePerson, isTrue);
+        expect(mpg.body, contains('Kim Leitung'));
+        expect(notices.where((n) => n.mayNamePerson), [
+          mpg,
+        ], reason: 'nur diese Art nennt eine Person');
         expect(
           notices.where((n) => n.kind == CrewNotice.sopDue).single.url,
           startsWith('/orga/sop/'),

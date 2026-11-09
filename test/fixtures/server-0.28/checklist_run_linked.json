@@ -1,0 +1,62 @@
+{
+  "body": {
+    "checklist": 2,
+    "completed_by": {
+      "display_name": "Alex Muster",
+      "id": 1,
+      "username": "app.mitglied"
+    },
+    "created_at": "2026-11-09T07:00:00+00:00",
+    "defects_created": [],
+    "defects_linked": [
+      3
+    ],
+    "id": 2,
+    "is_draft": false,
+    "is_paper_backfill": false,
+    "item_results": {
+      "4": {
+        "defect_id": 3,
+        "defect_linked": true,
+        "max": "8.00",
+        "min": "2.00",
+        "position": 1,
+        "reason": "Tür schließt nicht",
+        "required": true,
+        "status": "not_ok",
+        "text": "Medikamentenkühlschrank Temperatur",
+        "unit": "°C",
+        "value": 9.0
+      },
+      "5": {
+        "defect_id": null,
+        "defect_linked": false,
+        "max": null,
+        "min": null,
+        "position": 2,
+        "reason": "",
+        "required": true,
+        "status": "ok",
+        "text": "Notfallrucksack Plombe intakt",
+        "unit": "",
+        "value": null
+      },
+      "6": {
+        "defect_id": null,
+        "defect_linked": false,
+        "max": null,
+        "min": "0.00",
+        "position": 3,
+        "reason": "",
+        "required": true,
+        "status": "ok",
+        "text": "Zusatzheizung Messwert",
+        "unit": "°C",
+        "value": 3.0
+      }
+    },
+    "occurred_at": null,
+    "ok": true
+  },
+  "status": 201
+}
