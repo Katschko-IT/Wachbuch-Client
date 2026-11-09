@@ -2456,6 +2456,12 @@ abstract class AppLocalizations {
   /// **'Mangel melden'**
   String get defectQuickTitle;
 
+  /// No description provided for @defectQuickForAsset.
+  ///
+  /// In de, this message translates to:
+  /// **'Mangel melden: {asset}'**
+  String defectQuickForAsset(String asset);
+
   /// No description provided for @defectQuickWithPhoto.
   ///
   /// In de, this message translates to:

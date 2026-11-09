@@ -67,6 +67,10 @@ Freigabeplan: [`docs/STORE-RELEASE-1.2.md`](docs/STORE-RELEASE-1.2.md).
 
 ### Qualität
 
+- Barrierefreiheit: „Mangel melden“ an jeder Karte in „Geräte & Fahrzeuge“
+  nennt für Vorleser das Fahrzeug bzw. Gerät („Mangel melden: RTW 1“); der
+  Lesepflicht-Eintrag der Startseite und antippbare Hinweise sind
+  Schaltflächen mit ihrem ganzen Text.
 - API-Vertragstest mit echten Serverantworten:
   `tool/server_contract/generate_fixtures.py` erzeugt die Fixtures unter
   `test/fixtures/server-0.28/` aus dem Server-Code;

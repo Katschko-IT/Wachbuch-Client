@@ -438,6 +438,8 @@
   "checklistContinueEditing": "Weiter bearbeiten",
   "checklistPaperBackfillMarker": "Nachtrag vom Papierbogen",
   "defectQuickTitle": "Mangel melden",
+  "defectQuickForAsset": "Mangel melden: {asset}",
+  "@defectQuickForAsset": {"placeholders": {"asset": {"type": "String"}}},
   "defectQuickWithPhoto": "Mangel mit Foto",
   "defectQuickPhotoCamera": "Foto aufnehmen",
   "defectQuickPhotoGallery": "Aus Mediathek",

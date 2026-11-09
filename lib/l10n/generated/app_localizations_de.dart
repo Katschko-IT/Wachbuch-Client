@@ -1319,6 +1319,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get defectQuickTitle => 'Mangel melden';
 
   @override
+  String defectQuickForAsset(String asset) {
+    return 'Mangel melden: $asset';
+  }
+
+  @override
   String get defectQuickWithPhoto => 'Mangel mit Foto';
 
   @override

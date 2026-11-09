@@ -418,6 +418,7 @@
   "checklistContinueEditing": "Keep editing",
   "checklistPaperBackfillMarker": "Paper backfill",
   "defectQuickTitle": "Report defect",
+  "defectQuickForAsset": "Report defect: {asset}",
   "defectQuickWithPhoto": "Defect with photo",
   "defectQuickPhotoCamera": "Take photo",
   "defectQuickPhotoGallery": "From library",

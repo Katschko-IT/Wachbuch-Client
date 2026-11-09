@@ -173,8 +173,11 @@ class _AssetCard extends StatelessWidget {
                   key: Key('asset-report-defect-${asset.id}'),
                   onPressed: onReportDefect,
                   icon: const Icon(Icons.report_problem_outlined),
+                  // Vorleser: „Mangel melden: RTW 1“ statt nur „Mangel
+                  // melden“ an jeder Karte.
                   label: Text(
                     l.defectQuickTitle,
+                    semanticsLabel: l.defectQuickForAsset(asset.label),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),

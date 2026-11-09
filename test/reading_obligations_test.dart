@@ -371,6 +371,14 @@ void main() {
       expect(find.text('Künftige Art'), findsNothing);
       expect(api.readIds, [1, 3]);
 
+      // Antippbare Hinweise sind für Vorleser Schaltflächen.
+      final handle = tester.ensureSemantics();
+      expect(
+        tester.getSemantics(find.text('Lesefrist Dienstanweisung DA-5')),
+        isSemantics(isButton: true, hasTapAction: true),
+      );
+      handle.dispose();
+
       await tester.tap(find.byKey(const Key('notice-3')));
       await tester.pumpAndSettle();
       expect(find.byType(ReadingObligationsScreen), findsOneWidget);

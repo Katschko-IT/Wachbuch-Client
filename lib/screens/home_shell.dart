@@ -567,36 +567,46 @@ class _ReadingObligationsEntryState extends State<_ReadingObligationsEntry> {
           side: BorderSide(color: overdue > 0 ? c.danger : c.warningAccent),
         ),
         clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: _openScreen,
-          child: Padding(
-            padding: const EdgeInsets.all(WachbuchTokens.space4),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.menu_book_outlined,
-                  color: overdue > 0 ? c.danger : c.warning,
-                  size: 28,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l.sopStartCardTitle,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              color: c.text,
-                              fontWeight: FontWeight.w700,
-                            ),
+        // Eine Schaltfläche für Vorleser (Titel und Zähler zusammen), wie
+        // die Übergabekarten.
+        child: MergeSemantics(
+          child: Semantics(
+            button: true,
+            child: InkWell(
+              onTap: _openScreen,
+              child: Padding(
+                padding: const EdgeInsets.all(WachbuchTokens.space4),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.menu_book_outlined,
+                      color: overdue > 0 ? c.danger : c.warning,
+                      size: 28,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l.sopStartCardTitle,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                  color: c.text,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(subtitle, style: TextStyle(color: c.text)),
+                        ],
                       ),
-                      const SizedBox(height: 2),
-                      Text(subtitle, style: TextStyle(color: c.text)),
-                    ],
-                  ),
+                    ),
+                    Icon(Icons.chevron_right, color: c.text),
+                  ],
                 ),
-                Icon(Icons.chevron_right, color: c.text),
-              ],
+              ),
             ),
           ),
         ),

@@ -53,4 +53,32 @@ void main() {
     expect(find.text('Werkstatt'), findsOneWidget);
     expect(find.text('Status unbekannt'), findsNothing);
   });
+  testWidgets('„Mangel melden“ nennt für Vorleser das Fahrzeug', (tester) async {
+    final handle = tester.ensureSemantics();
+    final reported = <String>[];
+    await tester.pumpWidget(
+      localizedApp(
+        home: Scaffold(
+          body: AssetStatusBoard(
+            assets: const [
+              StationAsset(id: 'a', label: 'RTW 1', status: 'ready'),
+              StationAsset(id: 'b', label: 'KTW 2', status: 'ready'),
+            ],
+            onReportDefect: (asset) => reported.add(asset.id),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.bySemanticsLabel('Mangel melden: RTW 1'), findsOneWidget);
+    expect(find.bySemanticsLabel('Mangel melden: KTW 2'), findsOneWidget);
+    expect(
+      tester.getSemantics(find.bySemanticsLabel('Mangel melden: KTW 2')),
+      isSemantics(isButton: true, hasTapAction: true),
+    );
+    await tester.tap(find.byKey(const Key('asset-report-defect-b')));
+    expect(reported, ['b']);
+    handle.dispose();
+  });
 }

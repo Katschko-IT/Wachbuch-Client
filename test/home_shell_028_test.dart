@@ -120,6 +120,17 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('2 offen · 1 überfällig'), findsOneWidget);
+    // Für Vorleser eine Schaltfläche mit Titel und Zähler.
+    final handle = tester.ensureSemantics();
+    expect(
+      tester.getSemantics(find.text('2 offen · 1 überfällig')),
+      isSemantics(
+        isButton: true,
+        hasTapAction: true,
+        label: 'Dienstanweisungen lesen\n2 offen · 1 überfällig',
+      ),
+    );
+    handle.dispose();
 
     await tester.tap(find.byKey(const Key('overview-reading-obligations')));
     await tester.pumpAndSettle();

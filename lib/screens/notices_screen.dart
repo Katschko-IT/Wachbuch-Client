@@ -191,7 +191,7 @@ class _NoticeTile extends StatelessWidget {
     final c = WachbuchColors.of(context);
     final (label, icon) = noticeKindLabel(l, notice);
     final created = notice.createdAt;
-    return Card(
+    final card = Card(
       key: Key('notice-${notice.id}'),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -263,5 +263,8 @@ class _NoticeTile extends StatelessWidget {
         ),
       ),
     );
+    if (onTap == null) return card;
+    // Antippbar: für Vorleser eine Schaltfläche mit dem ganzen Text.
+    return MergeSemantics(child: Semantics(button: true, child: card));
   }
 }
