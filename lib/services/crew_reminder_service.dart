@@ -24,6 +24,11 @@ import 'package:wachbuch_mobile/models/crew_notice.dart';
 /// Wochenübersicht, Lesefristen, MPG-Einweisung und technische Hinweise);
 /// andere bleiben ungelesen auf dem Server. Gemeldet wird genau jeder
 /// angezeigte Hinweis einzeln (`/benachrichtigungen/<id>/gelesen/`).
+///
+/// Hinweise, deren Text eine Person nennen kann
+/// ([CrewNotice.personalDetailKinds], z. B. fehlende MPG-Einweisung),
+/// erscheinen auf dem Gerät nur mit Titel und neutralem Text, damit kein
+/// Name auf dem Sperrbildschirm steht; den vollen Text zeigt „Hinweise“.
 class CrewReminderService {
   CrewReminderService({
     required this.api,
@@ -129,7 +134,9 @@ class CrewReminderService {
             await scheduler.show(
               id: reminderIdFor(notice.key),
               title: notice.title,
-              body: notice.body,
+              body: notice.mayNamePerson
+                  ? deviceLocalizations().noticePrivateBody
+                  : notice.body,
               channel: notice.kind == CrewNotice.vehicleReady
                   ? ReminderChannel.vehicleRelease
                   : ReminderChannel.stationNotices,
@@ -184,6 +191,18 @@ class CrewReminderService {
         if (entry.value.isAfter(cutoff)) entry.key: entry.value,
     };
   }
+}
+
+/// Texte in der Sprache des Geräts (ohne BuildContext), Deutsch als Rückfall.
+AppLocalizations deviceLocalizations() {
+  final locale = PlatformDispatcher.instance.locale;
+  return lookupAppLocalizations(
+    AppLocalizations.supportedLocales.any(
+      (supported) => supported.languageCode == locale.languageCode,
+    )
+        ? Locale(locale.languageCode)
+        : const Locale('de'),
+  );
 }
 
 /// Stabile, positive 31-Bit-ID je Ereignisschlüssel (FNV-1a).
@@ -301,16 +320,9 @@ class LocalNotificationScheduler implements ReminderScheduler {
   );
 
   /// Kanal für Hinweise der Wache; Name und Beschreibung in der Sprache des
-  /// Geräts (ohne BuildContext über [lookupAppLocalizations]).
+  /// Geräts ([deviceLocalizations]).
   static NotificationDetails _noticeDetails() {
-    final locale = PlatformDispatcher.instance.locale;
-    final l = lookupAppLocalizations(
-      AppLocalizations.supportedLocales.any(
-        (supported) => supported.languageCode == locale.languageCode,
-      )
-          ? Locale(locale.languageCode)
-          : const Locale('de'),
-    );
+    final l = deviceLocalizations();
     return NotificationDetails(
       android: AndroidNotificationDetails(
         'station_notices',

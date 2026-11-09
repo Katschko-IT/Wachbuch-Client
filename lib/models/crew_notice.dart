@@ -72,6 +72,13 @@ class CrewNotice {
     sopDue,
   };
 
+  /// Arten, deren Text eine Person nennen kann (z. B. wer ohne gültige
+  /// Einweisung eine Funktionskontrolle gemacht hat). Als Benachrichtigung
+  /// auf dem Gerät – also womöglich auf dem Sperrbildschirm – erscheint dafür
+  /// nur ein neutraler Text; den vollen Text zeigt der Posteingang
+  /// „Hinweise“ in der App.
+  static const personalDetailKinds = {mpgTrainingMissing};
+
   /// Wert für `?kinds=` (kommagetrennt, feste Reihenfolge).
   static String get kindsQuery => shownKinds.join(',');
 
@@ -103,6 +110,9 @@ class CrewNotice {
 
   /// Fail closed: fehlende oder unbekannte Art wird nicht angezeigt.
   bool get isShownKind => shownKinds.contains(kind);
+
+  /// Text kann eine Person nennen: auf dem Gerät nur neutral anzeigen.
+  bool get mayNamePerson => personalDetailKinds.contains(kind);
 
   /// Wochenübersicht der Fristen (Art `deadline_due`, eigener Schlüssel).
   bool get isWeeklyDigest =>

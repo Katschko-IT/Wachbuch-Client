@@ -1590,6 +1590,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noticeChannelName => 'Station notices';
 
   @override
+  String get noticePrivateBody =>
+      'New notice from your station – details in the app under “Notices”.';
+
+  @override
   String get noticeChannelDescription =>
       'Deadlines, weekly overview, reading deadlines and other personal notices from your Wachwerk server.';
 }

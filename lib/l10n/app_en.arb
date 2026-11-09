@@ -491,5 +491,6 @@
   "handoverPaperBackfillEvent": "Paper backfill · event {occurred}",
   "handoverPaperBackfillFull": "Paper backfill · event {occurred} · recorded {recorded}",
   "noticeChannelName": "Station notices",
+  "noticePrivateBody": "New notice from your station – details in the app under “Notices”.",
   "noticeChannelDescription": "Deadlines, weekly overview, reading deadlines and other personal notices from your Wachwerk server."
 }

@@ -39,7 +39,9 @@ Freigabeplan: [`docs/STORE-RELEASE-1.2.md`](docs/STORE-RELEASE-1.2.md).
   Startseite erscheint der Eintrag, sobald etwas offen ist.
 - **Hinweise von 0.28:** Fristen-Erinnerungen, Wochenübersicht, Lesefristen,
   fehlende MPG-Einweisungen und technische Hinweise erscheinen als lokale
-  Benachrichtigung und im neuen Posteingang „Hinweise“.
+  Benachrichtigung und im neuen Posteingang „Hinweise“. Die Benachrichtigung
+  zu einer fehlenden MPG-Einweisung nennt keinen Namen (neutraler Text, nur
+  der Posteingang zeigt den vollen Text).
 - **Übergaben vom Papierbogen** sind gekennzeichnet: „Nachtrag vom
   Papierbogen · Ereignis … · erfasst …“. Anlegen von Nachträgen bleibt dem Web
   vorbehalten.

@@ -2894,6 +2894,12 @@ abstract class AppLocalizations {
   /// **'Hinweise der Wache'**
   String get noticeChannelName;
 
+  /// No description provided for @noticePrivateBody.
+  ///
+  /// In de, this message translates to:
+  /// **'Neuer Hinweis der Wache – Details in der App unter „Hinweise“.'**
+  String get noticePrivateBody;
+
   /// No description provided for @noticeChannelDescription.
   ///
   /// In de, this message translates to:

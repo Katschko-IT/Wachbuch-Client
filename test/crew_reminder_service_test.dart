@@ -10,6 +10,7 @@ import 'package:wachbuch_mobile/services/crew_reminder_service.dart';
 class FakeScheduler implements ReminderScheduler {
   final scheduled = <int, DateTime>{};
   final shown = <int, String>{};
+  final bodies = <int, String>{};
   final channels = <int, ReminderChannel>{};
   final cancelled = <int>[];
   var permissionRequests = 0;
@@ -34,6 +35,7 @@ class FakeScheduler implements ReminderScheduler {
     ReminderChannel channel = ReminderChannel.vehicleRelease,
   }) async {
     shown[id] = title;
+    bodies[id] = body;
     channels[id] = channel;
   }
 
@@ -78,9 +80,12 @@ class FakeServer {
         }
         if (request.url.path == '/api/v1/benachrichtigungen/') {
           noticeQueries.add(request.url.queryParameters['kinds']);
-          return http.Response(
-            jsonEncode({'ok': true, 'unread_count': notices.length, 'results': notices}),
+          // Wie der Server: UTF-8 (Umlaute, Anführungszeichen in Texten).
+          return http.Response.bytes(
+            utf8.encode(jsonEncode(
+                {'ok': true, 'unread_count': notices.length, 'results': notices})),
             200,
+            headers: {'content-type': 'application/json; charset=utf-8'},
           );
         }
         return http.Response('{}', 404);
@@ -341,6 +346,41 @@ void main() {
 
     expect(scheduler.shown.values.single, 'Kaffeekasse: Beitrag offen');
     expect(server.readIds, [22]);
+  });
+
+  test('MPG-Einweisung: Name der Person erscheint nicht auf dem Gerät',
+      () async {
+    server.notices = [
+      {
+        'id': 40,
+        'kind': 'mpg_training_missing',
+        'key': 'mpg_training_missing:3:9:7',
+        'title': 'Funktionskontrolle ohne Einweisung: Defi 2',
+        'body': 'Alex Muster hat eine Funktionskontrolle an „Defi 2“ '
+            'durchgeführt, ohne dass eine gültige Geräteeinweisung vorliegt.',
+        'read': false,
+      },
+      {
+        'id': 41,
+        'kind': 'deadline_due',
+        'key': 'deadline:stk:4:7:2026-11-16',
+        'title': 'Frist in 7 Tagen: STK RTW 1',
+        'body': 'Bitte Termin vereinbaren.',
+        'read': false,
+      },
+    ];
+    await service().sync();
+
+    final mpg = reminderIdFor('mpg_training_missing:3:9:7');
+    expect(scheduler.shown[mpg], 'Funktionskontrolle ohne Einweisung: Defi 2');
+    expect(scheduler.bodies[mpg], isNot(contains('Alex')));
+    expect(scheduler.bodies[mpg], deviceLocalizations().noticePrivateBody);
+    // Andere Arten behalten ihren Text.
+    expect(
+      scheduler.bodies[reminderIdFor('deadline:stk:4:7:2026-11-16')],
+      'Bitte Termin vereinbaren.',
+    );
+    expect(server.readIds, [40, 41]);
   });
 
   test('reminder ids are stable and positive', () {

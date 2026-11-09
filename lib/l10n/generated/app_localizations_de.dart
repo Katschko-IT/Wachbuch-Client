@@ -1598,6 +1598,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get noticeChannelName => 'Hinweise der Wache';
 
   @override
+  String get noticePrivateBody =>
+      'Neuer Hinweis der Wache – Details in der App unter „Hinweise“.';
+
+  @override
   String get noticeChannelDescription =>
       'Fristen, Wochenübersicht, Lesefristen und weitere persönliche Hinweise deines Wachwerk-Servers.';
 }
