@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wachbuch_mobile/api/api_cache.dart';
 import 'package:wachbuch_mobile/api/client.dart';
 import 'package:wachbuch_mobile/api/server_links.dart';
 import 'package:wachbuch_mobile/auth/session_store.dart';
@@ -137,6 +139,10 @@ void main() {
 
   setUp(() {
     FlutterSecureStorage.setMockInitialValues({});
+    // Ohne Mock antwortet der SharedPreferences-Kanal im Test nie: Das
+    // Aufräumen des Offline-Caches (SecureApiCache.clear) bliebe hängen und
+    // pumpAndSettle liefe in den Zeitablauf.
+    SharedPreferences.setMockInitialValues({});
   });
 
   testWidgets('fresh install opens server setup', (tester) async {
@@ -302,6 +308,12 @@ void main() {
   ) async {
     final store = _MemorySessionStore(url: 'https://alt.example.org')
       ..token = 'wb_old';
+    // Offline-Snapshot der alten Sitzung: muss beim Serverwechsel verschwinden.
+    final oldCache = SecureApiCache.forSession(
+      baseUrl: 'https://alt.example.org',
+      token: 'wb_old',
+    );
+    await oldCache.writeJson('me', {'schema_version': 1});
     final links = _FakeLinkSource(
       initialLink: Uri.parse(
         'wachbuch://connect?url=https%3A%2F%2Fneu.example.org',
@@ -316,6 +328,7 @@ void main() {
     expect(find.text('https://neu.example.org'), findsOneWidget);
     expect(store.url, 'https://neu.example.org');
     expect(store.token, isNull);
+    expect(await oldCache.readJson('me'), isNull);
   });
 
   testWidgets('runtime Wachwerk link switches to the linked server', (
