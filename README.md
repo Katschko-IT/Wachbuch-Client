@@ -8,16 +8,28 @@ Open-Source-Begleit-App für das selbst gehostete **[Wachwerk](https://github.co
 | **Server** | https://github.com/Katschko-IT/Rettungswache-Wachbuch |
 | **Lizenz** | AGPL-3.0-or-later |
 | **API** | `/api/v1/` · Token-Auth |
-| **App-Version** | `1.1.0+13` |
-| **Produktiv-Paarung** | Server `0.26.1` (mindestens `0.25.0`; Monatsbeitrag der Kaffeekasse ab `0.26.0`) |
+| **App-Version** | `1.2.0+14` |
+| **Produktiv-Paarung** | Server `0.28.0` für alle Funktionen von 1.2 (Checklisten je Prüfpunkt, Lesepflicht, Hinweise, „bereits gemeldet“); mindestens `0.25.0`, dann wie 1.1 |
 | **E2E-Abnahme** | [docs/E2E-WACHALLTAG.md](docs/E2E-WACHALLTAG.md) |
-| **Store-Release** | [docs/STORE-RELEASE-1.1.md](docs/STORE-RELEASE-1.1.md) (1.0: [docs/STORE-RELEASE-1.0.md](docs/STORE-RELEASE-1.0.md)) |
+| **Store-Release** | [docs/STORE-RELEASE-1.2.md](docs/STORE-RELEASE-1.2.md) (1.1: [docs/STORE-RELEASE-1.1.md](docs/STORE-RELEASE-1.1.md), 1.0: [docs/STORE-RELEASE-1.0.md](docs/STORE-RELEASE-1.0.md)) |
+| **API-Vertrag** | [docs/API-VERTRAG-FIXTURES.md](docs/API-VERTRAG-FIXTURES.md) |
 | **Secure-Storage-Migration** | [docs/SECURE-STORAGE-MIGRATION-1.0.md](docs/SECURE-STORAGE-MIGRATION-1.0.md) |
 | **Roadmap** | [ROADMAP.md](ROADMAP.md) |
 
 ## Quelle der Wahrheit
 
 Dieses Repository ist die **kanonische Quelle** für den Flutter-/iOS-/Android-Client. Der historische Ordner `clients/wachbuch-mobile/` im Server-Repository darf diesen Stand nicht überschreiben.
+
+## Was 1.2 neu kann (Server 0.28)
+
+- Checklisten mit Ergebnis je Prüfpunkt: In Ordnung, Nicht in Ordnung oder Entfällt mit Begründung, Messwerte mit Einheit und Grenzwerten, Pflichtpunkte markiert; nur echte Kennungen aus `item_details`
+- Zwischenstand der Wache speichern und fortsetzen (nur online, nie im Offline-Cache); Prüffehler des Servers erscheinen am Prüfpunkt, die Eingaben bleiben erhalten; angelegte oder verknüpfte Mängel nach dem Abschluss
+- „Mangel in drei Tipps“: Kamera zuerst, Bezug aus „Geräte & Fahrzeuge“ oder per QR-Code, Kategorie und Priorität als Chips, Titel optional, Hinweis „bereits gemeldet“ über `?asset=`; Fotos über 5 MiB werden vorab verkleinert
+- Lesepflicht für Dienstanweisungen mit Version, Lesefrist und Überfällig-Markierung, Bestätigen mit Versionsprüfung; Eintrag auf der Startseite, sobald etwas offen ist
+- Hinweise von 0.28 (Fristen, Wochenübersicht, Lesefristen, MPG-Einweisung, Technik) als Benachrichtigung und im Posteingang „Hinweise“
+- Übergaben vom Papierbogen gekennzeichnet („Nachtrag vom Papierbogen · Ereignis … · erfasst …“)
+
+Auf älteren Servern blendet die App aus, was fehlt (keine Felder, kein Endpunkt), und verhält sich wie 1.1.
 
 ## Was 1.1 kann
 
@@ -39,9 +51,10 @@ Dieses Repository ist die **kanonische Quelle** für den Flutter-/iOS-/Android-C
 - wiederkehrende Checklisten mit täglicher/wöchentlicher/monatlicher Fälligkeit
 - Auswertung für offene/überfällige Mängel, Checks, Einsatzklarquote, Pools und Quittierungen
 - token- und servergebundener verschlüsselter Offline-Lesecache nach dem Server-Vertrag
-  `docs/CLIENT-OFFLINE-CONTRACT.md`: nur eigene Mitgliedschaft, Checklisten und
-  Übergabeliste (ohne Freitext), höchstens 24 h alt, nicht für `admin`, `cashier`,
-  `auditor`, lesbar erst nach online bestätigter Sitzung
+  `docs/CLIENT-OFFLINE-CONTRACT.md`: nur eigene Mitgliedschaft, Checklisten (ab 1.2
+  mit `item_details`, nie mit dem Zwischenstand `draft`) und Übergabeliste (ohne
+  Freitext), höchstens 24 h alt, nicht für `admin`, `cashier`, `auditor`, lesbar
+  erst nach online bestätigter Sitzung
 - Offline-Fallback nur bei echten Netzwerkfehlern; 401/403 werden nie durch Cache verdeckt
 - Demo-Profile für Rettungsdienst, Feuerwehr, Freiwillige Feuerwehr und Polizei
 - Phone: Bottom-Navigation · Tablet: NavigationRail + Grid
@@ -94,7 +107,7 @@ Ein Produktionsbuild benötigt einen eigenen Upload-Key und fällt niemals auf e
 
 ```bash
 cp android/key.properties.example android/key.properties
-BUILD_NAME=1.1.0 BUILD_NUMBER=13 bash scripts/build-aab.sh
+BUILD_NAME=1.2.0 BUILD_NUMBER=14 bash scripts/build-aab.sh
 ```
 
 Der Release-Workflow erzeugt zusätzlich Hashes, Zertifikatsberichte, Obfuskationssymbole und eine CycloneDX-SBOM. Store-Builds werden ausschließlich aus `main` erzeugt und müssen exakt zur Version in `pubspec.yaml` passen.
@@ -102,9 +115,14 @@ Der Release-Workflow erzeugt zusätzlich Hashes, Zertifikatsberichte, Obfuskatio
 ## Server-Kopplung
 
 Die Modelle und Tests orientieren sich an den Antwortformen von `core/api` im
-Server-Repository (abgeglichen im Review vom 22. Oktober 2026: Kaffeekasse,
-Checklisten, Modulschalter). Neue Felder werden zuerst serverseitig dokumentiert
-und dann im Client mit einem Test der echten Antwortform übernommen.
+Server-Repository. Seit 1.2 liegen echte Antworten des Server-Codes (API-Stand
+0.28) als Fixtures unter `test/fixtures/server-0.28/`; der Vertragstest
+`test/api_contract_fixtures_test.dart` liest sie mit den Modellen der App, sodass
+eine Umbenennung auf dem Server einen Test bricht. Erzeugt werden sie mit
+`tool/server_contract/generate_fixtures.py` (siehe
+[docs/API-VERTRAG-FIXTURES.md](docs/API-VERTRAG-FIXTURES.md)). Neue Felder werden
+zuerst serverseitig dokumentiert und dann im Client mit einem Test der echten
+Antwortform übernommen.
 
 Der Vertrag liegt im Server-Repository unter `docs/API.md`, `docs/CLIENT.md` und `docs/openapi.yaml`. Die Kopplung erfolgt ausschließlich über den versionierten API-Vertrag – nicht durch Kopieren eines Client-Quellbaums in das Server-Repository.
 
@@ -185,8 +203,10 @@ Vor Freigabe müssen mindestens bestehen:
 - Dependency-Security
 - reales Upgrade 9.x → 10.3.1 für Secure Storage vor breitem Rollout
 - für 1.1 zusätzlich die Upgrade-Matrix 1.0.0+12 → 1.1.0+13 aus [docs/STORE-RELEASE-1.1.md](docs/STORE-RELEASE-1.1.md)
+- für 1.2 die Upgrade-Matrix 1.1.0+13 → 1.2.0+14 und die Prüfungen gegen Server 0.27 und 0.28 aus [docs/STORE-RELEASE-1.2.md](docs/STORE-RELEASE-1.2.md)
+- API-Vertragstest mit echten Serverantworten (`test/api_contract_fixtures_test.dart`, Auffrischen siehe [docs/API-VERTRAG-FIXTURES.md](docs/API-VERTRAG-FIXTURES.md))
 
-Store-spezifisch siehe [docs/STORE-RELEASE-1.1.md](docs/STORE-RELEASE-1.1.md), [docs/STORE-RELEASE-1.0.md](docs/STORE-RELEASE-1.0.md), [docs/STORE-METADATA.md](docs/STORE-METADATA.md), [docs/PRIVACY-POLICY.md](docs/PRIVACY-POLICY.md), [docs/PLAY-STORE.md](docs/PLAY-STORE.md), [docs/IOS-TESTFLIGHT.md](docs/IOS-TESTFLIGHT.md) und [docs/SECURE-STORAGE-MIGRATION-1.0.md](docs/SECURE-STORAGE-MIGRATION-1.0.md).
+Store-spezifisch siehe [docs/STORE-RELEASE-1.2.md](docs/STORE-RELEASE-1.2.md), [docs/STORE-RELEASE-1.1.md](docs/STORE-RELEASE-1.1.md), [docs/STORE-RELEASE-1.0.md](docs/STORE-RELEASE-1.0.md), [docs/STORE-METADATA.md](docs/STORE-METADATA.md), [docs/PRIVACY-POLICY.md](docs/PRIVACY-POLICY.md), [docs/PLAY-STORE.md](docs/PLAY-STORE.md), [docs/IOS-TESTFLIGHT.md](docs/IOS-TESTFLIGHT.md) und [docs/SECURE-STORAGE-MIGRATION-1.0.md](docs/SECURE-STORAGE-MIGRATION-1.0.md).
 
 ## Rechtliches
 

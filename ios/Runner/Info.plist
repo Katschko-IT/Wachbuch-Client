@@ -42,7 +42,7 @@
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>NSCameraUsageDescription</key>
-	<string>Wachwerk nutzt die Kamera zum Scannen der Server-Adresse und, nur wenn Sie es auswählen, zum Fotografieren eines Mangels auf der Wache. Mängelfotos werden ausschließlich an Ihren eingerichteten Wachwerk-Server übertragen.</string>
+	<string>Wachwerk nutzt die Kamera zum Scannen der Server-Adresse, zum Lesen des QR-Codes an einem Fahrzeug oder Gerät, um einen Mangel zuzuordnen, und, nur wenn Sie es auswählen, zum Fotografieren eines Mangels auf der Wache. QR-Codes werden nur auf dem Gerät gelesen; Mängelfotos werden ausschließlich an Ihren eingerichteten Wachwerk-Server übertragen.</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>Wachwerk verbindet sich mit dem Wachwerk-Server Ihrer Wache, auch wenn er nur im WLAN der Wache erreichbar ist (z. B. Raspberry Pi ohne Internet).</string>
 	<key>NSPhotoLibraryUsageDescription</key>

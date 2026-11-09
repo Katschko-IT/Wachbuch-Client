@@ -1,0 +1,58 @@
+{
+  "body": {
+    "ok": true,
+    "results": [
+      {
+        "description": "Morgendlicher Rundgang",
+        "draft": null,
+        "due_next": null,
+        "id": 2,
+        "interval": "",
+        "item_details": [
+          {
+            "id": 4,
+            "max": "8.00",
+            "measurement": true,
+            "min": "2.00",
+            "position": 1,
+            "required": true,
+            "text": "Medikamentenkühlschrank Temperatur",
+            "unit": "°C"
+          },
+          {
+            "id": 5,
+            "max": null,
+            "measurement": false,
+            "min": null,
+            "position": 2,
+            "required": true,
+            "text": "Notfallrucksack Plombe intakt",
+            "unit": ""
+          },
+          {
+            "id": 6,
+            "max": null,
+            "measurement": true,
+            "min": "0.00",
+            "position": 3,
+            "required": true,
+            "text": "Zusatzheizung Messwert",
+            "unit": "°C"
+          }
+        ],
+        "items": [
+          "Medikamentenkühlschrank Temperatur",
+          "Notfallrucksack Plombe intakt",
+          "Zusatzheizung Messwert"
+        ],
+        "last_completed_at": "2026-11-09T07:00:00+00:00",
+        "last_completed_by": "Alex Muster",
+        "last_completed_paper_backfill": false,
+        "overdue": false,
+        "requires_personal_login": true,
+        "title": "Kühlschrank- & Geräteprüfung"
+      }
+    ]
+  },
+  "status": 200
+}

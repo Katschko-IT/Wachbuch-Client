@@ -3,6 +3,7 @@ import 'package:wachbuch_mobile/api/client.dart';
 import 'package:wachbuch_mobile/l10n/generated/app_localizations.dart';
 import 'package:wachbuch_mobile/models/inventory_item.dart';
 import 'package:wachbuch_mobile/models/station_asset.dart';
+import 'package:wachbuch_mobile/screens/defect_create_sheet.dart';
 import 'package:wachbuch_mobile/screens/reports_screen.dart';
 import 'package:wachbuch_mobile/state/station_roles.dart';
 import 'package:wachbuch_mobile/theme/design_tokens.dart';
@@ -233,6 +234,11 @@ class _AssetsScreenState extends State<AssetsScreen> {
     }
   }
 
+  /// „Mangel melden“ mit diesem Fahrzeug oder Gerät als Bezug.
+  Future<void> _reportDefect(StationAsset asset) async {
+    await reportDefect(context, api: widget.api, preselected: asset);
+  }
+
   void _openReports() {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => ReportsScreen(api: widget.api)),
@@ -280,6 +286,9 @@ class _AssetsScreenState extends State<AssetsScreen> {
                     // Statuswechsel nur für WRITE_ROLES (wie der Server).
                     onAssetTap: StationRoles.canChangeAssetStatus(_role)
                         ? _editAssetStatus
+                        : null,
+                    onReportDefect: StationRoles.canCreateDefect(_role)
+                        ? _reportDefect
                         : null,
                   ),
                   if (_inventory.isNotEmpty) ...[

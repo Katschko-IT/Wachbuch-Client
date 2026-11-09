@@ -1,6 +1,6 @@
 # Wachwerk Client Roadmap
 
-Stand: 30. Oktober 2026
+Stand: 9. November 2026
 
 ## Behörden-Wachalltag (RD · Feuerwehr · FFW · Polizei)
 
@@ -29,6 +29,19 @@ Checks → Schlüssel/Pools → Offline-Cache → Auswertung. Prototyp Phase A�
   betreiben, Token über `POST /api/v1/push/geraete/` registrieren.
 
 Bericht: `docs/REVIEW-2026-10-22.md` im Server-Repository.
+
+## App 1.2 (Build 1.2.0+14, Server 0.28)
+
+- [x] ~~Checklisten mit Ergebnis je Prüfpunkt (OK / nicht OK / entfällt mit Begründung, Messwerte mit Grenzwerten, Pflichtpunkte) über die echten Kennungen aus `item_details` (Befund G2).~~
+- [x] ~~Zwischenstand der Wache speichern und fortsetzen; nie im Offline-Cache (`results[].draft` wird vor dem Schreiben entfernt).~~
+- [x] ~~Prüffehler des Servers (400, `errors`) am Prüfpunkt, Eingaben bleiben; angelegte/verknüpfte Mängel nach dem Abschluss.~~
+- [x] ~~„Mangel in drei Tipps“: Kamera zuerst, Bezugsauswahl aus „Geräte & Fahrzeuge“, QR-Code, Chips, Titel optional, „bereits gemeldet“ über `?asset=`, Verkleinern über 5 MiB.~~
+- [x] ~~Lesepflicht (Dienstanweisungen) mit Versionsprüfung; Eintrag auf der Startseite.~~
+- [x] ~~Hinweisarten von 0.28 mit `?kinds=`; Posteingang „Hinweise“.~~
+- [x] ~~Kennzeichen „Nachtrag vom Papierbogen“ an Übergaben.~~
+- [x] ~~API-Vertragstest mit echten Serverantworten (Befund T1) und deterministischer Kaltstart-Link-Test (Befund T2).~~
+- [ ] Demo-Profile mit `item_details` und Dienstanweisungen, damit die Store-Screenshots ohne Review-Server entstehen können.
+- [ ] Nachtrag vom Papierbogen in der App anlegen (bewusst außerhalb von 1.2).
 
 ## App 1.1 (Build 1.1.0+13)
 

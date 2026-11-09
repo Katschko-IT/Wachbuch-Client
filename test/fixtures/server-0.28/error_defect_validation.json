@@ -1,0 +1,11 @@
+{
+  "body": {
+    "error": {
+      "code": "validation_error",
+      "correlation_id": "correlation-id",
+      "message": "Titel ist erforderlich (max. 160 Zeichen)."
+    },
+    "ok": false
+  },
+  "status": 422
+}

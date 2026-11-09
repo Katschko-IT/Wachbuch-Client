@@ -1,0 +1,22 @@
+{
+  "body": {
+    "author": {
+      "display_name": "Alex Muster",
+      "id": 1,
+      "username": "app.mitglied"
+    },
+    "category": "vehicle",
+    "created_at": "2026-11-09T07:00:00+00:00",
+    "details": "Nachtrag aus dem Nachtdienst.",
+    "id": 2,
+    "is_paper_backfill": true,
+    "occurred_at": "2026-11-08T21:30:00+00:00",
+    "ok": true,
+    "priority": "normal",
+    "status": "open",
+    "title": "Desinfektion RTW 1 vom Papierbogen",
+    "updated_at": "2026-11-09T07:00:00+00:00",
+    "version": 1
+  },
+  "status": 200
+}

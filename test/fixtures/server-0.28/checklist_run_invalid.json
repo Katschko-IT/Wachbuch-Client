@@ -1,0 +1,16 @@
+{
+  "body": {
+    "error": {
+      "code": "validation_error",
+      "correlation_id": "correlation-id",
+      "message": "Messwert für „Medikamentenkühlschrank Temperatur“ fehlt.; Pflichtpunkt „Notfallrucksack Plombe intakt“ ist nicht ausgefüllt.; Für entfallenen Punkt „Zusatzheizung Messwert“ ist eine Begründung erforderlich."
+    },
+    "errors": [
+      "Messwert für „Medikamentenkühlschrank Temperatur“ fehlt.",
+      "Pflichtpunkt „Notfallrucksack Plombe intakt“ ist nicht ausgefüllt.",
+      "Für entfallenen Punkt „Zusatzheizung Messwert“ ist eine Begründung erforderlich."
+    ],
+    "ok": false
+  },
+  "status": 400
+}

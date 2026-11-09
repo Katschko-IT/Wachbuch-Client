@@ -1,6 +1,6 @@
-# Store-Metadaten – Wachwerk 1.1
+# Store-Metadaten – Wachwerk 1.2
 
-Stand: 30. Oktober 2026 (Build 1.1.0+13)
+Stand: 9. November 2026 (Build 1.2.0+14)
 
 Diese Datei ist die redaktionelle Quelle für App Store Connect und Google Play Console. Vor Einreichung immer mit dem tatsächlich hochgeladenen Build und der Datenschutzerklärung abgleichen.
 
@@ -36,7 +36,9 @@ Funktionen:
 - optionale Mängelfotos aus Kamera oder Fotomediathek
 - Fahrzeug- und Gerätestatus
 - Schlüssel- und Pool-Inventar mit Ausgabe/Rückgabe
-- wiederkehrende Checklisten
+- wiederkehrende Checklisten mit Ergebnis je Prüfpunkt, Messwerten und Zwischenstand
+- Mangel mit Foto in wenigen Tipps, Bezug per Auswahl oder QR-Code, Hinweis „bereits gemeldet“
+- Lesepflicht: Dienstanweisungen lesen und bestätigen
 - Kalender; Termine anlegen für Schichtleitung und Admin
 - Kaffeekasse mit eigenem Stand, Monaten und „Ich habe bezahlt“
 - lokale Erinnerung, wenn ein Fahrzeug nach der Desinfektion freigegeben werden kann
@@ -85,7 +87,9 @@ Features:
 - create, read, filter and acknowledge handovers; shift leads and admins set the status
 - record, edit, prioritise and schedule defects, optionally with photos
 - vehicle and equipment status, keys and pooled inventory
-- recurring checklists
+- recurring checklists with a result per item, measured values and saved progress
+- report a defect with a photo in a few taps, reference by selection or QR code, "already reported" hint
+- reading obligations: read and confirm work instructions
 - calendar; shift leads and admins add events
 - coffee fund with own balance, months and "I have paid"
 - local reminder when a vehicle can be released after disinfection
@@ -121,6 +125,20 @@ Produktive Verbindungen verwenden HTTPS. App-Tokens werden über den sicheren Sp
 Wachwerk ist kein offizielles Behördenprodukt und kein Notruf-, Alarmierungs-, Einsatzleit-, Patientenakten- oder ePCR-System. Patienten- und Einsatzdaten gehören nicht in Wachwerk.
 
 Quelloffen unter AGPL-3.0-or-later.
+
+## Neuerungen in 1.2 / What's new
+
+### Deutsch (Play „Neue Funktionen“, höchstens 500 Zeichen)
+
+> Checklisten mit Ergebnis je Prüfpunkt: in Ordnung, nicht in Ordnung oder entfällt, Messwerte mit Grenzwerten, Zwischenstand speichern und fortsetzen. Mangel mit Foto in drei Tipps, Bezug per Auswahl oder QR-Code, Hinweis „bereits gemeldet“. Dienstanweisungen lesen und bestätigen. Fristen- und Lesefrist-Hinweise im neuen Posteingang. Nachträge vom Papierbogen sind gekennzeichnet. Volle Funktion mit Wachwerk-Server 0.28.
+
+### English
+
+> Checklists with a result per item: OK, not OK or not applicable, measured values with limits, save and resume progress. Report a defect with a photo in three taps, reference by selection or QR code, "already reported" hint. Read and confirm work instructions. Deadline and reading reminders in the new inbox. Paper backfills are marked. Full features with Wachwerk server 0.28.
+
+### Hinweis für Support und Release Notes
+
+Mit einem Server vor 0.28 verhält sich 1.2 wie 1.1: Checklisten werden mit einem Tipp abgeschlossen, Lesepflicht und „bereits gemeldet“ fehlen. Das ist gewollt.
 
 ## Neuerungen in 1.1 / What's new
 
@@ -162,7 +180,7 @@ Review-Notes-Vorlage:
 
 ## Datenschutzangaben – konservativer Entwurf
 
-Die endgültigen Formulare in App Store Connect und Play Console müssen den jeweiligen Definitionen der Plattform folgen. Für 1.1 gilt nach aktuellem Code:
+Die endgültigen Formulare in App Store Connect und Play Console müssen den jeweiligen Definitionen der Plattform folgen. Für 1.2 gilt nach aktuellem Code:
 
 - **Kein Tracking / keine Werbung.**
 - **Keine externen Analytics-/Crash-SDKs.**
@@ -175,15 +193,20 @@ Die endgültigen Formulare in App Store Connect und Play Console müssen den jew
 - **Neu in 1.1:** Übergaben und Termine anlegen sowie Mängel bearbeiten (nutzergenerierte Organisationsinhalte) gehen an den ausgewählten Server.
 - **Neu in 1.1:** Selbstmeldung der Kaffeekasse „Ich habe bezahlt“ (Betrag, Zahlungsweg, Notiz) geht an den ausgewählten Server.
 - **Neu in 1.1:** Der Gelesen-Status persönlicher Hinweise geht an den ausgewählten Server.
+- **Neu in 1.2:** Ergebnisse von Checklisten-Läufen je Prüfpunkt (Status, Messwerte, Begründungen, Notiz) und der gemeinsame Zwischenstand gehen an den ausgewählten Server (nutzergenerierte Organisationsinhalte).
+- **Neu in 1.2:** Lesebestätigungen für Dienstanweisungen gehen an den ausgewählten Server; er speichert Person, Version und Zeitpunkt.
+- **Neu in 1.2:** Die Kamera liest zusätzlich QR-Codes an Fahrzeugen und Geräten; diese Bilder werden lokal verarbeitet und nicht hochgeladen.
 - Lokale Benachrichtigungen werden auf dem Gerät geplant; dafür wird nichts an den App-Entwickler oder Dritte übertragen.
 - Weiterhin kein Tracking, keine Werbung, keine Weitergabe.
 
-Konservative Zuordnung für 1.1 (beide nur **App functionality**, **nicht geteilt**, Übertragung verschlüsselt):
+Konservative Zuordnung ab 1.1 (alle nur **App functionality**, **nicht geteilt**, Übertragung verschlüsselt):
 
 | Datum | Google Play Data Safety | Apple App Privacy |
 | --- | --- | --- |
 | Selbstmeldung Kaffeekasse (Betrag, Zahlungsweg, Notiz) | Financial info → Other financial info | Financial Info → Other Financial Info |
 | Gelesen-Status persönlicher Hinweise | App activity → Other user-generated content / App interactions | Usage Data → Product Interaction |
+| Lesebestätigung Dienstanweisung (1.2) | App activity → App interactions | Usage Data → Product Interaction |
+| Checklisten-Ergebnisse und Zwischenstand (1.2) | App activity → Other user-generated content | User Content → Other User Content |
 
 Für Google Play ist eine eher konservative Deklaration sinnvoll: serverseitig gespeicherte Benutzerkennungen und nutzergenerierte Organisationsinhalte als für **App functionality** verarbeitet angeben; keine Weitergabe zu Werbung/Tracking behaupten. Die Rolle des selbst gehosteten Serverbetreibers in der Datenschutzerklärung erläutern.
 
@@ -196,7 +219,7 @@ Für Google Play ist eine eher konservative Deklaration sinnvoll: serverseitig g
 
 ## Screenshots – benötigter Satz
 
-Keine generierten/fiktiven Store-Screenshots verwenden, die Funktionen zeigen, die der Build nicht besitzt. Screenshots aus einem echten **1.1-Build** mit Demo-Daten **neu** aufnehmen: Das Designsystem Klar 2 hat das Erscheinungsbild gegenüber 1.0 geändert.
+Keine generierten/fiktiven Store-Screenshots verwenden, die Funktionen zeigen, die der Build nicht besitzt. Screenshots aus einem echten **1.2-Build** aufnehmen. Die neuen Motive (Checklisten-Lauf, Lesepflicht) brauchen einen Review-Server mit 0.28, weil die Demo-Profile keine Prüfpunkte mit `item_details` und keine Dienstanweisungen enthalten.
 
 Empfohlene Motive:
 1. Übersicht / Schnellzugriff

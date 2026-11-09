@@ -10,6 +10,8 @@ import 'package:wachbuch_mobile/services/crew_reminder_service.dart';
 class FakeScheduler implements ReminderScheduler {
   final scheduled = <int, DateTime>{};
   final shown = <int, String>{};
+  final bodies = <int, String>{};
+  final channels = <int, ReminderChannel>{};
   final cancelled = <int>[];
   var permissionRequests = 0;
 
@@ -26,8 +28,16 @@ class FakeScheduler implements ReminderScheduler {
       scheduled[id] = at;
 
   @override
-  Future<void> show({required int id, required String title, required String body}) async =>
-      shown[id] = title;
+  Future<void> show({
+    required int id,
+    required String title,
+    required String body,
+    ReminderChannel channel = ReminderChannel.vehicleRelease,
+  }) async {
+    shown[id] = title;
+    bodies[id] = body;
+    channels[id] = channel;
+  }
 
   @override
   Future<void> cancel(int id) async {
@@ -44,6 +54,7 @@ class FakeServer {
   int statusForRead = 200;
   int userId = 7;
   final readIds = <int>[];
+  final noticeQueries = <String?>[];
 
   http.Client get client => MockClient((request) async {
         if (request.url.path == '/api/v1/me/') {
@@ -68,9 +79,13 @@ class FakeServer {
           return http.Response(jsonEncode({'ok': true, 'results': locks}), 200);
         }
         if (request.url.path == '/api/v1/benachrichtigungen/') {
-          return http.Response(
-            jsonEncode({'ok': true, 'unread_count': notices.length, 'results': notices}),
+          noticeQueries.add(request.url.queryParameters['kinds']);
+          // Wie der Server: UTF-8 (Umlaute, Anführungszeichen in Texten).
+          return http.Response.bytes(
+            utf8.encode(jsonEncode(
+                {'ok': true, 'unread_count': notices.length, 'results': notices})),
             200,
+            headers: {'content-type': 'application/json; charset=utf-8'},
           );
         }
         return http.Response('{}', 404);
@@ -133,6 +148,7 @@ void main() {
 
     expect(scheduler.shown.length, 1);
     expect(scheduler.shown.values.single, contains('RTW 2'));
+    expect(scheduler.channels.values.single, ReminderChannel.vehicleRelease);
   });
 
   test('angezeigte Hinweise werden beim Server als gelesen markiert', () async {
@@ -212,13 +228,15 @@ void main() {
 
   test('unbekannte Hinweisart wird weder angezeigt noch als gelesen gemeldet',
       () async {
+    // Ein älterer Server ignoriert ?kinds= und liefert alles; die App filtert
+    // selbst und lässt Arten späterer Server ungelesen.
     server.notices = [
       {
         'id': 20,
-        'kind': 'system_health',
-        'key': 'system_health:1',
-        'title': 'Wachwerk: technische Störung',
-        'body': 'Dienst backup läuft nicht.',
+        'kind': 'shift_swap',
+        'key': 'shift_swap:1',
+        'title': 'Künftige Hinweisart',
+        'body': 'Inhalt, den App 1.2 nicht kennt.',
         'read': false,
       },
       {'id': 21, 'key': 'ohne_art:1', 'title': 'Ohne Art', 'body': 'x', 'read': false},
@@ -227,6 +245,90 @@ void main() {
 
     expect(scheduler.shown, isEmpty);
     expect(server.readIds, isEmpty);
+  });
+
+  test('Posteingang fragt genau die bekannten Arten ab (?kinds=)', () async {
+    await service().sync();
+
+    expect(server.noticeQueries.single!.split(','), {
+      'vehicle_ready',
+      'coffee_due',
+      'system_health',
+      'mpg_training_missing',
+      'deadline_due',
+      'sop_due',
+    });
+  });
+
+  test('Arten von 0.28 erscheinen und genau diese werden gelesen gemeldet',
+      () async {
+    server.notices = [
+      {
+        'id': 30,
+        'kind': 'deadline_due',
+        'key': 'deadline:stk:4:7:2026-11-16',
+        'title': 'Frist in 7 Tagen: STK RTW 1',
+        'body': 'Bitte Termin vereinbaren.',
+        'url': '/fuhrpark/v/rtw-1/',
+        'read': false,
+      },
+      {
+        'id': 31,
+        'kind': 'deadline_due',
+        'key': 'deadline_weekly_digest:3:2026-W46',
+        'title': 'Wochenübersicht KW 46: 2 Fristen',
+        'body': 'STK RTW 1 · HU KTW 2',
+        'url': '/fristen/',
+        'read': false,
+      },
+      {
+        'id': 32,
+        'kind': 'sop_due',
+        'key': 'deadline:sop:5:7:7:2026-11-16',
+        'title': 'Lesefrist Dienstanweisung DA-5',
+        'body': 'Bitte bestätigen.',
+        'url': '/orga/sop/da-5/',
+        'read': false,
+      },
+      {
+        'id': 33,
+        'kind': 'mpg_training_missing',
+        'key': 'mpg_training:1:7',
+        'title': 'MPG: Fehlende Einweisung',
+        'body': 'Defi 2',
+        'read': false,
+      },
+      {
+        'id': 34,
+        'kind': 'system_health',
+        'key': 'host_health:disk',
+        'title': 'Wachwerk: technische Störung',
+        'body': 'Speicher fast voll.',
+        'read': false,
+      },
+      {
+        'id': 35,
+        'kind': 'shift_swap',
+        'key': 'shift_swap:2',
+        'title': 'Künftige Art',
+        'body': 'x',
+        'read': false,
+      },
+    ];
+    await service().sync();
+
+    expect(scheduler.shown.values, containsAll([
+      'Frist in 7 Tagen: STK RTW 1',
+      'Wochenübersicht KW 46: 2 Fristen',
+      'Lesefrist Dienstanweisung DA-5',
+      'MPG: Fehlende Einweisung',
+      'Wachwerk: technische Störung',
+    ]));
+    expect(scheduler.shown.values, isNot(contains('Künftige Art')));
+    expect(server.readIds, [30, 31, 32, 33, 34]);
+    // Eigener Kanal, damit sich Fristen getrennt von der Fahrzeugfreigabe
+    // stummschalten lassen.
+    expect(scheduler.channels.values.toSet(), {ReminderChannel.stationNotices});
   });
 
   test('Kaffeekasse-Hinweis (coffee_due) wird angezeigt', () async {
@@ -244,6 +346,41 @@ void main() {
 
     expect(scheduler.shown.values.single, 'Kaffeekasse: Beitrag offen');
     expect(server.readIds, [22]);
+  });
+
+  test('MPG-Einweisung: Name der Person erscheint nicht auf dem Gerät',
+      () async {
+    server.notices = [
+      {
+        'id': 40,
+        'kind': 'mpg_training_missing',
+        'key': 'mpg_training_missing:3:9:7',
+        'title': 'Funktionskontrolle ohne Einweisung: Defi 2',
+        'body': 'Alex Muster hat eine Funktionskontrolle an „Defi 2“ '
+            'durchgeführt, ohne dass eine gültige Geräteeinweisung vorliegt.',
+        'read': false,
+      },
+      {
+        'id': 41,
+        'kind': 'deadline_due',
+        'key': 'deadline:stk:4:7:2026-11-16',
+        'title': 'Frist in 7 Tagen: STK RTW 1',
+        'body': 'Bitte Termin vereinbaren.',
+        'read': false,
+      },
+    ];
+    await service().sync();
+
+    final mpg = reminderIdFor('mpg_training_missing:3:9:7');
+    expect(scheduler.shown[mpg], 'Funktionskontrolle ohne Einweisung: Defi 2');
+    expect(scheduler.bodies[mpg], isNot(contains('Alex')));
+    expect(scheduler.bodies[mpg], deviceLocalizations().noticePrivateBody);
+    // Andere Arten behalten ihren Text.
+    expect(
+      scheduler.bodies[reminderIdFor('deadline:stk:4:7:2026-11-16')],
+      'Bitte Termin vereinbaren.',
+    );
+    expect(server.readIds, [40, 41]);
   });
 
   test('reminder ids are stable and positive', () {

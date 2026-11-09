@@ -16,6 +16,7 @@ import 'package:wachbuch_mobile/models/inventory_item.dart';
 import 'package:wachbuch_mobile/models/kaffeekasse.dart';
 import 'package:wachbuch_mobile/models/kalender_entry.dart';
 import 'package:wachbuch_mobile/models/pinboard_note.dart';
+import 'package:wachbuch_mobile/models/reading_obligation.dart';
 import 'package:wachbuch_mobile/models/report_stats.dart';
 import 'package:wachbuch_mobile/models/station_asset.dart';
 import 'package:wachbuch_mobile/api/server_trust.dart';
@@ -143,6 +144,18 @@ class DemoWachbuchApi extends WachbuchApi {
 
   @override
   Future<void> markCrewNoticeRead(int id) async {}
+
+  // Lesepflicht gibt es in der Demo nicht (wie ein Server vor 0.28).
+  @override
+  Future<List<ReadingObligation>?> readingObligations({bool openOnly = true}) async =>
+      null;
+
+  @override
+  Future<ReadingObligation> acknowledgeReadingObligation(
+    int id, {
+    int? revisionId,
+  }) async =>
+      throw ApiException(404, 'In der Demo nicht verfügbar.');
 
   @override
   Future<Map<String, dynamic>> discover() async {
@@ -370,6 +383,33 @@ class DemoWachbuchApi extends WachbuchApi {
       return Checklist(id: id, title: '', completed: true);
     }
     return Checklist.fromJson({...match, 'completed': true});
+  }
+
+  // Demo-Checklisten tragen keine `item_details`: Sie zeigen den Abschluss
+  // mit einem Tipp. Zwischenstände gibt es in der Demo nicht.
+  @override
+  Future<ChecklistDraft?> checklistDraft(int id) async => null;
+
+  @override
+  Future<ChecklistDraft?> saveChecklistDraft(
+    int id, {
+    required Map<int, ChecklistItemResult> results,
+    String note = '',
+  }) async =>
+      null;
+
+  @override
+  Future<ChecklistRunResult> completeChecklistRun(
+    int id, {
+    required Map<int, ChecklistItemResult> results,
+    String note = '',
+  }) async {
+    _completedChecklists.add(id);
+    return ChecklistRunResult(
+      id: id,
+      checklistId: id,
+      createdAt: DateTime.now(),
+    );
   }
 
   @override

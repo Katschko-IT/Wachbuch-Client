@@ -72,10 +72,10 @@ Die geheimen Dateien niemals committen.
 
 ## Was der Workflow vor dem Upload erzwingt
 
-Für 1.1 werden standardmäßig `1.1.0` und Build `13` vorgeschlagen (Freigabeplan: [`STORE-RELEASE-1.1.md`](STORE-RELEASE-1.1.md)). Der Workflow:
+Für 1.2 werden standardmäßig `1.2.0` und Build `14` vorgeschlagen (Freigabeplan: [`STORE-RELEASE-1.2.md`](STORE-RELEASE-1.2.md)). Der Workflow:
 
 1. läuft nur von `main`,
-2. verlangt exakte Übereinstimmung mit `version: 1.1.0+13` in `pubspec.yaml`,
+2. verlangt exakte Übereinstimmung mit `version: 1.2.0+14` in `pubspec.yaml`,
 3. prüft Xcode/iOS-SDK,
 4. validiert alle benötigten Secrets,
 5. prüft, dass das Provisioning Profile zu `de.wachbuch.wachbuchMobile` gehört,
@@ -131,7 +131,7 @@ Apple verlangt für Required-Reason-APIs und bestimmte SDKs korrekte Privacy-Man
 
 `Info.plist` enthält:
 
-- `NSCameraUsageDescription`: QR-Scan + ausdrücklich ausgelöstes Mängelfoto
+- `NSCameraUsageDescription`: QR-Scan der Server-Adresse, QR-Code an Fahrzeug oder Gerät (seit 1.2, Bezug eines Mangels) + ausdrücklich ausgelöstes Mängelfoto
 - `NSPhotoLibraryUsageDescription`: ausdrücklich ausgewähltes bestehendes Mängelfoto
 - `NSLocationWhenInUseUsageDescription`: lokale Sonnenaufgang/-untergang-Berechnung
 - `ITSAppUsesNonExemptEncryption=false`
@@ -154,7 +154,7 @@ Review-Text und Store-Metadaten: [`STORE-METADATA.md`](STORE-METADATA.md).
 
 ## 1.0-TestFlight-Reihenfolge
 
-Für 1.1 gilt die Reihenfolge aus [`STORE-RELEASE-1.1.md`](STORE-RELEASE-1.1.md): TestFlight erst, wenn der Mac-Runner repariert und `ios.yml` auf `main` grün ist; Version `1.1.0`, Build `13`.
+Für 1.2 gilt die Reihenfolge aus [`STORE-RELEASE-1.2.md`](STORE-RELEASE-1.2.md): TestFlight erst, wenn `ios.yml` auf `main` grün ist; Version `1.2.0`, Build `14`. Für 1.1 galt [`STORE-RELEASE-1.1.md`](STORE-RELEASE-1.1.md) mit `1.1.0`/`13`.
 
 1. Release-PR vollständig grün mergen.
 2. App-ID/App-Store-Connect-Eintrag und Signing-Assets anlegen.

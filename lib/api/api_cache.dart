@@ -30,9 +30,11 @@ typedef OfflineApiCache = SecureApiCache;
 /// Regeln für den Offline-Lesecache nach `docs/CLIENT-OFFLINE-CONTRACT.md`
 /// im Server-Repository (§2, §3, §5, §6).
 ///
-/// - Positivliste: eigene Mitgliedschaft (`/me/`), Checklisten und die
-///   Übergabeliste ohne Freitext. Kaffeekasse, Übergabe-Details, Mängel und
-///   Anhänge werden nie gespeichert. Tagesaufgaben kennt der Client nicht.
+/// - Positivliste: eigene Mitgliedschaft (`/me/`), Checklisten (mit
+///   `item_details`, ohne Zwischenstand `draft`) und die Übergabeliste ohne
+///   Freitext. Kaffeekasse, Übergabe-Details, Mängel, Anhänge,
+///   Dienstanweisungen und Benachrichtigungen werden nie gespeichert.
+///   Tagesaufgaben kennt der Client nicht.
 /// - Jeder Eintrag trägt `fetched_at`/`expires_at` und gilt höchstens 24 h.
 /// - Kein Cache für die Rollen `admin`, `cashier` und `auditor`.
 class OfflineCachePolicy {
@@ -148,6 +150,24 @@ class OfflineCachePolicy {
                     else
                       entry.toString(),
                 ],
+                // Server ab 0.28: Kennung, Text, Pflicht, Einheit und Grenzwerte
+                // der Prüfpunkte sind laut Vertrag erlaubt. Der Zwischenstand
+                // (`draft`: Begründungen, Notiz, Name) ist es nicht und fehlt
+                // hier bewusst.
+                if (item['item_details'] is List)
+                  'item_details': [
+                    for (final detail in _list(item['item_details']))
+                      _pick(detail, const [
+                        'id',
+                        'text',
+                        'position',
+                        'required',
+                        'unit',
+                        'min',
+                        'max',
+                        'measurement',
+                      ]),
+                  ],
               },
           ],
         };

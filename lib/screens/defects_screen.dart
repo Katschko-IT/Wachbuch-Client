@@ -4,6 +4,8 @@ import 'package:wachbuch_mobile/api/client.dart';
 import 'package:wachbuch_mobile/l10n/generated/app_localizations.dart';
 import 'package:wachbuch_mobile/models/defect.dart';
 import 'package:wachbuch_mobile/models/defect_attachment.dart';
+import 'package:wachbuch_mobile/screens/defect_create_sheet.dart';
+import 'package:wachbuch_mobile/services/defect_photo.dart';
 import 'package:wachbuch_mobile/state/defect_state.dart';
 import 'package:wachbuch_mobile/state/station_roles.dart';
 import 'package:wachbuch_mobile/theme/design_tokens.dart';
@@ -15,13 +17,26 @@ import 'package:wachbuch_mobile/ui/status_chip.dart';
 
 /// Persistent station defects: list, create, status workflow and photos.
 class DefectsScreen extends StatefulWidget {
-  const DefectsScreen({super.key, required this.api, this.role});
+  const DefectsScreen({
+    super.key,
+    required this.api,
+    this.role,
+    this.initialDefectId,
+    this.photoPicker,
+  });
 
   final WachbuchApi api;
+
+  /// Foto aus Kamera oder Mediathek; in Tests ersetzbar.
+  final DefectPhotoPicker? photoPicker;
 
   /// Rolle aus `/me/`. Fehlt sie, lädt der Bildschirm `/me/` selbst; bis
   /// dahin bleiben „Bearbeiten“ und „erledigt“ ausgeblendet.
   final String? role;
+
+  /// Öffnet nach dem ersten Laden diesen Mangel (z. B. aus einem
+  /// Checklisten-Lauf), sofern er auf der ersten Seite steht.
+  final int? initialDefectId;
 
   @override
   State<DefectsScreen> createState() => _DefectsScreenState();
@@ -36,8 +51,20 @@ class _DefectsScreenState extends State<DefectsScreen> {
   void initState() {
     super.initState();
     _role = widget.role;
-    _state = DefectState(api: widget.api)..reload();
+    _state = DefectState(api: widget.api);
+    _state.reload().then((_) => _openInitialDefect());
     if (_role == null) _loadRole();
+  }
+
+  void _openInitialDefect() {
+    final id = widget.initialDefectId;
+    if (id == null || !mounted) return;
+    for (final defect in _state.items) {
+      if (defect.id == id) {
+        _openDetail(defect);
+        return;
+      }
+    }
   }
 
   Future<void> _loadRole() async {
@@ -64,29 +91,32 @@ class _DefectsScreenState extends State<DefectsScreen> {
         .toList(growable: false);
   }
 
-  Future<void> _openCreate() async {
-    final draft = await showModalBottomSheet<_DefectDraft>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (_) => const _DefectCreateSheet(),
+  /// „Mangel in drei Tipps“: mit [cameraFirst] startet direkt die Kamera.
+  Future<void> _openCreate({bool cameraFirst = false}) async {
+    final l = AppLocalizations.of(context)!;
+    await reportDefect(
+      context,
+      api: widget.api,
+      cameraFirst: cameraFirst,
+      photoPicker: widget.photoPicker,
+      create: (report) async {
+        final created = await _state.create(
+          title: report.title,
+          description: report.description,
+          assetRef: report.assetRef,
+          priority: report.priority,
+          category: report.category,
+          dueAt: report.dueAt,
+        );
+        if (created == null) {
+          throw ApiException(
+            _state.lastError?.statusCode ?? 0,
+            _state.error ?? l.defectCreateFailed,
+          );
+        }
+        return created;
+      },
     );
-    if (draft == null || !mounted) return;
-    final created = await _state.create(
-      title: draft.title,
-      description: draft.description,
-      assetRef: draft.assetRef,
-      priority: draft.priority,
-      category: draft.category,
-      dueAt: draft.dueAt,
-    );
-    if (!mounted) return;
-    if (created == null) {
-      final l = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(_state.error ?? l.defectCreateFailed)),
-      );
-    }
   }
 
   Future<void> _openDetail(Defect defect) async {
@@ -110,6 +140,7 @@ class _DefectsScreenState extends State<DefectsScreen> {
         errorText: () => _state.error,
         canEdit: StationRoles.canEditDefect(_role),
         canClose: StationRoles.canCloseDefect(_role),
+        photoPicker: widget.photoPicker ?? pickDefectPhoto,
       ),
     );
   }
@@ -134,6 +165,7 @@ class _DefectsScreenState extends State<DefectsScreen> {
         title: Text(l.defectsTitle),
         actions: [
           IconButton(
+            key: const Key('defects-add'),
             tooltip: l.defectAdd,
             onPressed: _openCreate,
             icon: const Icon(Icons.add),
@@ -141,9 +173,10 @@ class _DefectsScreenState extends State<DefectsScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: _openCreate,
-        icon: const Icon(Icons.add),
-        label: Text(l.defectAdd),
+        key: const Key('defects-report-photo'),
+        onPressed: () => _openCreate(cameraFirst: true),
+        icon: const Icon(Icons.add_a_photo_outlined),
+        label: Text(l.defectQuickWithPhoto),
       ),
       body: ListenableBuilder(
         listenable: _state,
@@ -280,208 +313,6 @@ class _DefectsScreenState extends State<DefectsScreen> {
   }
 }
 
-class _DefectDraft {
-  const _DefectDraft({
-    required this.title,
-    required this.description,
-    required this.assetRef,
-    required this.priority,
-    required this.category,
-    this.dueAt,
-  });
-
-  final String title;
-  final String description;
-  final String assetRef;
-  final String priority;
-  final String category;
-  final DateTime? dueAt;
-}
-
-class _DefectCreateSheet extends StatefulWidget {
-  const _DefectCreateSheet();
-
-  @override
-  State<_DefectCreateSheet> createState() => _DefectCreateSheetState();
-}
-
-class _DefectCreateSheetState extends State<_DefectCreateSheet> {
-  final _formKey = GlobalKey<FormState>();
-  final _title = TextEditingController();
-  final _description = TextEditingController();
-  final _asset = TextEditingController();
-  String _priority = 'normal';
-  String _category = 'task';
-  DateTime? _dueAt;
-
-  @override
-  void dispose() {
-    _title.dispose();
-    _description.dispose();
-    _asset.dispose();
-    super.dispose();
-  }
-
-  Future<void> _pickDue() async {
-    final now = DateTime.now();
-    final date = await showDatePicker(
-      context: context,
-      firstDate: DateTime(now.year, now.month, now.day),
-      lastDate: DateTime(now.year + 3),
-      initialDate: _dueAt ?? now,
-    );
-    if (date == null || !mounted) return;
-    final time = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.fromDateTime(_dueAt ?? now),
-    );
-    if (time == null || !mounted) return;
-    setState(() {
-      _dueAt = DateTime(date.year, date.month, date.day, time.hour, time.minute);
-    });
-  }
-
-  void _submit() {
-    if (!_formKey.currentState!.validate()) return;
-    Navigator.of(context).pop(
-      _DefectDraft(
-        title: _title.text.trim(),
-        description: _description.text.trim(),
-        assetRef: _asset.text.trim(),
-        priority: _priority,
-        category: _category,
-        dueAt: _dueAt,
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
-    final c = WachbuchColors.of(context);
-    final locale = Localizations.localeOf(context).languageCode;
-    return SafeArea(
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(
-          WachbuchTokens.space5,
-          0,
-          WachbuchTokens.space5,
-          WachbuchTokens.space5 + MediaQuery.viewInsetsOf(context).bottom,
-        ),
-        child: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  l.defectCreateTitle,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: c.text,
-                      ),
-                ),
-                const SizedBox(height: WachbuchTokens.space2),
-                const FreeTextBoundaryHint(),
-                const SizedBox(height: WachbuchTokens.space4),
-                TextFormField(
-                  controller: _title,
-                  maxLength: 160,
-                  textInputAction: TextInputAction.next,
-                  decoration: InputDecoration(
-                    labelText: l.defectTitleLabel,
-                  ),
-                  validator: (value) => value == null || value.trim().isEmpty
-                      ? l.defectTitleLabel
-                      : null,
-                ),
-                const SizedBox(height: WachbuchTokens.space3),
-                TextFormField(
-                  controller: _description,
-                  minLines: 3,
-                  maxLines: 6,
-                  maxLength: 3000,
-                  decoration: InputDecoration(
-                    labelText: l.defectDescriptionLabel,
-                    alignLabelWithHint: true,
-                  ),
-                ),
-                const SizedBox(height: WachbuchTokens.space3),
-                TextFormField(
-                  controller: _asset,
-                  maxLength: 160,
-                  decoration: InputDecoration(
-                    labelText: l.defectAssetLabel,
-                  ),
-                ),
-                const SizedBox(height: WachbuchTokens.space3),
-                DropdownButtonFormField<String>(
-                  initialValue: _priority,
-                  decoration: InputDecoration(
-                    labelText: l.defectPriorityLabel,
-                  ),
-                  items: const ['normal', 'important', 'urgent']
-                      .map(
-                        (value) => DropdownMenuItem(
-                          value: value,
-                          child: Text(_priorityLabel(l, value)),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (value) => setState(() => _priority = value ?? 'normal'),
-                ),
-                const SizedBox(height: WachbuchTokens.space3),
-                DropdownButtonFormField<String>(
-                  initialValue: _category,
-                  decoration: InputDecoration(
-                    labelText: l.defectCategoryLabel,
-                  ),
-                  items: const [
-                    'task',
-                    'vehicle',
-                    'material',
-                    'safety',
-                    'facility',
-                    'device',
-                    'key',
-                  ]
-                      .map(
-                        (value) => DropdownMenuItem(
-                          value: value,
-                          child: Text(_categoryLabel(l, locale, value)),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (value) => setState(() => _category = value ?? 'task'),
-                ),
-                const SizedBox(height: WachbuchTokens.space3),
-                OutlinedButton.icon(
-                  onPressed: _pickDue,
-                  icon: const Icon(Icons.event_outlined),
-                  label: Text(
-                    _dueAt == null
-                        ? l.defectDueLabel
-                        : '${l.defectDueLabel}: ${MaterialLocalizations.of(context).formatMediumDate(_dueAt!)} · ${MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(_dueAt!))}',
-                    style: const TextStyle(
-                      fontFeatures: WachbuchTokens.tabularFigures,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: WachbuchTokens.space4),
-                FilledButton.icon(
-                  onPressed: _submit,
-                  icon: const Icon(Icons.save_outlined),
-                  label: Text(l.commonSave),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class _DefectDetailSheet extends StatefulWidget {
   const _DefectDetailSheet({
     required this.api,
@@ -491,10 +322,14 @@ class _DefectDetailSheet extends StatefulWidget {
     required this.errorText,
     this.canEdit = false,
     this.canClose = false,
+    this.photoPicker = pickDefectPhoto,
   });
 
   final WachbuchApi api;
   final Defect defect;
+
+  /// Foto aus Kamera oder Mediathek, mit Verkleinerung über 5 MiB.
+  final DefectPhotoPicker photoPicker;
   final Future<bool> Function(int id, String status) onSetStatus;
   final Future<Defect?> Function(Defect current, _DefectEdit edit) onEdit;
   final String? Function() errorText;
@@ -601,55 +436,45 @@ class _DefectDetailSheetState extends State<_DefectDetailSheet> {
     );
   }
 
-  String? _contentTypeFor(XFile file) {
-    final provided = file.mimeType?.toLowerCase();
-    if (provided == 'image/jpeg' || provided == 'image/png' || provided == 'image/webp') {
-      return provided;
-    }
-    final name = file.name.toLowerCase();
-    if (name.endsWith('.jpg') || name.endsWith('.jpeg')) return 'image/jpeg';
-    if (name.endsWith('.png')) return 'image/png';
-    if (name.endsWith('.webp')) return 'image/webp';
-    return null;
-  }
-
   Future<void> _addPhoto() async {
     final l = AppLocalizations.of(context)!;
     final source = await _choosePhotoSource();
     if (source == null || !mounted) return;
-    final file = await ImagePicker().pickImage(
-      source: source,
-      maxWidth: 1600,
-      imageQuality: 80,
-    );
-    if (file == null || !mounted) return;
-    final bytes = await file.readAsBytes();
-    if (!mounted) return;
-    if (WachbuchApi.exceedsAttachmentLimit(bytes.length)) {
+    final PickedPhoto? photo;
+    try {
+      photo = await widget.photoPicker(source);
+    } on PhotoPickException catch (error) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l.defectPhotoTooLarge)),
+        SnackBar(
+          content: Text(switch (error.problem) {
+            PhotoProblem.tooLarge => l.defectPhotoTooLarge,
+            PhotoProblem.unsupportedType => l.defectQuickPhotoUnsupported,
+            PhotoProblem.unavailable => l.defectQuickPhotoUnavailable,
+          }),
+        ),
       );
       return;
     }
-    final contentType = _contentTypeFor(file);
-    if (contentType == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l.defectPhotoUploadFailed)),
-      );
-      return;
-    }
+    if (photo == null || !mounted) return;
     setState(() => _photoBusy = true);
     try {
       await widget.api.uploadDefectAttachment(
         _defect.id,
-        filename: file.name,
-        contentType: contentType,
-        bytes: bytes,
+        filename: photo.filename,
+        contentType: photo.contentType,
+        bytes: photo.bytes,
       );
       await _reloadAttachments();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l.defectPhotoUploaded)),
+        SnackBar(
+          content: Text(
+            photo.downscaled
+                ? '${l.defectPhotoUploaded} ${l.defectQuickPhotoDownscaled}'
+                : l.defectPhotoUploaded,
+          ),
+        ),
       );
     } on ApiException catch (error) {
       if (!mounted) return;
@@ -926,25 +751,6 @@ class _DefectCard extends StatelessWidget {
   }
 }
 
-String _priorityLabel(AppLocalizations l, String priority) => switch (priority) {
-      'urgent' => l.handoverPriorityUrgent,
-      'important' => l.handoverPriorityImportant,
-      _ => l.handoverPriorityNormal,
-    };
-
-String _categoryLabel(AppLocalizations l, String locale, String category) {
-  return switch (category) {
-    'vehicle' => l.handoverCategoryVehicle,
-    'material' => l.handoverCategoryMaterial,
-    'safety' => l.handoverCategorySafety,
-    'task' => l.handoverCategoryTask,
-    'facility' => locale == 'en' ? 'Facility' : 'Gebäude',
-    'device' => locale == 'en' ? 'Device' : 'Gerät',
-    'key' => locale == 'en' ? 'Key' : 'Schlüssel',
-    _ => l.handoverEnumUnknown,
-  };
-}
-
 class _DefectEdit {
   const _DefectEdit({
     required this.description,
@@ -1065,7 +871,7 @@ class _DefectEditSheetState extends State<_DefectEditSheet> {
                 decoration: InputDecoration(labelText: l.defectPriorityLabel),
                 items: [
                   for (final value in const ['normal', 'important', 'urgent'])
-                    DropdownMenuItem(value: value, child: Text(_priorityLabel(l, value))),
+                    DropdownMenuItem(value: value, child: Text(defectPriorityLabel(l, value))),
                 ],
                 onChanged: (value) => setState(() => _priority = value ?? _priority),
               ),

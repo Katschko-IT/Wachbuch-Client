@@ -1,0 +1,14 @@
+{
+  "body": {
+    "body": "Bitte Fahrzeug prüfen und den Status selbst freigeben.",
+    "created_at": "2026-11-09T07:00:00+00:00",
+    "id": 1,
+    "key": "vehicle_ready:1:20261109",
+    "kind": "vehicle_ready",
+    "ok": true,
+    "read": true,
+    "title": "RTW 1: Einwirkzeit abgelaufen",
+    "url": ""
+  },
+  "status": 200
+}

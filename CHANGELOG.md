@@ -2,6 +2,84 @@
 
 Alle wesentlichen Änderungen an Wachwerk Mobile werden hier dokumentiert.
 
+## 1.2.0 – 2026-11-09
+
+Build `1.2.0+14`. Die neuen Funktionen brauchen den API-Stand von Server
+**0.28.0**; mit älteren Servern (ab 0.25.0) läuft die App weiter wie 1.1 und
+blendet aus, was der Server noch nicht kennt. Die App erkennt 0.28 an den
+Feldern und Endpunkten selbst (`item_details`, `/dienstanweisungen/`) und an
+den Fähigkeiten der Discovery, nicht nur an der Versionsnummer.
+Freigabeplan: [`docs/STORE-RELEASE-1.2.md`](docs/STORE-RELEASE-1.2.md).
+
+### Neu
+
+- **Checklisten mit Ergebnis je Prüfpunkt** (Server 0.28): je Punkt „In
+  Ordnung“, „Nicht in Ordnung“ oder „Entfällt“ mit Pflicht-Begründung (eine
+  Begründung geht nur mit diesen beiden an den Server); Messpunkte mit Wert,
+  Einheit und Grenzwerten, Hinweis bei Werten außerhalb der Grenzen;
+  Pflichtpunkte markiert. Gesendet werden nur die Kennungen aus
+  `item_details`, nie Listenpositionen.
+- **Zwischenstand speichern und fortsetzen:** Der Zwischenstand gehört der
+  Wache (`/checklisten/<id>/zwischenstand/`); die nächste Person setzt fort.
+  Er wird nur online geladen und nie im Offline-Cache gespeichert. Solange er
+  lädt, ist das Formular gesperrt; konnte er nicht geladen werden, ist
+  „Zwischenstand speichern“ gesperrt, damit er nicht ungesehen ersetzt wird.
+- **Prüffehler am Prüfpunkt:** Lehnt der Server einen Lauf ab (400 mit
+  `errors`), steht jede Meldung am betroffenen Punkt; die Eingaben bleiben
+  erhalten. Nach dem Abschluss zeigt die App den Lauf so, wie der Server ihn
+  gespeichert hat (z. B. Grenzwert → „Nicht in Ordnung“), und angelegte oder
+  verknüpfte Mängel mit Absprung in die Mängelliste.
+- **„Mangel in drei Tipps“:** „Mangel mit Foto“ öffnet direkt die Kamera;
+  Bezug als Auswahl aus „Geräte & Fahrzeuge“ (oder Freitext), Kategorie und
+  Priorität als Chips mit Vorgaben wie im Web, Titel optional (leer bildet
+  die App „Kategorie: Bezug“). Hinweis „bereits gemeldet“ über den exakten
+  Filter `?asset=` des Servers. „Mangel melden“ direkt an jedem Fahrzeug oder
+  Gerät und per QR-Code am Fahrzeug oder Gerät.
+- **Lesepflicht:** Dienstanweisungen mit Version, Lesefrist und
+  Überfällig-Markierung lesen (Webseite des Servers) und mit „Gelesen und
+  verstanden“ bestätigen – mit derselben Versionsprüfung wie im Web („neuere
+  Version“ nur, wenn es eine gibt; sonst die Meldung des Servers). Auf der
+  Startseite erscheint der Eintrag, sobald etwas offen ist.
+- **Hinweise von 0.28:** Fristen-Erinnerungen, Wochenübersicht, Lesefristen,
+  fehlende MPG-Einweisungen und technische Hinweise erscheinen als lokale
+  Benachrichtigung und im neuen Posteingang „Hinweise“. Die Benachrichtigung
+  zu einer fehlenden MPG-Einweisung nennt keinen Namen (neutraler Text, nur
+  der Posteingang zeigt den vollen Text).
+- **Übergaben vom Papierbogen** sind gekennzeichnet: „Nachtrag vom
+  Papierbogen · Ereignis … · erfasst …“. Anlegen von Nachträgen bleibt dem Web
+  vorbehalten.
+
+### Verhaltensänderungen gegenüber 1.1
+
+- Der Posteingang fragt mit `?kinds=` genau die Arten ab, die die App
+  anzeigt. Gelesen gemeldet wird jeder angezeigte Hinweis einzeln; Arten, die
+  die App nicht kennt, bleiben wie in 1.1 ungelesen auf dem Server.
+- Der Offline-Lesecache der Checklisten enthält jetzt `item_details`
+  (Kennung, Pflicht, Einheit, Grenzwerte), aber nie den Zwischenstand.
+- Fotos über 5 MiB werden vor dem Upload auf dem Gerät verkleinert statt
+  abgelehnt; gelingt das nicht, gilt die bisherige Grenze.
+- Auf Servern ohne `item_details` (vor 0.28) bleibt der Abschluss einer
+  Checkliste mit einem Tipp wie in 1.1.
+
+### Behoben
+
+- Der Test „initial Wachwerk link selects server and clears old token“ lief
+  in einen Zeitablauf, weil SharedPreferences im Test nicht gemockt war; er
+  prüft jetzt zusätzlich, dass der Offline-Cache der alten Sitzung gelöscht
+  wird.
+
+### Qualität
+
+- Barrierefreiheit: „Mangel melden“ an jeder Karte in „Geräte & Fahrzeuge“
+  nennt für Vorleser das Fahrzeug bzw. Gerät („Mangel melden: RTW 1“); der
+  Lesepflicht-Eintrag der Startseite und antippbare Hinweise sind
+  Schaltflächen mit ihrem ganzen Text.
+- API-Vertragstest mit echten Serverantworten:
+  `tool/server_contract/generate_fixtures.py` erzeugt die Fixtures unter
+  `test/fixtures/server-0.28/` aus dem Server-Code;
+  `test/api_contract_fixtures_test.dart` liest sie mit den Modellen der App
+  (siehe [`docs/API-VERTRAG-FIXTURES.md`](docs/API-VERTRAG-FIXTURES.md)).
+
 ## 1.1.0 – 2026-11-02
 
 Build `1.1.0+13`. Server mindestens **0.25.0** (Paginierung, `scope`); der

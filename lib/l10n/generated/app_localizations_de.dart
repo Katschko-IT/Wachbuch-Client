@@ -1158,4 +1158,455 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get kaffeekasseBalanceOwn => 'Mein Saldo';
+
+  @override
+  String get checklistRunStart => 'Prüfung starten';
+
+  @override
+  String get checklistRunResume => 'Zwischenstand fortsetzen';
+
+  @override
+  String get checklistRunAgain => 'Erneut prüfen';
+
+  @override
+  String checklistItemCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Prüfpunkte',
+      one: '$count Prüfpunkt',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get checklistRequiredBadge => 'Pflicht';
+
+  @override
+  String checklistRequiredSemantics(String item) {
+    return 'Pflichtpunkt: $item';
+  }
+
+  @override
+  String checklistLimitsRange(String min, String max) {
+    return 'Grenzwerte $min bis $max';
+  }
+
+  @override
+  String checklistLimitsMin(String min) {
+    return 'mindestens $min';
+  }
+
+  @override
+  String checklistLimitsMax(String max) {
+    return 'höchstens $max';
+  }
+
+  @override
+  String get checklistValueLabel => 'Messwert';
+
+  @override
+  String get checklistValueOutOfLimits =>
+      'Außerhalb der Grenzwerte: Beim Abschluss wird der Punkt „nicht in Ordnung“.';
+
+  @override
+  String get checklistStatusOk => 'In Ordnung';
+
+  @override
+  String get checklistStatusNotOk => 'Nicht in Ordnung';
+
+  @override
+  String get checklistStatusNa => 'Entfällt';
+
+  @override
+  String get checklistStatusOpen => 'nicht bewertet';
+
+  @override
+  String get checklistReasonRequiredLabel => 'Begründung (Pflicht)';
+
+  @override
+  String get checklistFindingLabel => 'Feststellung (optional)';
+
+  @override
+  String get checklistNoteLabel => 'Notiz zum Lauf (optional)';
+
+  @override
+  String get checklistSaveDraft => 'Zwischenstand speichern';
+
+  @override
+  String get checklistDraftSaved =>
+      'Zwischenstand gespeichert. Die nächste Person kann fortsetzen.';
+
+  @override
+  String get checklistFinish => 'Abschließen';
+
+  @override
+  String checklistDraftInfo(String time, String name) {
+    return 'Zwischenstand vom $time · $name';
+  }
+
+  @override
+  String checklistDraftLoaded(String time, String name) {
+    return 'Zwischenstand vom $time · $name geladen.';
+  }
+
+  @override
+  String checklistDraftLoadFailed(String message) {
+    return 'Zwischenstand konnte nicht geladen werden: $message';
+  }
+
+  @override
+  String get checklistDraftShared =>
+      'Der Zwischenstand gehört der Wache: Speichern ersetzt ihn für alle.';
+
+  @override
+  String get checklistDraftSaveBlocked =>
+      '„Zwischenstand speichern“ geht erst, wenn der gespeicherte Zwischenstand geladen ist – sonst würde er ungesehen ersetzt.';
+
+  @override
+  String get checklistDraftReloadTitle => 'Zwischenstand laden?';
+
+  @override
+  String get checklistDraftReloadMessage =>
+      'Ein gespeicherter Zwischenstand ersetzt deine bisherigen Eingaben in diesem Lauf.';
+
+  @override
+  String get checklistDraftReloadConfirm => 'Laden';
+
+  @override
+  String get checklistValidationFailed =>
+      'Der Server hat den Lauf nicht angenommen. Deine Eingaben sind erhalten.';
+
+  @override
+  String get checklistRunDoneTitle => 'Checkliste abgeschlossen';
+
+  @override
+  String get checklistRunResultsTitle => 'Ergebnis wie gespeichert';
+
+  @override
+  String checklistRunDefectCreated(int id) {
+    return 'Mangel #$id angelegt';
+  }
+
+  @override
+  String checklistRunDefectLinked(int id) {
+    return 'Mit offenem Mangel #$id verknüpft';
+  }
+
+  @override
+  String get checklistRunOpenDefects => 'Mängel öffnen';
+
+  @override
+  String get checklistRunDone => 'Fertig';
+
+  @override
+  String get checklistDiscardTitle => 'Eingaben verwerfen?';
+
+  @override
+  String get checklistDiscardMessage =>
+      'Nicht gespeicherte Eingaben gehen verloren. Mit „Zwischenstand speichern“ kann die nächste Person weitermachen.';
+
+  @override
+  String get checklistDiscardConfirm => 'Verwerfen';
+
+  @override
+  String get checklistContinueEditing => 'Weiter bearbeiten';
+
+  @override
+  String get checklistPaperBackfillMarker => 'Nachtrag vom Papierbogen';
+
+  @override
+  String get defectQuickTitle => 'Mangel melden';
+
+  @override
+  String defectQuickForAsset(String asset) {
+    return 'Mangel melden: $asset';
+  }
+
+  @override
+  String get defectQuickWithPhoto => 'Mangel mit Foto';
+
+  @override
+  String get defectQuickPhotoCamera => 'Foto aufnehmen';
+
+  @override
+  String get defectQuickPhotoGallery => 'Aus Mediathek';
+
+  @override
+  String get defectQuickPhotoRemove => 'Foto entfernen';
+
+  @override
+  String defectQuickPhotoReady(String size) {
+    return 'Foto bereit ($size)';
+  }
+
+  @override
+  String get defectQuickPhotoDownscaled =>
+      'Das Foto wurde für den Versand verkleinert.';
+
+  @override
+  String get defectQuickPhotoUnsupported =>
+      'Dieses Bildformat wird nicht unterstützt (JPEG, PNG oder WebP).';
+
+  @override
+  String get defectQuickPhotoUnavailable =>
+      'Kamera oder Mediathek ist nicht verfügbar.';
+
+  @override
+  String get defectReferenceNone => 'Ohne Bezug';
+
+  @override
+  String get defectReferenceOther => 'Anderer Bezug (Freitext)';
+
+  @override
+  String get defectReferenceText => 'Bezug als Text';
+
+  @override
+  String get defectReferenceGroupVehicles => 'Fahrzeuge';
+
+  @override
+  String get defectReferenceGroupDevices => 'Geräte';
+
+  @override
+  String get defectReferenceGroupKeys => 'Schlüssel';
+
+  @override
+  String get defectReferenceScanQr => 'QR-Code am Fahrzeug oder Gerät scannen';
+
+  @override
+  String get defectReferenceQrNoMatch =>
+      'Zu diesem QR-Code gibt es keinen Eintrag in „Geräte & Fahrzeuge“ dieser Wache.';
+
+  @override
+  String get defectTitleOptionalLabel => 'Titel (optional)';
+
+  @override
+  String defectTitleAutoHint(String title) {
+    return 'Leer lassen ergibt: $title';
+  }
+
+  @override
+  String defectAutoTitle(String category, String reference) {
+    return '$category: $reference';
+  }
+
+  @override
+  String defectAutoTitleNoReference(String category) {
+    return '$category: ohne Bezug';
+  }
+
+  @override
+  String get defectNeedsContent =>
+      'Bitte ein Foto, einen Bezug, einen Titel oder eine Beschreibung angeben.';
+
+  @override
+  String get defectDuplicateTitle => 'Bereits gemeldet';
+
+  @override
+  String defectDuplicateCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count offene Mängel zu diesem Bezug. Bitte prüfen, ob es derselbe ist.',
+      one:
+          '$count offener Mangel zu diesem Bezug. Bitte prüfen, ob es derselbe ist.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get defectCreated => 'Mangel angelegt.';
+
+  @override
+  String get defectCreatedWithPhoto => 'Mangel mit Foto angelegt.';
+
+  @override
+  String defectCreatedPhotoFailed(String message) {
+    return 'Mangel angelegt, Foto nicht hochgeladen: $message Das Foto kann im Mangel erneut hinzugefügt werden.';
+  }
+
+  @override
+  String get defectCategoryVehicle => 'Fahrzeug';
+
+  @override
+  String get defectCategoryMaterial => 'Material';
+
+  @override
+  String get defectCategorySafety => 'Sicherheit';
+
+  @override
+  String get defectCategoryFacility => 'Gebäude';
+
+  @override
+  String get defectCategoryKey => 'Schlüssel';
+
+  @override
+  String get defectCategoryDevice => 'Gerät';
+
+  @override
+  String get defectCategoryTask => 'Aufgabe';
+
+  @override
+  String get defectQrCameraMessage =>
+      'Wachwerk nutzt die Kamera hier nur, um den QR-Code am Fahrzeug oder Gerät zu lesen. Es wird dabei kein Foto gespeichert.';
+
+  @override
+  String get defectQrScanTitle => 'QR-Code am Fahrzeug oder Gerät';
+
+  @override
+  String get defectQrScanInvalid =>
+      'Kein QR-Code eines Fahrzeugs oder Geräts dieses Servers.';
+
+  @override
+  String get defectQrCameraDenied =>
+      'Ohne Kamerazugriff kannst du den QR-Code nicht scannen. Wähle den Bezug aus der Liste oder aktiviere die Kamera in den Systemeinstellungen.';
+
+  @override
+  String get sopScreenTitle => 'Dienstanweisungen lesen';
+
+  @override
+  String get sopStartCardTitle => 'Dienstanweisungen lesen';
+
+  @override
+  String sopOpenCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count offen',
+      one: '$count offen',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sopOverdueCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count überfällig',
+      one: '$count überfällig',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sopRevision(String version) {
+    return 'Version $version';
+  }
+
+  @override
+  String sopDue(String date) {
+    return 'Lesen bis $date';
+  }
+
+  @override
+  String sopOverdue(String date) {
+    return 'Überfällig seit $date';
+  }
+
+  @override
+  String sopAcknowledgedAt(String date) {
+    return 'Bestätigt am $date';
+  }
+
+  @override
+  String get sopOpenText => 'Text öffnen';
+
+  @override
+  String get sopAcknowledge => 'Gelesen und verstanden';
+
+  @override
+  String get sopAckConfirmTitle => 'Lesen bestätigen?';
+
+  @override
+  String get sopAckConfirmMessage =>
+      'Bestätige nur, was du gelesen und verstanden hast. Gespeichert werden Person, Version und Zeitpunkt.';
+
+  @override
+  String get sopAckConfirm => 'Bestätigen';
+
+  @override
+  String get sopAckDone => 'Lesebestätigung gespeichert.';
+
+  @override
+  String get sopAckNewerVersion =>
+      'Es gibt eine neuere Version. Bitte zuerst die aktuelle Fassung lesen.';
+
+  @override
+  String get sopEmptyTitle => 'Alles gelesen';
+
+  @override
+  String get sopEmpty => 'Keine offenen Dienstanweisungen.';
+
+  @override
+  String get sopUnavailable =>
+      'Dieser Server bietet Lesebestätigungen in der App erst ab Wachwerk 0.28.';
+
+  @override
+  String get sopShowAcknowledged => 'Auch bestätigte anzeigen';
+
+  @override
+  String get sopOpenFailed => 'Die Seite konnte nicht geöffnet werden.';
+
+  @override
+  String get noticesTitle => 'Hinweise';
+
+  @override
+  String get noticesEmpty => 'Keine Hinweise.';
+
+  @override
+  String get noticesHint =>
+      'Hinweise erscheinen auch als Benachrichtigung auf dem Gerät und gelten danach als gelesen.';
+
+  @override
+  String get noticeKindVehicleReady => 'Fahrzeugfreigabe';
+
+  @override
+  String get noticeKindCoffeeDue => 'Kaffeekasse';
+
+  @override
+  String get noticeKindDeadline => 'Frist';
+
+  @override
+  String get noticeKindDigest => 'Wochenübersicht';
+
+  @override
+  String get noticeKindSop => 'Lesefrist';
+
+  @override
+  String get noticeKindMpgTraining => 'MPG-Einweisung';
+
+  @override
+  String get noticeKindSystemHealth => 'Technik';
+
+  @override
+  String get noticeUnread => 'neu';
+
+  @override
+  String get noticeOpenInBrowser => 'Im Browser öffnen';
+
+  @override
+  String get handoverPaperBackfill => 'Nachtrag vom Papierbogen';
+
+  @override
+  String handoverPaperBackfillEvent(String occurred) {
+    return 'Nachtrag vom Papierbogen · Ereignis $occurred';
+  }
+
+  @override
+  String handoverPaperBackfillFull(String occurred, String recorded) {
+    return 'Nachtrag vom Papierbogen · Ereignis $occurred · erfasst $recorded';
+  }
+
+  @override
+  String get noticeChannelName => 'Hinweise der Wache';
+
+  @override
+  String get noticePrivateBody =>
+      'Neuer Hinweis der Wache – Details in der App unter „Hinweise“.';
+
+  @override
+  String get noticeChannelDescription =>
+      'Fristen, Wochenübersicht, Lesefristen und weitere persönliche Hinweise deines Wachwerk-Servers.';
 }

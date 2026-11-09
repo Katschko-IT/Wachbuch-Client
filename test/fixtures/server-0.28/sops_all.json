@@ -1,0 +1,39 @@
+{
+  "body": {
+    "count": 2,
+    "ok": true,
+    "results": [
+      {
+        "ack_due_date": "2026-11-01",
+        "acknowledged": true,
+        "acknowledged_at": "2026-11-09T07:00:00+00:00",
+        "doc_number": "DA-HYG-1",
+        "id": 1,
+        "in_target_group": true,
+        "overdue": false,
+        "revision": {
+          "id": 2,
+          "version": "1.1"
+        },
+        "title": "Händedesinfektion",
+        "url": "/orga/sop/da-hygiene/"
+      },
+      {
+        "ack_due_date": "2026-12-01",
+        "acknowledged": false,
+        "acknowledged_at": null,
+        "doc_number": "DA-FUNK-2",
+        "id": 2,
+        "in_target_group": true,
+        "overdue": false,
+        "revision": {
+          "id": 3,
+          "version": "2.0"
+        },
+        "title": "Funkdisziplin",
+        "url": "/orga/sop/da-funk/"
+      }
+    ]
+  },
+  "status": 200
+}

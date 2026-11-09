@@ -3,13 +3,24 @@ import 'package:wachbuch_mobile/ui/empty_state.dart';
 import 'package:wachbuch_mobile/l10n/generated/app_localizations.dart';
 import 'package:wachbuch_mobile/api/client.dart';
 import 'package:wachbuch_mobile/models/checkliste.dart';
+import 'package:wachbuch_mobile/screens/checklist_run_screen.dart';
+import 'package:wachbuch_mobile/theme/design_tokens.dart';
+import 'package:wachbuch_mobile/ui/date_time_text.dart';
 import 'package:wachbuch_mobile/ui/error_banner.dart';
 import 'package:wachbuch_mobile/ui/layout.dart';
 
+/// Checklisten der Wache.
+///
+/// Server ab 0.28 (`item_details`): Lauf mit Ergebnis je Prüfpunkt im
+/// [ChecklistRunScreen], Zwischenstand der Wache fortsetzen. Ältere Server:
+/// Abschluss mit einem Tipp wie in App 1.1.
 class ChecklistenScreen extends StatefulWidget {
-  const ChecklistenScreen({super.key, required this.api});
+  const ChecklistenScreen({super.key, required this.api, this.role});
 
   final WachbuchApi api;
+
+  /// Rolle aus `/me/`; wird an den Lauf (Absprung zu Mängeln) weitergegeben.
+  final String? role;
 
   @override
   State<ChecklistenScreen> createState() => _ChecklistenScreenState();
@@ -56,7 +67,44 @@ class _ChecklistenScreenState extends State<ChecklistenScreen> {
     }
   }
 
-  Future<void> _complete(Checklist list) async {
+  Future<void> _openRun(Checklist list) async {
+    final changed = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => ChecklistRunScreen(
+          api: widget.api,
+          checklist: list,
+          role: widget.role,
+        ),
+      ),
+    );
+    if (changed == true && mounted) await _reload();
+  }
+
+  /// Checkliste ohne Prüfpunkte auf einem 0.28-Server: Abschluss mit leerem
+  /// `item_results` (der Server verlangt Ergebnisse nur für vorhandene Punkte).
+  Future<void> _completeWithoutItems(Checklist list) async {
+    if (_busy.contains(list.id)) return;
+    setState(() {
+      _busy.add(list.id);
+      _error = null;
+    });
+    try {
+      await widget.api.completeChecklistRun(list.id, results: const {});
+      if (!mounted) return;
+      await _reload();
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      setState(() => _error = error.message);
+    } catch (error) {
+      if (!mounted) return;
+      setState(() => _error = error.toString());
+    } finally {
+      if (mounted) setState(() => _busy.remove(list.id));
+    }
+  }
+
+  /// Abschluss mit einem Tipp für Server ohne `item_details` (vor 0.28).
+  Future<void> _completeLegacy(Checklist list) async {
     if (_busy.contains(list.id)) return;
     setState(() {
       _busy.add(list.id);
@@ -66,7 +114,14 @@ class _ChecklistenScreenState extends State<ChecklistenScreen> {
       completed: true,
       completedAt: DateTime.now(),
       items: list.items
-          .map((item) => ChecklistItem(id: item.id, label: item.label, checked: true, note: item.note))
+          .map(
+            (item) => ChecklistItem(
+              id: item.id,
+              label: item.label,
+              checked: true,
+              note: item.note,
+            ),
+          )
           .toList(growable: false),
     );
     setState(() {
@@ -79,15 +134,21 @@ class _ChecklistenScreenState extends State<ChecklistenScreen> {
       if (!mounted) return;
       setState(() {
         _lists = _lists
-            .map((entry) => entry.id == list.id
-                ? optimistic.copyWith(
-                    completedAt: updated.completedAt,
-                    completedBy: updated.completedBy.isEmpty ? null : updated.completedBy,
-                    interval: updated.interval.isEmpty ? null : updated.interval,
-                    dueNext: updated.dueNext,
-                    overdue: updated.overdue,
-                  )
-                : entry)
+            .map(
+              (entry) => entry.id == list.id
+                  ? optimistic.copyWith(
+                      completedAt: updated.completedAt,
+                      completedBy: updated.completedBy.isEmpty
+                          ? null
+                          : updated.completedBy,
+                      interval: updated.interval.isEmpty
+                          ? null
+                          : updated.interval,
+                      dueNext: updated.dueNext,
+                      overdue: updated.overdue,
+                    )
+                  : entry,
+            )
             .toList(growable: false);
       });
     } on ApiException catch (error) {
@@ -113,12 +174,22 @@ class _ChecklistenScreenState extends State<ChecklistenScreen> {
     }
   }
 
+  Future<void> _start(Checklist list) {
+    if (list.supportsItemResults) return _openRun(list);
+    if (list.hasItemDetails && list.items.isEmpty) {
+      return _completeWithoutItems(list);
+    }
+    return _completeLegacy(list);
+  }
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
     final maxW = AppLayout.contentMaxWidth(width);
     return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context)!.checklistenTitle)),
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context)!.checklistenTitle),
+      ),
       body: Align(
         alignment: Alignment.topCenter,
         child: ConstrainedBox(
@@ -155,16 +226,16 @@ class _ChecklistenScreenState extends State<ChecklistenScreen> {
             if (_dueLists.isNotEmpty) ...[
               Text(
                 AppLocalizations.of(context)!.checklistDueSection,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 12),
               for (final list in _dueLists) ...[
                 _ChecklistCard(
                   list: list,
                   busy: _busy.contains(list.id),
-                  onComplete: () => _complete(list),
+                  onStart: () => _start(list),
                 ),
                 const SizedBox(height: 12),
               ],
@@ -174,7 +245,7 @@ class _ChecklistenScreenState extends State<ChecklistenScreen> {
               _ChecklistCard(
                 list: list,
                 busy: _busy.contains(list.id),
-                onComplete: () => _complete(list),
+                onStart: () => _start(list),
               ),
               const SizedBox(height: 12),
             ],
@@ -197,17 +268,23 @@ class _ChecklistCard extends StatelessWidget {
   const _ChecklistCard({
     required this.list,
     required this.busy,
-    required this.onComplete,
+    required this.onStart,
   });
 
   final Checklist list;
   final bool busy;
-  final Future<void> Function() onComplete;
+  final Future<void> Function() onStart;
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final scheme = Theme.of(context).colorScheme;
+    final c = WachbuchColors.of(context);
+    final draft = list.draft;
+    final perItem = list.supportsItemResults;
+    final german = Localizations.localeOf(context).languageCode == 'de';
     return Card(
+      key: Key('checklist-${list.id}'),
       clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -218,21 +295,25 @@ class _ChecklistCard extends StatelessWidget {
               children: [
                 Icon(
                   list.completed ? Icons.task_alt : Icons.checklist,
-                  color: list.completed ? scheme.primary : scheme.onSurfaceVariant,
+                  color: list.completed
+                      ? scheme.primary
+                      : scheme.onSurfaceVariant,
                   size: 24,
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    list.title.isNotEmpty
-                        ? list.title
-                        : AppLocalizations.of(context)!.checklistFallback,
+                    list.title.isNotEmpty ? list.title : l.checklistFallback,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ),
                 if (list.items.isNotEmpty)
                   Chip(
-                    label: Text('${list.checkedCount}/${list.items.length}'),
+                    label: Text(
+                      list.hasItemDetails
+                          ? l.checklistItemCount(list.items.length)
+                          : '${list.checkedCount}/${list.items.length}',
+                    ),
                     visualDensity: VisualDensity.compact,
                   ),
               ],
@@ -244,21 +325,19 @@ class _ChecklistCard extends StatelessWidget {
                 runSpacing: 8,
                 children: [
                   if (list.interval == 'daily')
-                    Chip(label: Text(AppLocalizations.of(context)!.checklistIntervalDaily)),
+                    Chip(label: Text(l.checklistIntervalDaily)),
                   if (list.interval == 'weekly')
-                    Chip(label: Text(AppLocalizations.of(context)!.checklistIntervalWeekly)),
+                    Chip(label: Text(l.checklistIntervalWeekly)),
                   if (list.interval == 'monthly')
-                    Chip(label: Text(AppLocalizations.of(context)!.checklistIntervalMonthly)),
+                    Chip(label: Text(l.checklistIntervalMonthly)),
                   if (list.overdue)
                     Chip(
                       avatar: const Icon(Icons.warning_amber_rounded, size: 18),
-                      label: Text(AppLocalizations.of(context)!.checklistOverdue),
+                      label: Text(l.checklistOverdue),
                       backgroundColor: scheme.errorContainer,
                     )
                   else if (list.isDueToday)
-                    Chip(
-                      label: Text(AppLocalizations.of(context)!.checklistDueToday),
-                    ),
+                    Chip(label: Text(l.checklistDueToday)),
                 ],
               ),
             ],
@@ -267,51 +346,166 @@ class _ChecklistCard extends StatelessWidget {
               Text(
                 list.description,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: scheme.onSurfaceVariant,
-                    ),
+                  color: scheme.onSurfaceVariant,
+                ),
               ),
             ],
             const SizedBox(height: 12),
             if (list.items.isEmpty)
               Text(
-                AppLocalizations.of(context)!.checklistNoItems,
+                l.checklistNoItems,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: scheme.onSurfaceVariant,
-                    ),
+                  color: scheme.onSurfaceVariant,
+                ),
               )
-            else
+            else if (list.hasItemDetails)
               for (final item in list.items)
-                _ChecklistItemTile(item: item),
+                _DetailItemTile(item: item, german: german)
+            else
+              for (final item in list.items) _ChecklistItemTile(item: item),
+            if (draft != null) ...[
+              const SizedBox(height: 8),
+              Row(
+                key: Key('checklist-draft-${list.id}'),
+                children: [
+                  Icon(Icons.history, size: 20, color: c.brandDeep),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      l.checklistDraftInfo(
+                        draft.updatedAt == null
+                            ? '—'
+                            : formatDateTimeShort(context, draft.updatedAt!),
+                        draft.updatedBy.isEmpty ? '—' : draft.updatedBy,
+                      ),
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ),
+                ],
+              ),
+            ],
             const SizedBox(height: 8),
             if (list.completed && list.completedAt != null)
               Padding(
-                padding: const EdgeInsets.only(top: 4),
+                padding: const EdgeInsets.only(top: 4, bottom: 8),
                 child: Text(
-                  AppLocalizations.of(context)!.checklistCompletedAt(
-                    list.completedBy.isEmpty
-                        ? _formatTimestamp(list.completedAt!)
-                        : '${_formatTimestamp(list.completedAt!)} · ${list.completedBy}',
-                  ),
+                  [
+                    l.checklistCompletedAt(
+                      list.completedBy.isEmpty
+                          ? _formatTimestamp(list.completedAt!)
+                          : '${_formatTimestamp(list.completedAt!)} · ${list.completedBy}',
+                    ),
+                    if (list.lastCompletedPaperBackfill)
+                      l.checklistPaperBackfillMarker,
+                  ].join(' · '),
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
-              )
-            else
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.icon(
-                  onPressed: busy ? null : onComplete,
-                  icon: busy
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.check_circle_outline),
-                  label: Text(AppLocalizations.of(context)!.checklistCompleteButton),
-                ),
               ),
+            if (!list.completed || perItem || draft != null)
+              _StartButton(list: list, busy: busy, onPressed: onStart),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _StartButton extends StatelessWidget {
+  const _StartButton({
+    required this.list,
+    required this.busy,
+    required this.onPressed,
+  });
+
+  final Checklist list;
+  final bool busy;
+  final Future<void> Function() onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final label = !list.supportsItemResults
+        ? l.checklistCompleteButton
+        : list.draft != null
+        ? l.checklistRunResume
+        : list.completed
+        ? l.checklistRunAgain
+        : l.checklistRunStart;
+    final icon = busy
+        ? const SizedBox(
+            width: 18,
+            height: 18,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          )
+        : Icon(
+            list.supportsItemResults
+                ? Icons.fact_check_outlined
+                : Icons.check_circle_outline,
+          );
+    final button = list.completed && list.draft == null
+        ? OutlinedButton.icon(
+            key: Key('checklist-start-${list.id}'),
+            onPressed: busy ? null : onPressed,
+            icon: icon,
+            label: Text(label),
+          )
+        : FilledButton.icon(
+            key: Key('checklist-start-${list.id}'),
+            onPressed: busy ? null : onPressed,
+            icon: icon,
+            label: Text(label),
+          );
+    return SizedBox(width: double.infinity, child: button);
+  }
+}
+
+/// Prüfpunkt aus `item_details`: Text, Pflicht und Grenzwerte.
+class _DetailItemTile extends StatelessWidget {
+  const _DetailItemTile({required this.item, required this.german});
+
+  final ChecklistItem item;
+  final bool german;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final scheme = Theme.of(context).colorScheme;
+    final limits = checklistLimitsText(l, item, decimalComma: german);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            item.measurement ? Icons.straighten : Icons.check_box_outline_blank,
+            color: scheme.onSurfaceVariant,
+            size: 22,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  [
+                    item.label.isNotEmpty
+                        ? item.label
+                        : l.checklistItemFallback,
+                    if (item.required) l.checklistRequiredBadge,
+                  ].join(' · '),
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+                if (limits.isNotEmpty)
+                  Text(
+                    limits,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -342,9 +536,9 @@ class _ChecklistItemTile extends StatelessWidget {
                   ? item.label
                   : AppLocalizations.of(context)!.checklistItemFallback,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    decoration: item.checked ? TextDecoration.lineThrough : null,
-                    color: item.checked ? scheme.onSurfaceVariant : null,
-                  ),
+                decoration: item.checked ? TextDecoration.lineThrough : null,
+                color: item.checked ? scheme.onSurfaceVariant : null,
+              ),
             ),
           ),
         ],

@@ -17,6 +17,7 @@ import 'package:wachbuch_mobile/models/crew_notice.dart';
 import 'package:wachbuch_mobile/models/kaffeekasse.dart';
 import 'package:wachbuch_mobile/models/kalender_entry.dart';
 import 'package:wachbuch_mobile/models/pinboard_note.dart';
+import 'package:wachbuch_mobile/models/reading_obligation.dart';
 import 'package:wachbuch_mobile/models/report_stats.dart';
 import 'package:wachbuch_mobile/models/station_asset.dart';
 
@@ -63,12 +64,21 @@ class ApiException implements Exception {
     this.message, {
     this.code,
     this.correlationId,
+    this.errors = const [],
+    this.fields = const {},
   });
 
   final int statusCode;
   final String message;
   final String? code;
   final String? correlationId;
+
+  /// Einzelmeldungen eines `validation_error` (z. B. Checklisten-Lauf:
+  /// `errors` mit je einer Meldung pro Prüfpunkt, Server ab 0.28).
+  final List<String> errors;
+
+  /// Feldfehler (`fields`, z. B. `occurred_at` bei Übergaben).
+  final Map<String, dynamic> fields;
 
   /// 403 aus `api_token_required`: Konto ohne aktive Mitgliedschaft.
   /// Der Server liefert dafür nur den allgemeinen Code `forbidden`, daher wird
@@ -242,11 +252,21 @@ class WachbuchApi {
           ? message! + _retryAfterHint(response)
           : _proxyErrorMessage(response) ??
               'Anfrage fehlgeschlagen (${response.statusCode})';
+      final rawErrors = body['errors'];
+      final rawFields = body['fields'];
       _raise(ApiException(
         response.statusCode,
         resolved,
         code: code,
         correlationId: correlationId,
+        errors: rawErrors is List
+            ? List.unmodifiable(rawErrors
+                .map((entry) => entry?.toString().trim() ?? '')
+                .where((entry) => entry.isNotEmpty))
+            : const [],
+        fields: rawFields is Map
+            ? Map.unmodifiable(Map<String, dynamic>.from(rawFields))
+            : const {},
       ));
     }
     return body;
@@ -352,6 +372,7 @@ class WachbuchApi {
     String? cacheKey,
     String? moduleLabel,
     Future<void> Function(Map<String, dynamic> body)? onOnline,
+    Map<String, dynamic> Function(Map<String, dynamic> body)? beforeCache,
   }) async {
     try {
       final body = await _withRetry(() async {
@@ -365,7 +386,9 @@ class WachbuchApi {
       });
       if (token != null && token!.isNotEmpty) _sessionConfirmed = true;
       if (onOnline != null) await onOnline(body);
-      if (cacheKey != null) await _cacheWrite(cacheKey, body);
+      if (cacheKey != null) {
+        await _cacheWrite(cacheKey, beforeCache == null ? body : beforeCache(body));
+      }
       return body;
     } on ApiException catch (error) {
       if (error.statusCode == 0 && cacheKey != null) {
@@ -478,10 +501,73 @@ class WachbuchApi {
         .toList(growable: false);
   }
 
-  /// GET /api/v1/benachrichtigungen/ – persönlicher Posteingang.
+  /// GET /api/v1/benachrichtigungen/?kinds=… – persönlicher Posteingang,
+  /// nur die Arten, die die App anzeigt ([CrewNotice.shownKinds]). Ab Server
+  /// 0.28 filtert der Server; ältere Server ignorieren den Parameter, die App
+  /// filtert dann selbst ([CrewNotice.isShownKind]).
   Future<List<CrewNotice>> crewNotices() async {
-    final body = await _getOptionalJson('/api/v1/benachrichtigungen/');
+    final path = Uri(
+      path: '/api/v1/benachrichtigungen/',
+      queryParameters: {'kinds': CrewNotice.kindsQuery},
+    ).toString();
+    final body = await _getOptionalJson(path);
     return _readList(body).map(CrewNotice.fromJson).toList(growable: false);
+  }
+
+  /// GET /api/v1/dienstanweisungen/ (Server ab 0.28) – eigene Lesepflichten.
+  /// Mit [openOnly] nur noch nicht bestätigte (`?offen=1`). `null`, wenn der
+  /// Server den Endpunkt nicht kennt (ältere Version): Die App blendet die
+  /// Funktion dann aus. Nie im Offline-Cache.
+  Future<List<ReadingObligation>?> readingObligations({bool openOnly = true}) async {
+    final path = openOnly
+        ? '/api/v1/dienstanweisungen/?offen=1'
+        : '/api/v1/dienstanweisungen/';
+    final response = await _withRetry(
+      () => _send(_client.get(_uri(path), headers: _headers())),
+    );
+    if (response.statusCode == 404 || response.statusCode == 501) return null;
+    final body = _decode(response);
+    if (token != null && token!.isNotEmpty) _sessionConfirmed = true;
+    return _readList(body).map(ReadingObligation.fromJson).toList(growable: false);
+  }
+
+  /// POST /api/v1/dienstanweisungen/{id}/quittieren/ – aktuelle Version
+  /// bestätigen, mit derselben Prüfung wie im Web. [revisionId] ist die
+  /// gelesene Version; gibt es inzwischen eine neuere, antwortet der Server
+  /// mit 409. Der Server speichert die Bestätigung idempotent (201 neu, 200
+  /// schon bestätigt), eine Wiederholung nach verlorener Antwort ist daher
+  /// unschädlich.
+  Future<ReadingObligation> acknowledgeReadingObligation(
+    int id, {
+    int? revisionId,
+  }) async {
+    return _withRetry(() async {
+      final response = await _send(
+        _client.post(
+          _uri('/api/v1/dienstanweisungen/$id/quittieren/'),
+          headers: _headers(),
+          body: jsonEncode({'revision': ?revisionId}),
+        ),
+      );
+      return ReadingObligation.fromJson(_decode(response));
+    });
+  }
+
+  /// Webseite des Servers für einen Pfad aus der API (z. B. `url` einer
+  /// Dienstanweisung oder eines Hinweises). Nur Pfade auf diesem Server.
+  Uri? webPage(String path) {
+    final base = Uri.tryParse(baseUrl);
+    final trimmed = path.trim();
+    if (base == null || !trimmed.startsWith('/') || trimmed.startsWith('//')) {
+      return null;
+    }
+    final target = Uri.tryParse(trimmed);
+    if (target == null || target.hasScheme || target.hasAuthority) return null;
+    return base.replace(
+      path: target.path,
+      query: target.hasQuery ? target.query : null,
+      fragment: target.hasFragment ? target.fragment : null,
+    );
   }
 
   /// POST /api/v1/benachrichtigungen/{id}/gelesen/
@@ -649,9 +735,113 @@ class WachbuchApi {
   }
 
   /// GET /api/v1/checklisten/
+  ///
+  /// Ab Server 0.28 enthält jede Checkliste den gemeinsamen Zwischenstand
+  /// (`draft` mit Begründungen, Notiz und Namen). Er wird vor dem Schreiben in
+  /// den Offline-Lesecache entfernt (CLIENT-OFFLINE-CONTRACT §2) und nur online
+  /// über [checklistDraft] geladen.
   Future<List<Checklist>> checklisten() async {
-    final body = await _getJson('/api/v1/checklisten/', cacheKey: 'checklists');
+    final body = await _getJson(
+      '/api/v1/checklisten/',
+      cacheKey: 'checklists',
+      beforeCache: withoutChecklistDrafts,
+    );
     return _readList(body).map(Checklist.fromJson).toList(growable: false);
+  }
+
+  /// Kopie der Listenantwort ohne `results[].draft`.
+  static Map<String, dynamic> withoutChecklistDrafts(Map<String, dynamic> body) {
+    final results = body['results'];
+    if (results is! List) return body;
+    return {
+      ...body,
+      'results': [
+        for (final entry in results)
+          if (entry is Map)
+            {
+              for (final field in entry.entries)
+                if (field.key != 'draft') field.key.toString(): field.value,
+            }
+          else
+            entry,
+      ],
+    };
+  }
+
+  /// GET /api/v1/checklisten/{id}/zwischenstand/ (Server ab 0.28) – der
+  /// gemeinsame Zwischenstand der Wache oder `null`. Nie im Offline-Cache.
+  Future<ChecklistDraft?> checklistDraft(int id) async {
+    final body = await _getJson(
+      '/api/v1/checklisten/$id/zwischenstand/',
+      moduleLabel: 'Checklisten',
+    );
+    final draft = body['draft'];
+    return draft is Map
+        ? ChecklistDraft.fromJson(Map<String, dynamic>.from(draft))
+        : null;
+  }
+
+  /// PUT /api/v1/checklisten/{id}/zwischenstand/ – Zwischenstand ersetzen.
+  /// Einmal senden: Jede Speicherung schreibt auf dem Server einen
+  /// Audit-Eintrag.
+  Future<ChecklistDraft?> saveChecklistDraft(
+    int id, {
+    required Map<int, ChecklistItemResult> results,
+    String note = '',
+  }) async {
+    final response = await _send(
+      _client.put(
+        _uri('/api/v1/checklisten/$id/zwischenstand/'),
+        headers: _headers(),
+        body: jsonEncode(checklistRunBody(results: results, note: note)),
+      ),
+    );
+    final body = _decode(_requireModule(response, 'Checklisten'));
+    final draft = body['draft'];
+    return draft is Map
+        ? ChecklistDraft.fromJson(Map<String, dynamic>.from(draft))
+        : null;
+  }
+
+  /// POST /api/v1/checklisten/{id}/abschluss/ mit `item_results` (Server ab
+  /// 0.28). Ein Lauf ist append-only und legt ggf. Mängel an: keine
+  /// automatische Wiederholung. Prüffehler kommen als 400 mit `errors`.
+  Future<ChecklistRunResult> completeChecklistRun(
+    int id, {
+    required Map<int, ChecklistItemResult> results,
+    String note = '',
+  }) async {
+    final response = await _send(
+      _client.post(
+        _uri('/api/v1/checklisten/$id/abschluss/'),
+        headers: _headers(),
+        body: jsonEncode(checklistRunBody(results: results, note: note)),
+      ),
+    );
+    return ChecklistRunResult.fromJson(
+      _decode(_requireModule(response, 'Checklisten')),
+    );
+  }
+
+  /// JSON-Körper für Lauf und Zwischenstand: Schlüssel sind ausschließlich
+  /// Server-Kennungen aus `item_details`. Messwerte gehen als Text, damit der
+  /// Server Dezimalkomma und Grenzen selbst auswertet.
+  static Map<String, dynamic> checklistRunBody({
+    required Map<int, ChecklistItemResult> results,
+    String note = '',
+  }) {
+    return {
+      'item_results': {
+        for (final entry in results.entries)
+          if (entry.key > 0)
+            '${entry.key}': {
+              'status': entry.value.status,
+              'value': entry.value.valueText,
+              'reason': entry.value.reason.trim(),
+            },
+      },
+      'note': note.trim(),
+    };
   }
 
   /// GET /api/v1/pinnwand/
@@ -775,6 +965,42 @@ class WachbuchApi {
       next: link(body['next']),
       previous: link(body['previous']),
     );
+  }
+
+  /// GET /api/v1/defects/?active=1&asset=… (Server ab 0.28) – offene Mängel
+  /// zu genau einem Bezug für den Hinweis „bereits gemeldet“.
+  ///
+  /// [reference] ist die `asset_id` eines Eintrags aus „Geräte & Fahrzeuge“
+  /// oder der Bezug als Text. Der Server vergleicht exakt (Groß-/Klein-
+  /// schreibung und Leerraum egal, nie Teilstrings) und zählt verknüpfte
+  /// Fahrzeuge und Geräte mit. Ältere Server kennen den Filter nicht und
+  /// lieferten alle offenen Mängel; Aufrufer prüfen vorher
+  /// [ServerInfo.supportsDefectReferenceFilter].
+  Future<DefectPage> defectsForReference(String reference, {int limit = 5}) async {
+    final path = Uri(
+      path: '/api/v1/defects/',
+      queryParameters: {
+        'active': '1',
+        'asset': reference.trim(),
+        'limit': '${limit.clamp(1, 200)}',
+      },
+    ).toString();
+    return _defectPage(await _getJson(path, moduleLabel: 'Mängel'));
+  }
+
+  ServerInfo? _serverInfo;
+
+  /// Version und Fähigkeiten des Servers aus `GET /api/v1/` (einmal je
+  /// Sitzung). Bei Fehlern gilt „unbekannt“; neue Funktionen bleiben dann
+  /// ausgeblendet, und der nächste Aufruf fragt erneut.
+  Future<ServerInfo> serverInfo() async {
+    final cached = _serverInfo;
+    if (cached != null) return cached;
+    try {
+      return _serverInfo = ServerInfo.fromDiscovery(await discover());
+    } catch (_) {
+      return const ServerInfo();
+    }
   }
 
   /// Pfad samt Query eines Folgelinks, wenn er auf diesen Server und unter
@@ -1359,6 +1585,61 @@ String? nextPagePath(
 }) {
   final raw = next is Map ? next['next'] : next;
   return sameOriginPath(baseUri, raw, prefix: prefix);
+}
+
+/// Version und Fähigkeiten eines Servers aus der Discovery (`GET /api/v1/`).
+class ServerInfo {
+  const ServerInfo({this.version, this.capabilities = const {}});
+
+  factory ServerInfo.fromDiscovery(Map<String, dynamic> body) {
+    final raw = body['app_version']?.toString() ?? '';
+    final match = RegExp(r'^\s*v?(\d+)\.(\d+)(?:\.(\d+))?').firstMatch(raw);
+    final capabilities = body['capabilities'];
+    return ServerInfo(
+      version: match == null
+          ? null
+          : [
+              int.parse(match.group(1)!),
+              int.parse(match.group(2)!),
+              int.tryParse(match.group(3) ?? '') ?? 0,
+            ],
+      capabilities: capabilities is Map
+          ? {
+              for (final entry in capabilities.entries)
+                entry.key.toString(): entry.value == true,
+            }
+          : const {},
+    );
+  }
+
+  /// `[major, minor, patch]` aus `app_version`, sonst `null`.
+  final List<int>? version;
+  final Map<String, bool> capabilities;
+
+  /// Mindestversion für die Funktionen von App 1.2.
+  static const minimumFor12 = [0, 28, 0];
+
+  bool atLeast(List<int> minimum) {
+    final current = version;
+    if (current == null) return false;
+    for (var i = 0; i < 3; i++) {
+      if (current[i] != minimum[i]) return current[i] > minimum[i];
+    }
+    return true;
+  }
+
+  /// API-Stand 0.28: Versionsnummer ab 0.28.0 oder die mit 0.28
+  /// eingeführten Fähigkeiten in der Discovery (`checklist_item_results`,
+  /// `checklist_drafts`). Ein Server-Stand mit den Funktionen von 0.28 kann
+  /// vor der Freigabe noch „0.27.0“ melden.
+  bool get hasApi028 =>
+      atLeast(minimumFor12) ||
+      capabilities['checklist_item_results'] == true ||
+      capabilities['checklist_drafts'] == true;
+
+  /// `?asset=` mit exakter Zuordnung gibt es erst ab 0.28; ältere Server
+  /// ignorieren den Parameter und liefern alle offenen Mängel.
+  bool get supportsDefectReferenceFilter => hasApi028;
 }
 
 /// Validates that a discovery payload looks like a Wachwerk API root.

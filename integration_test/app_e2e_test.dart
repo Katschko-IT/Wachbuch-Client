@@ -263,6 +263,7 @@ class _NoopScheduler implements ReminderScheduler {
     required int id,
     required String title,
     required String body,
+    ReminderChannel channel = ReminderChannel.vehicleRelease,
   }) async {}
 }
 

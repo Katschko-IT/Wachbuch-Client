@@ -1,0 +1,32 @@
+{
+  "body": {
+    "api_version": "v1",
+    "count": 2,
+    "next": null,
+    "ok": true,
+    "previous": null,
+    "results": [
+      {
+        "category": "vehicle",
+        "id": 2,
+        "is_paper_backfill": true,
+        "occurred_at": "2026-11-08T21:30:00+00:00",
+        "priority": "normal",
+        "status": "open",
+        "title": "Desinfektion RTW 1 vom Papierbogen",
+        "updated_at": "2026-11-09T07:00:00+00:00"
+      },
+      {
+        "category": "vehicle",
+        "id": 1,
+        "is_paper_backfill": false,
+        "occurred_at": null,
+        "priority": "urgent",
+        "status": "open",
+        "title": "Trage RTW 1 klemmt",
+        "updated_at": "2026-11-09T07:00:00+00:00"
+      }
+    ]
+  },
+  "status": 200
+}

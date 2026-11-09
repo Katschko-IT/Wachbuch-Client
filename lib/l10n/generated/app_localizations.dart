@@ -2203,6 +2203,714 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Mein Saldo'**
   String get kaffeekasseBalanceOwn;
+
+  /// No description provided for @checklistRunStart.
+  ///
+  /// In de, this message translates to:
+  /// **'Prüfung starten'**
+  String get checklistRunStart;
+
+  /// No description provided for @checklistRunResume.
+  ///
+  /// In de, this message translates to:
+  /// **'Zwischenstand fortsetzen'**
+  String get checklistRunResume;
+
+  /// No description provided for @checklistRunAgain.
+  ///
+  /// In de, this message translates to:
+  /// **'Erneut prüfen'**
+  String get checklistRunAgain;
+
+  /// No description provided for @checklistItemCount.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, one {{count} Prüfpunkt} other {{count} Prüfpunkte}}'**
+  String checklistItemCount(int count);
+
+  /// No description provided for @checklistRequiredBadge.
+  ///
+  /// In de, this message translates to:
+  /// **'Pflicht'**
+  String get checklistRequiredBadge;
+
+  /// No description provided for @checklistRequiredSemantics.
+  ///
+  /// In de, this message translates to:
+  /// **'Pflichtpunkt: {item}'**
+  String checklistRequiredSemantics(String item);
+
+  /// No description provided for @checklistLimitsRange.
+  ///
+  /// In de, this message translates to:
+  /// **'Grenzwerte {min} bis {max}'**
+  String checklistLimitsRange(String min, String max);
+
+  /// No description provided for @checklistLimitsMin.
+  ///
+  /// In de, this message translates to:
+  /// **'mindestens {min}'**
+  String checklistLimitsMin(String min);
+
+  /// No description provided for @checklistLimitsMax.
+  ///
+  /// In de, this message translates to:
+  /// **'höchstens {max}'**
+  String checklistLimitsMax(String max);
+
+  /// No description provided for @checklistValueLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Messwert'**
+  String get checklistValueLabel;
+
+  /// No description provided for @checklistValueOutOfLimits.
+  ///
+  /// In de, this message translates to:
+  /// **'Außerhalb der Grenzwerte: Beim Abschluss wird der Punkt „nicht in Ordnung“.'**
+  String get checklistValueOutOfLimits;
+
+  /// No description provided for @checklistStatusOk.
+  ///
+  /// In de, this message translates to:
+  /// **'In Ordnung'**
+  String get checklistStatusOk;
+
+  /// No description provided for @checklistStatusNotOk.
+  ///
+  /// In de, this message translates to:
+  /// **'Nicht in Ordnung'**
+  String get checklistStatusNotOk;
+
+  /// No description provided for @checklistStatusNa.
+  ///
+  /// In de, this message translates to:
+  /// **'Entfällt'**
+  String get checklistStatusNa;
+
+  /// No description provided for @checklistStatusOpen.
+  ///
+  /// In de, this message translates to:
+  /// **'nicht bewertet'**
+  String get checklistStatusOpen;
+
+  /// No description provided for @checklistReasonRequiredLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Begründung (Pflicht)'**
+  String get checklistReasonRequiredLabel;
+
+  /// No description provided for @checklistFindingLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Feststellung (optional)'**
+  String get checklistFindingLabel;
+
+  /// No description provided for @checklistNoteLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Notiz zum Lauf (optional)'**
+  String get checklistNoteLabel;
+
+  /// No description provided for @checklistSaveDraft.
+  ///
+  /// In de, this message translates to:
+  /// **'Zwischenstand speichern'**
+  String get checklistSaveDraft;
+
+  /// No description provided for @checklistDraftSaved.
+  ///
+  /// In de, this message translates to:
+  /// **'Zwischenstand gespeichert. Die nächste Person kann fortsetzen.'**
+  String get checklistDraftSaved;
+
+  /// No description provided for @checklistFinish.
+  ///
+  /// In de, this message translates to:
+  /// **'Abschließen'**
+  String get checklistFinish;
+
+  /// No description provided for @checklistDraftInfo.
+  ///
+  /// In de, this message translates to:
+  /// **'Zwischenstand vom {time} · {name}'**
+  String checklistDraftInfo(String time, String name);
+
+  /// No description provided for @checklistDraftLoaded.
+  ///
+  /// In de, this message translates to:
+  /// **'Zwischenstand vom {time} · {name} geladen.'**
+  String checklistDraftLoaded(String time, String name);
+
+  /// No description provided for @checklistDraftLoadFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Zwischenstand konnte nicht geladen werden: {message}'**
+  String checklistDraftLoadFailed(String message);
+
+  /// No description provided for @checklistDraftShared.
+  ///
+  /// In de, this message translates to:
+  /// **'Der Zwischenstand gehört der Wache: Speichern ersetzt ihn für alle.'**
+  String get checklistDraftShared;
+
+  /// No description provided for @checklistDraftSaveBlocked.
+  ///
+  /// In de, this message translates to:
+  /// **'„Zwischenstand speichern“ geht erst, wenn der gespeicherte Zwischenstand geladen ist – sonst würde er ungesehen ersetzt.'**
+  String get checklistDraftSaveBlocked;
+
+  /// No description provided for @checklistDraftReloadTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Zwischenstand laden?'**
+  String get checklistDraftReloadTitle;
+
+  /// No description provided for @checklistDraftReloadMessage.
+  ///
+  /// In de, this message translates to:
+  /// **'Ein gespeicherter Zwischenstand ersetzt deine bisherigen Eingaben in diesem Lauf.'**
+  String get checklistDraftReloadMessage;
+
+  /// No description provided for @checklistDraftReloadConfirm.
+  ///
+  /// In de, this message translates to:
+  /// **'Laden'**
+  String get checklistDraftReloadConfirm;
+
+  /// No description provided for @checklistValidationFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Der Server hat den Lauf nicht angenommen. Deine Eingaben sind erhalten.'**
+  String get checklistValidationFailed;
+
+  /// No description provided for @checklistRunDoneTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Checkliste abgeschlossen'**
+  String get checklistRunDoneTitle;
+
+  /// No description provided for @checklistRunResultsTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Ergebnis wie gespeichert'**
+  String get checklistRunResultsTitle;
+
+  /// No description provided for @checklistRunDefectCreated.
+  ///
+  /// In de, this message translates to:
+  /// **'Mangel #{id} angelegt'**
+  String checklistRunDefectCreated(int id);
+
+  /// No description provided for @checklistRunDefectLinked.
+  ///
+  /// In de, this message translates to:
+  /// **'Mit offenem Mangel #{id} verknüpft'**
+  String checklistRunDefectLinked(int id);
+
+  /// No description provided for @checklistRunOpenDefects.
+  ///
+  /// In de, this message translates to:
+  /// **'Mängel öffnen'**
+  String get checklistRunOpenDefects;
+
+  /// No description provided for @checklistRunDone.
+  ///
+  /// In de, this message translates to:
+  /// **'Fertig'**
+  String get checklistRunDone;
+
+  /// No description provided for @checklistDiscardTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Eingaben verwerfen?'**
+  String get checklistDiscardTitle;
+
+  /// No description provided for @checklistDiscardMessage.
+  ///
+  /// In de, this message translates to:
+  /// **'Nicht gespeicherte Eingaben gehen verloren. Mit „Zwischenstand speichern“ kann die nächste Person weitermachen.'**
+  String get checklistDiscardMessage;
+
+  /// No description provided for @checklistDiscardConfirm.
+  ///
+  /// In de, this message translates to:
+  /// **'Verwerfen'**
+  String get checklistDiscardConfirm;
+
+  /// No description provided for @checklistContinueEditing.
+  ///
+  /// In de, this message translates to:
+  /// **'Weiter bearbeiten'**
+  String get checklistContinueEditing;
+
+  /// No description provided for @checklistPaperBackfillMarker.
+  ///
+  /// In de, this message translates to:
+  /// **'Nachtrag vom Papierbogen'**
+  String get checklistPaperBackfillMarker;
+
+  /// No description provided for @defectQuickTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Mangel melden'**
+  String get defectQuickTitle;
+
+  /// No description provided for @defectQuickForAsset.
+  ///
+  /// In de, this message translates to:
+  /// **'Mangel melden: {asset}'**
+  String defectQuickForAsset(String asset);
+
+  /// No description provided for @defectQuickWithPhoto.
+  ///
+  /// In de, this message translates to:
+  /// **'Mangel mit Foto'**
+  String get defectQuickWithPhoto;
+
+  /// No description provided for @defectQuickPhotoCamera.
+  ///
+  /// In de, this message translates to:
+  /// **'Foto aufnehmen'**
+  String get defectQuickPhotoCamera;
+
+  /// No description provided for @defectQuickPhotoGallery.
+  ///
+  /// In de, this message translates to:
+  /// **'Aus Mediathek'**
+  String get defectQuickPhotoGallery;
+
+  /// No description provided for @defectQuickPhotoRemove.
+  ///
+  /// In de, this message translates to:
+  /// **'Foto entfernen'**
+  String get defectQuickPhotoRemove;
+
+  /// No description provided for @defectQuickPhotoReady.
+  ///
+  /// In de, this message translates to:
+  /// **'Foto bereit ({size})'**
+  String defectQuickPhotoReady(String size);
+
+  /// No description provided for @defectQuickPhotoDownscaled.
+  ///
+  /// In de, this message translates to:
+  /// **'Das Foto wurde für den Versand verkleinert.'**
+  String get defectQuickPhotoDownscaled;
+
+  /// No description provided for @defectQuickPhotoUnsupported.
+  ///
+  /// In de, this message translates to:
+  /// **'Dieses Bildformat wird nicht unterstützt (JPEG, PNG oder WebP).'**
+  String get defectQuickPhotoUnsupported;
+
+  /// No description provided for @defectQuickPhotoUnavailable.
+  ///
+  /// In de, this message translates to:
+  /// **'Kamera oder Mediathek ist nicht verfügbar.'**
+  String get defectQuickPhotoUnavailable;
+
+  /// No description provided for @defectReferenceNone.
+  ///
+  /// In de, this message translates to:
+  /// **'Ohne Bezug'**
+  String get defectReferenceNone;
+
+  /// No description provided for @defectReferenceOther.
+  ///
+  /// In de, this message translates to:
+  /// **'Anderer Bezug (Freitext)'**
+  String get defectReferenceOther;
+
+  /// No description provided for @defectReferenceText.
+  ///
+  /// In de, this message translates to:
+  /// **'Bezug als Text'**
+  String get defectReferenceText;
+
+  /// No description provided for @defectReferenceGroupVehicles.
+  ///
+  /// In de, this message translates to:
+  /// **'Fahrzeuge'**
+  String get defectReferenceGroupVehicles;
+
+  /// No description provided for @defectReferenceGroupDevices.
+  ///
+  /// In de, this message translates to:
+  /// **'Geräte'**
+  String get defectReferenceGroupDevices;
+
+  /// No description provided for @defectReferenceGroupKeys.
+  ///
+  /// In de, this message translates to:
+  /// **'Schlüssel'**
+  String get defectReferenceGroupKeys;
+
+  /// No description provided for @defectReferenceScanQr.
+  ///
+  /// In de, this message translates to:
+  /// **'QR-Code am Fahrzeug oder Gerät scannen'**
+  String get defectReferenceScanQr;
+
+  /// No description provided for @defectReferenceQrNoMatch.
+  ///
+  /// In de, this message translates to:
+  /// **'Zu diesem QR-Code gibt es keinen Eintrag in „Geräte & Fahrzeuge“ dieser Wache.'**
+  String get defectReferenceQrNoMatch;
+
+  /// No description provided for @defectTitleOptionalLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Titel (optional)'**
+  String get defectTitleOptionalLabel;
+
+  /// No description provided for @defectTitleAutoHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Leer lassen ergibt: {title}'**
+  String defectTitleAutoHint(String title);
+
+  /// No description provided for @defectAutoTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'{category}: {reference}'**
+  String defectAutoTitle(String category, String reference);
+
+  /// No description provided for @defectAutoTitleNoReference.
+  ///
+  /// In de, this message translates to:
+  /// **'{category}: ohne Bezug'**
+  String defectAutoTitleNoReference(String category);
+
+  /// No description provided for @defectNeedsContent.
+  ///
+  /// In de, this message translates to:
+  /// **'Bitte ein Foto, einen Bezug, einen Titel oder eine Beschreibung angeben.'**
+  String get defectNeedsContent;
+
+  /// No description provided for @defectDuplicateTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Bereits gemeldet'**
+  String get defectDuplicateTitle;
+
+  /// No description provided for @defectDuplicateCount.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, one {{count} offener Mangel zu diesem Bezug. Bitte prüfen, ob es derselbe ist.} other {{count} offene Mängel zu diesem Bezug. Bitte prüfen, ob es derselbe ist.}}'**
+  String defectDuplicateCount(int count);
+
+  /// No description provided for @defectCreated.
+  ///
+  /// In de, this message translates to:
+  /// **'Mangel angelegt.'**
+  String get defectCreated;
+
+  /// No description provided for @defectCreatedWithPhoto.
+  ///
+  /// In de, this message translates to:
+  /// **'Mangel mit Foto angelegt.'**
+  String get defectCreatedWithPhoto;
+
+  /// No description provided for @defectCreatedPhotoFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Mangel angelegt, Foto nicht hochgeladen: {message} Das Foto kann im Mangel erneut hinzugefügt werden.'**
+  String defectCreatedPhotoFailed(String message);
+
+  /// No description provided for @defectCategoryVehicle.
+  ///
+  /// In de, this message translates to:
+  /// **'Fahrzeug'**
+  String get defectCategoryVehicle;
+
+  /// No description provided for @defectCategoryMaterial.
+  ///
+  /// In de, this message translates to:
+  /// **'Material'**
+  String get defectCategoryMaterial;
+
+  /// No description provided for @defectCategorySafety.
+  ///
+  /// In de, this message translates to:
+  /// **'Sicherheit'**
+  String get defectCategorySafety;
+
+  /// No description provided for @defectCategoryFacility.
+  ///
+  /// In de, this message translates to:
+  /// **'Gebäude'**
+  String get defectCategoryFacility;
+
+  /// No description provided for @defectCategoryKey.
+  ///
+  /// In de, this message translates to:
+  /// **'Schlüssel'**
+  String get defectCategoryKey;
+
+  /// No description provided for @defectCategoryDevice.
+  ///
+  /// In de, this message translates to:
+  /// **'Gerät'**
+  String get defectCategoryDevice;
+
+  /// No description provided for @defectCategoryTask.
+  ///
+  /// In de, this message translates to:
+  /// **'Aufgabe'**
+  String get defectCategoryTask;
+
+  /// No description provided for @defectQrCameraMessage.
+  ///
+  /// In de, this message translates to:
+  /// **'Wachwerk nutzt die Kamera hier nur, um den QR-Code am Fahrzeug oder Gerät zu lesen. Es wird dabei kein Foto gespeichert.'**
+  String get defectQrCameraMessage;
+
+  /// No description provided for @defectQrScanTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'QR-Code am Fahrzeug oder Gerät'**
+  String get defectQrScanTitle;
+
+  /// No description provided for @defectQrScanInvalid.
+  ///
+  /// In de, this message translates to:
+  /// **'Kein QR-Code eines Fahrzeugs oder Geräts dieses Servers.'**
+  String get defectQrScanInvalid;
+
+  /// No description provided for @defectQrCameraDenied.
+  ///
+  /// In de, this message translates to:
+  /// **'Ohne Kamerazugriff kannst du den QR-Code nicht scannen. Wähle den Bezug aus der Liste oder aktiviere die Kamera in den Systemeinstellungen.'**
+  String get defectQrCameraDenied;
+
+  /// No description provided for @sopScreenTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Dienstanweisungen lesen'**
+  String get sopScreenTitle;
+
+  /// No description provided for @sopStartCardTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Dienstanweisungen lesen'**
+  String get sopStartCardTitle;
+
+  /// No description provided for @sopOpenCount.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, one {{count} offen} other {{count} offen}}'**
+  String sopOpenCount(int count);
+
+  /// No description provided for @sopOverdueCount.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, one {{count} überfällig} other {{count} überfällig}}'**
+  String sopOverdueCount(int count);
+
+  /// No description provided for @sopRevision.
+  ///
+  /// In de, this message translates to:
+  /// **'Version {version}'**
+  String sopRevision(String version);
+
+  /// No description provided for @sopDue.
+  ///
+  /// In de, this message translates to:
+  /// **'Lesen bis {date}'**
+  String sopDue(String date);
+
+  /// No description provided for @sopOverdue.
+  ///
+  /// In de, this message translates to:
+  /// **'Überfällig seit {date}'**
+  String sopOverdue(String date);
+
+  /// No description provided for @sopAcknowledgedAt.
+  ///
+  /// In de, this message translates to:
+  /// **'Bestätigt am {date}'**
+  String sopAcknowledgedAt(String date);
+
+  /// No description provided for @sopOpenText.
+  ///
+  /// In de, this message translates to:
+  /// **'Text öffnen'**
+  String get sopOpenText;
+
+  /// No description provided for @sopAcknowledge.
+  ///
+  /// In de, this message translates to:
+  /// **'Gelesen und verstanden'**
+  String get sopAcknowledge;
+
+  /// No description provided for @sopAckConfirmTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Lesen bestätigen?'**
+  String get sopAckConfirmTitle;
+
+  /// No description provided for @sopAckConfirmMessage.
+  ///
+  /// In de, this message translates to:
+  /// **'Bestätige nur, was du gelesen und verstanden hast. Gespeichert werden Person, Version und Zeitpunkt.'**
+  String get sopAckConfirmMessage;
+
+  /// No description provided for @sopAckConfirm.
+  ///
+  /// In de, this message translates to:
+  /// **'Bestätigen'**
+  String get sopAckConfirm;
+
+  /// No description provided for @sopAckDone.
+  ///
+  /// In de, this message translates to:
+  /// **'Lesebestätigung gespeichert.'**
+  String get sopAckDone;
+
+  /// No description provided for @sopAckNewerVersion.
+  ///
+  /// In de, this message translates to:
+  /// **'Es gibt eine neuere Version. Bitte zuerst die aktuelle Fassung lesen.'**
+  String get sopAckNewerVersion;
+
+  /// No description provided for @sopEmptyTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Alles gelesen'**
+  String get sopEmptyTitle;
+
+  /// No description provided for @sopEmpty.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine offenen Dienstanweisungen.'**
+  String get sopEmpty;
+
+  /// No description provided for @sopUnavailable.
+  ///
+  /// In de, this message translates to:
+  /// **'Dieser Server bietet Lesebestätigungen in der App erst ab Wachwerk 0.28.'**
+  String get sopUnavailable;
+
+  /// No description provided for @sopShowAcknowledged.
+  ///
+  /// In de, this message translates to:
+  /// **'Auch bestätigte anzeigen'**
+  String get sopShowAcknowledged;
+
+  /// No description provided for @sopOpenFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Seite konnte nicht geöffnet werden.'**
+  String get sopOpenFailed;
+
+  /// No description provided for @noticesTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Hinweise'**
+  String get noticesTitle;
+
+  /// No description provided for @noticesEmpty.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine Hinweise.'**
+  String get noticesEmpty;
+
+  /// No description provided for @noticesHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Hinweise erscheinen auch als Benachrichtigung auf dem Gerät und gelten danach als gelesen.'**
+  String get noticesHint;
+
+  /// No description provided for @noticeKindVehicleReady.
+  ///
+  /// In de, this message translates to:
+  /// **'Fahrzeugfreigabe'**
+  String get noticeKindVehicleReady;
+
+  /// No description provided for @noticeKindCoffeeDue.
+  ///
+  /// In de, this message translates to:
+  /// **'Kaffeekasse'**
+  String get noticeKindCoffeeDue;
+
+  /// No description provided for @noticeKindDeadline.
+  ///
+  /// In de, this message translates to:
+  /// **'Frist'**
+  String get noticeKindDeadline;
+
+  /// No description provided for @noticeKindDigest.
+  ///
+  /// In de, this message translates to:
+  /// **'Wochenübersicht'**
+  String get noticeKindDigest;
+
+  /// No description provided for @noticeKindSop.
+  ///
+  /// In de, this message translates to:
+  /// **'Lesefrist'**
+  String get noticeKindSop;
+
+  /// No description provided for @noticeKindMpgTraining.
+  ///
+  /// In de, this message translates to:
+  /// **'MPG-Einweisung'**
+  String get noticeKindMpgTraining;
+
+  /// No description provided for @noticeKindSystemHealth.
+  ///
+  /// In de, this message translates to:
+  /// **'Technik'**
+  String get noticeKindSystemHealth;
+
+  /// No description provided for @noticeUnread.
+  ///
+  /// In de, this message translates to:
+  /// **'neu'**
+  String get noticeUnread;
+
+  /// No description provided for @noticeOpenInBrowser.
+  ///
+  /// In de, this message translates to:
+  /// **'Im Browser öffnen'**
+  String get noticeOpenInBrowser;
+
+  /// No description provided for @handoverPaperBackfill.
+  ///
+  /// In de, this message translates to:
+  /// **'Nachtrag vom Papierbogen'**
+  String get handoverPaperBackfill;
+
+  /// No description provided for @handoverPaperBackfillEvent.
+  ///
+  /// In de, this message translates to:
+  /// **'Nachtrag vom Papierbogen · Ereignis {occurred}'**
+  String handoverPaperBackfillEvent(String occurred);
+
+  /// No description provided for @handoverPaperBackfillFull.
+  ///
+  /// In de, this message translates to:
+  /// **'Nachtrag vom Papierbogen · Ereignis {occurred} · erfasst {recorded}'**
+  String handoverPaperBackfillFull(String occurred, String recorded);
+
+  /// No description provided for @noticeChannelName.
+  ///
+  /// In de, this message translates to:
+  /// **'Hinweise der Wache'**
+  String get noticeChannelName;
+
+  /// No description provided for @noticePrivateBody.
+  ///
+  /// In de, this message translates to:
+  /// **'Neuer Hinweis der Wache – Details in der App unter „Hinweise“.'**
+  String get noticePrivateBody;
+
+  /// No description provided for @noticeChannelDescription.
+  ///
+  /// In de, this message translates to:
+  /// **'Fristen, Wochenübersicht, Lesefristen und weitere persönliche Hinweise deines Wachwerk-Servers.'**
+  String get noticeChannelDescription;
 }
 
 class _AppLocalizationsDelegate

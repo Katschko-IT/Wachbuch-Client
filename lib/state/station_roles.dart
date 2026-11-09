@@ -29,6 +29,10 @@ class StationRoles {
   /// POST /api/v1/assets/{id}/status/ verlangt `WRITE_ROLES`.
   static bool canChangeAssetStatus(String? role) => hasWriteRole(role);
 
+  /// POST /api/v1/defects/ verlangt eine Inhaltsrolle
+  /// (`core/api/wachalltag.py`, `defects_list` mit `_content_role`).
+  static bool canCreateDefect(String? role) => contentRoles.contains(role);
+
   /// PATCH /api/v1/defects/{id}/ verlangt eine Inhaltsrolle
   /// (`core/api/wachalltag.py`, `defect_detail` mit `_content_role`).
   static bool canEditDefect(String? role) => contentRoles.contains(role);

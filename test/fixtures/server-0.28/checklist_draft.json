@@ -1,0 +1,55 @@
+{
+  "body": {
+    "checklist": 2,
+    "draft": {
+      "created_at": "2026-11-09T07:00:00+00:00",
+      "id": 1,
+      "item_results": {
+        "4": {
+          "defect_id": null,
+          "defect_linked": false,
+          "max": "8.00",
+          "min": "2.00",
+          "position": 1,
+          "reason": "",
+          "required": true,
+          "status": "ok",
+          "text": "Medikamentenkühlschrank Temperatur",
+          "unit": "°C",
+          "value": 5.2
+        },
+        "5": {
+          "defect_id": null,
+          "defect_linked": false,
+          "max": null,
+          "min": null,
+          "position": 2,
+          "reason": "Rucksack in der Werkstatt",
+          "required": true,
+          "status": "na",
+          "text": "Notfallrucksack Plombe intakt",
+          "unit": "",
+          "value": null
+        },
+        "6": {
+          "defect_id": null,
+          "defect_linked": false,
+          "max": null,
+          "min": "0.00",
+          "position": 3,
+          "reason": "",
+          "required": true,
+          "status": "",
+          "text": "Zusatzheizung Messwert",
+          "unit": "°C",
+          "value": null
+        }
+      },
+      "note": "Heizung noch offen",
+      "updated_at": "2026-11-09T07:00:00+00:00",
+      "updated_by": "Alex Muster"
+    },
+    "ok": true
+  },
+  "status": 200
+}
