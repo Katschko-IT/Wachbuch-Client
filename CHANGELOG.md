@@ -14,13 +14,16 @@ Freigabeplan: [`docs/STORE-RELEASE-1.2.md`](docs/STORE-RELEASE-1.2.md).
 ### Neu
 
 - **Checklisten mit Ergebnis je Prüfpunkt** (Server 0.28): je Punkt „In
-  Ordnung“, „Nicht in Ordnung“ oder „Entfällt“ mit Pflicht-Begründung;
-  Messpunkte mit Wert, Einheit und Grenzwerten, Hinweis bei Werten außerhalb
-  der Grenzen; Pflichtpunkte markiert. Gesendet werden nur die Kennungen aus
+  Ordnung“, „Nicht in Ordnung“ oder „Entfällt“ mit Pflicht-Begründung (eine
+  Begründung geht nur mit diesen beiden an den Server); Messpunkte mit Wert,
+  Einheit und Grenzwerten, Hinweis bei Werten außerhalb der Grenzen;
+  Pflichtpunkte markiert. Gesendet werden nur die Kennungen aus
   `item_details`, nie Listenpositionen.
 - **Zwischenstand speichern und fortsetzen:** Der Zwischenstand gehört der
   Wache (`/checklisten/<id>/zwischenstand/`); die nächste Person setzt fort.
-  Er wird nur online geladen und nie im Offline-Cache gespeichert.
+  Er wird nur online geladen und nie im Offline-Cache gespeichert. Solange er
+  lädt, ist das Formular gesperrt; konnte er nicht geladen werden, ist
+  „Zwischenstand speichern“ gesperrt, damit er nicht ungesehen ersetzt wird.
 - **Prüffehler am Prüfpunkt:** Lehnt der Server einen Lauf ab (400 mit
   `errors`), steht jede Meldung am betroffenen Punkt; die Eingaben bleiben
   erhalten. Nach dem Abschluss zeigt die App den Lauf so, wie der Server ihn
