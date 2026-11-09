@@ -63,6 +63,8 @@ void main() {
     expect(plist, contains('<string>wachbuch</string>'));
     expect(plist, contains('<key>NSCameraUsageDescription</key>'));
     expect(plist, contains('Mängelfotos'));
+    // Seit 1.2: QR-Code an Fahrzeug oder Gerät (Bezug eines Mangels).
+    expect(plist, contains('QR-Codes an einem Fahrzeug oder Gerät'));
     expect(plist, contains('<key>NSPhotoLibraryUsageDescription</key>'));
     expect(plist, contains('<key>NSLocalNetworkUsageDescription</key>'));
     expect(plist, contains('<key>NSLocationWhenInUseUsageDescription</key>'));

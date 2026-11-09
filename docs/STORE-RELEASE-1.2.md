@@ -13,6 +13,7 @@ Dieses Dokument ergänzt [`STORE-RELEASE-1.1.md`](STORE-RELEASE-1.1.md) und [`ST
 - **Secure Storage:** unverändert `flutter_secure_storage` 10.x, keine neue Speicher-Migration.
 - **Offline-Cache:** `schema_version` bleibt 1. Die Checklisten im Cache bekommen `item_details` dazu; der Zwischenstand `draft` wird vor dem Schreiben entfernt. Alte 1.1-Einträge ohne `item_details` bleiben lesbar (Abschluss mit einem Tipp, offline ohnehin nicht möglich).
 - **Android-Berechtigungen:** unverändert gegenüber 1.1 (`ACCESS_COARSE_LOCATION`, `ACCESS_NETWORK_STATE`, `CAMERA`, `INTERNET`, `POST_NOTIFICATIONS`, `VIBRATE` plus Receiver-Berechtigung). Die Kamera hat einen dritten Zweck (QR-Code an Fahrzeug oder Gerät), aber keine neue Berechtigung.
+- **iOS-Zweckangabe:** `NSCameraUsageDescription` in `ios/Runner/Info.plist` nennt seit 1.2 alle drei Zwecke (Server-Adresse, QR-Code an Fahrzeug oder Gerät, Mängelfoto); `test/platform_config_test.dart` prüft das. Vor dem Upload im Berechtigungsdialog auf einem Gerät kontrollieren.
 
 ## 2. Automatische Gates
 

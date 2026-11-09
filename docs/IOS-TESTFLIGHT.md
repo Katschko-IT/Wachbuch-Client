@@ -131,7 +131,7 @@ Apple verlangt für Required-Reason-APIs und bestimmte SDKs korrekte Privacy-Man
 
 `Info.plist` enthält:
 
-- `NSCameraUsageDescription`: QR-Scan + ausdrücklich ausgelöstes Mängelfoto
+- `NSCameraUsageDescription`: QR-Scan der Server-Adresse, QR-Code an Fahrzeug oder Gerät (seit 1.2, Bezug eines Mangels) + ausdrücklich ausgelöstes Mängelfoto
 - `NSPhotoLibraryUsageDescription`: ausdrücklich ausgewähltes bestehendes Mängelfoto
 - `NSLocationWhenInUseUsageDescription`: lokale Sonnenaufgang/-untergang-Berechnung
 - `ITSAppUsesNonExemptEncryption=false`
