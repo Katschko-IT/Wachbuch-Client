@@ -1252,6 +1252,20 @@ class AppLocalizationsEn extends AppLocalizations {
       'Saved progress belongs to the station: saving replaces it for everyone.';
 
   @override
+  String get checklistDraftSaveBlocked =>
+      '“Save progress” is available once the saved progress has loaded – otherwise it would be replaced unseen.';
+
+  @override
+  String get checklistDraftReloadTitle => 'Load saved progress?';
+
+  @override
+  String get checklistDraftReloadMessage =>
+      'Saved progress replaces what you have entered in this run.';
+
+  @override
+  String get checklistDraftReloadConfirm => 'Load';
+
+  @override
   String get checklistValidationFailed =>
       'The server did not accept the run. Your input is kept.';
 

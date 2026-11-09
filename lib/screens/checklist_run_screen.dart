@@ -17,6 +17,8 @@ import 'package:wachbuch_mobile/ui/layout.dart';
 /// - Schlüssel sind ausschließlich die Server-Kennungen aus `item_details`.
 /// - „Zwischenstand speichern“ ersetzt den gemeinsamen Zwischenstand der
 ///   Wache; beim Öffnen wird er online geladen (nie aus dem Offline-Cache).
+///   Solange er lädt, ist das Formular gesperrt; konnte er nicht geladen
+///   werden, ist Speichern gesperrt (sonst würde er ungesehen ersetzt).
 /// - Prüffehler (400 mit `errors`) erscheinen am jeweiligen Prüfpunkt; die
 ///   Eingaben bleiben erhalten. Bewertet wird nur auf dem Server.
 ///
@@ -85,6 +87,34 @@ class _ChecklistRunScreenState extends State<ChecklistRunScreen> {
     if (!_dirty && mounted) setState(() => _dirty = true);
   }
 
+  /// Erneut laden nach einem Fehler: Ein geladener Zwischenstand ersetzt die
+  /// Eingaben, deshalb mit Eingaben erst nachfragen.
+  Future<void> _retryDraft() async {
+    if (_dirty) {
+      final l = AppLocalizations.of(context)!;
+      final load = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(l.checklistDraftReloadTitle),
+          content: Text(l.checklistDraftReloadMessage),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(l.commonCancel),
+            ),
+            TextButton(
+              key: const Key('run-draft-reload-confirm'),
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(l.checklistDraftReloadConfirm),
+            ),
+          ],
+        ),
+      );
+      if (load != true || !mounted) return;
+    }
+    await _loadDraft();
+  }
+
   Future<void> _loadDraft() async {
     setState(() {
       _loadingDraft = true;
@@ -96,7 +126,9 @@ class _ChecklistRunScreenState extends State<ChecklistRunScreen> {
       if (draft != null) _applyDraft(draft);
       setState(() {
         _loadingDraft = false;
-        _dirty = false;
+        // Der geladene Stand ist der gespeicherte; ohne Zwischenstand bleiben
+        // Eingaben (nach „Erneut versuchen“) ungespeichert.
+        if (draft != null) _dirty = false;
       });
     } on ApiException catch (error) {
       if (!mounted) return;
@@ -138,15 +170,23 @@ class _ChecklistRunScreenState extends State<ChecklistRunScreen> {
     );
   }
 
+  /// Ergebnisse wie angezeigt: Die Begründung geht nur mit „Nicht in
+  /// Ordnung“ oder „Entfällt“ mit (nur dann ist ihr Feld sichtbar); der Text
+  /// bleibt im Feld, falls die Person zurückwechselt.
   Map<int, ChecklistItemResult> _collect() {
-    return {
-      for (final item in _items)
-        item.serverId!: ChecklistItemResult(
-          status: _status[item.serverId!] ?? '',
-          input: item.measurement ? _values[item.serverId!]!.text : null,
-          reason: _reasons[item.serverId!]!.text,
-        ),
-    };
+    return {for (final item in _items) item.serverId!: _resultFor(item)};
+  }
+
+  ChecklistItemResult _resultFor(ChecklistItem item) {
+    final id = item.serverId!;
+    final status = _status[id] ?? '';
+    final withReason =
+        status == ChecklistItemStatus.notOk || status == ChecklistItemStatus.na;
+    return ChecklistItemResult(
+      status: status,
+      input: item.measurement ? _values[id]!.text : null,
+      reason: withReason ? _reasons[id]!.text : '',
+    );
   }
 
   Future<void> _saveDraft() async {
@@ -261,9 +301,16 @@ class _ChecklistRunScreenState extends State<ChecklistRunScreen> {
         ? widget.checklist.title
         : l.checklistFallback;
     return PopScope<bool>(
-      canPop: !_dirty || _result != null,
+      // Nach dem Abschluss immer mit `true` zurück (auch Systemgeste oder
+      // Android-Zurück), damit die Liste neu lädt.
+      canPop: _result == null && !_dirty,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) _confirmLeave();
+        if (didPop) return;
+        if (_result != null) {
+          Navigator.of(context).pop(true);
+        } else {
+          _confirmLeave();
+        }
       },
       child: Scaffold(
         appBar: AppBar(
@@ -321,7 +368,8 @@ class _ChecklistRunScreenState extends State<ChecklistRunScreen> {
           Align(
             alignment: Alignment.centerLeft,
             child: TextButton.icon(
-              onPressed: _loadingDraft ? null : _loadDraft,
+              key: const Key('run-draft-retry'),
+              onPressed: _loadingDraft || _busy ? null : _retryDraft,
               icon: const Icon(Icons.refresh),
               label: Text(l.commonRetry),
             ),
@@ -343,7 +391,9 @@ class _ChecklistRunScreenState extends State<ChecklistRunScreen> {
             value: _values[item.serverId!]!,
             reason: _reasons[item.serverId!]!,
             errors: _errors.byItem[item.serverId!] ?? const [],
-            enabled: !_busy,
+            // Während der Zwischenstand lädt, nichts eingeben: Er würde die
+            // Eingaben sonst beim Eintreffen ersetzen.
+            enabled: !_busy && !_loadingDraft,
             onStatus: (status) => setState(() {
               _dirty = true;
               final id = item.serverId!;
@@ -359,7 +409,7 @@ class _ChecklistRunScreenState extends State<ChecklistRunScreen> {
         TextField(
           key: const Key('run-note'),
           controller: _note,
-          enabled: !_busy,
+          enabled: !_busy && !_loadingDraft,
           maxLength: 300,
           minLines: 1,
           maxLines: 4,
@@ -382,13 +432,18 @@ class _ChecklistRunScreenState extends State<ChecklistRunScreen> {
         const SizedBox(height: 8),
         OutlinedButton.icon(
           key: const Key('run-save-draft'),
-          onPressed: _busy || _loadingDraft ? null : _saveDraft,
+          onPressed: _busy || _loadingDraft || _draftError != null
+              ? null
+              : _saveDraft,
           icon: const Icon(Icons.save_outlined),
           label: Text(l.checklistSaveDraft),
         ),
         const SizedBox(height: 8),
         Text(
-          l.checklistDraftShared,
+          _draftError != null
+              ? l.checklistDraftSaveBlocked
+              : l.checklistDraftShared,
+          key: const Key('run-draft-hint'),
           style: Theme.of(
             context,
           ).textTheme.bodySmall?.copyWith(color: c.muted),

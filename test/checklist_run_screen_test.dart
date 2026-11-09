@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wachbuch_mobile/api/client.dart';
@@ -42,23 +44,35 @@ Checklist _checklist({ChecklistDraft? draft}) => Checklist.fromJson({
 }).copyWith(draft: draft);
 
 class _RunApi extends WachbuchApi {
-  _RunApi({this.draft, this.completeError, this.lists})
+  _RunApi({this.draft, this.completeError, this.lists, this.draftError})
     : super(baseUrl: 'https://wache.example.org', token: 'wb_test');
 
   ChecklistDraft? draft;
   ApiException? completeError;
+  ApiException? draftError;
   List<Checklist>? lists;
+
+  /// Wenn gesetzt, antwortet `GET /zwischenstand/` erst mit diesem Future.
+  Completer<ChecklistDraft?>? draftResponse;
   final saved = <Map<int, ChecklistItemResult>>[];
   final completed = <Map<int, ChecklistItemResult>>[];
   final notes = <String>[];
   int draftLoads = 0;
+  int listLoads = 0;
 
   @override
-  Future<List<Checklist>> checklisten() async => lists ?? [_checklist()];
+  Future<List<Checklist>> checklisten() async {
+    listLoads++;
+    return lists ?? [_checklist()];
+  }
 
   @override
   Future<ChecklistDraft?> checklistDraft(int id) async {
     draftLoads++;
+    final pending = draftResponse;
+    if (pending != null) return pending.future;
+    final error = draftError;
+    if (error != null) throw error;
     return draft;
   }
 
@@ -339,13 +353,20 @@ void main() {
       200,
       scrollable: find.byType(Scrollable).first,
     );
+    // Gebaut heißt noch nicht sichtbar: erst ganz ins Bild holen, damit der
+    // Tipp trifft.
+    await tester.ensureVisible(find.byKey(const Key('run-status-43-na')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('run-status-43-na')));
     await tester.pumpAndSettle();
+    expect(find.byKey(const Key('run-reason-43')), findsOneWidget);
     await tester.scrollUntilVisible(
       find.byKey(const Key('run-finish')),
       200,
       scrollable: find.byType(Scrollable).first,
     );
+    await tester.ensureVisible(find.byKey(const Key('run-finish')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('run-finish')));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
@@ -355,5 +376,170 @@ void main() {
       scrollable: find.byType(Scrollable).first,
     );
     expect(find.byKey(const Key('run-item-error-43')), findsOneWidget);
+    expect(api.completed.single[43]?.status, 'na');
+  });
+
+  testWidgets(
+    'Zwischenstand nicht geladen: Speichern gesperrt, Erneut versuchen fragt nach',
+    (tester) async {
+      final api = _RunApi(
+        draftError: ApiException(500, 'Serverfehler.'),
+        draft: ChecklistDraft(
+          id: 9,
+          results: const {
+            43: ChecklistItemResult(status: 'na', reason: 'Plombe fehlt'),
+          },
+          updatedAt: DateTime.utc(2026, 11, 9, 6, 10),
+          updatedBy: 'Alex Muster',
+        ),
+      );
+      await _pumpRun(tester, api);
+
+      expect(
+        find.textContaining('Zwischenstand konnte nicht geladen werden'),
+        findsOneWidget,
+      );
+      final save = find.byKey(const Key('run-save-draft'));
+      await tester.ensureVisible(save);
+      expect(tester.widget<OutlinedButton>(save).onPressed, isNull);
+      expect(
+        find.textContaining('geht erst, wenn der gespeicherte Zwischenstand'),
+        findsOneWidget,
+      );
+      // Abschließen bleibt möglich (eigener, vollständiger Lauf).
+      expect(
+        tester
+            .widget<FilledButton>(find.byKey(const Key('run-finish')))
+            .onPressed,
+        isNotNull,
+      );
+
+      // Eingabe, dann erneut laden: erst nachfragen, Abbrechen behält sie.
+      await tester.tap(find.byKey(const Key('run-status-43-ok')));
+      await tester.pumpAndSettle();
+      api.draftError = null;
+      await tester.tap(find.byKey(const Key('run-draft-retry')));
+      await tester.pumpAndSettle();
+      expect(find.text('Zwischenstand laden?'), findsOneWidget);
+      await tester.tap(find.text('Abbrechen'));
+      await tester.pumpAndSettle();
+      expect(api.draftLoads, 1);
+      expect(tester.widget<OutlinedButton>(save).onPressed, isNull);
+
+      await tester.tap(find.byKey(const Key('run-draft-retry')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('run-draft-reload-confirm')));
+      await tester.pumpAndSettle();
+      expect(api.draftLoads, 2);
+      expect(find.text('Plombe fehlt'), findsOneWidget);
+      expect(tester.widget<OutlinedButton>(save).onPressed, isNotNull);
+      expect(
+        find.text(
+          'Der Zwischenstand gehört der Wache: Speichern ersetzt ihn für alle.',
+        ),
+        findsOneWidget,
+      );
+    },
+  );
+
+  testWidgets('Während der Zwischenstand lädt, ist das Formular gesperrt', (
+    tester,
+  ) async {
+    final api = _RunApi()..draftResponse = Completer<ChecklistDraft?>();
+    tester.view.physicalSize = const Size(1000, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      localizedApp(
+        home: ChecklistRunScreen(api: api, checklist: _checklist()),
+      ),
+    );
+    await tester.pump();
+
+    final chip = find.byKey(const Key('run-status-43-ok'));
+    expect(tester.widget<ChoiceChip>(chip).onSelected, isNull);
+    expect(
+      tester.widget<TextField>(find.byKey(const Key('run-note'))).enabled,
+      isFalse,
+    );
+    expect(
+      tester.widget<TextField>(find.byKey(const Key('run-value-42'))).enabled,
+      isFalse,
+    );
+
+    api.draftResponse!.complete(
+      ChecklistDraft(
+        id: 9,
+        note: 'Bitte Heizung prüfen',
+        results: const {43: ChecklistItemResult(status: 'ok')},
+        updatedBy: 'Alex Muster',
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(tester.widget<ChoiceChip>(chip).selected, isTrue);
+    expect(tester.widget<ChoiceChip>(chip).onSelected, isNotNull);
+    expect(
+      tester.widget<TextField>(find.byKey(const Key('run-note'))).enabled,
+      isTrue,
+    );
+    expect(find.text('Bitte Heizung prüfen'), findsOneWidget);
+  });
+
+  testWidgets(
+    'Begründung geht nur mit „Nicht in Ordnung“ oder „Entfällt“ mit',
+    (tester) async {
+      final api = _RunApi();
+      await _pumpRun(tester, api);
+
+      await tester.tap(find.byKey(const Key('run-status-43-na')));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('run-reason-43')),
+        'Plombe fehlt',
+      );
+      await tester.tap(find.byKey(const Key('run-status-43-ok')));
+      await tester.tap(find.byKey(const Key('run-status-42-ok')));
+      await tester.enterText(find.byKey(const Key('run-value-42')), '5');
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('run-reason-43')), findsNothing);
+
+      await tester.ensureVisible(find.byKey(const Key('run-finish')));
+      await tester.tap(find.byKey(const Key('run-finish')));
+      await tester.pumpAndSettle();
+
+      expect(api.completed.single[43]?.status, 'ok');
+      expect(api.completed.single[43]?.reason, '');
+    },
+  );
+
+  testWidgets('Nach dem Abschluss lädt Zurück per System die Liste neu', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1000, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final api = _RunApi();
+    await tester.pumpWidget(localizedApp(home: ChecklistenScreen(api: api)));
+    await tester.pumpAndSettle();
+    expect(api.listLoads, 1);
+
+    await tester.tap(find.byKey(const Key('checklist-start-5')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('run-status-42-ok')));
+    await tester.enterText(find.byKey(const Key('run-value-42')), '5');
+    await tester.tap(find.byKey(const Key('run-status-43-ok')));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const Key('run-finish')));
+    await tester.tap(find.byKey(const Key('run-finish')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('run-result')), findsOneWidget);
+
+    // Android-Zurück bzw. iOS-Wischgeste.
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+
+    expect(find.byType(ChecklistRunScreen), findsNothing);
+    expect(api.listLoads, 2);
   });
 }

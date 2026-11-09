@@ -2354,6 +2354,30 @@ abstract class AppLocalizations {
   /// **'Der Zwischenstand gehört der Wache: Speichern ersetzt ihn für alle.'**
   String get checklistDraftShared;
 
+  /// No description provided for @checklistDraftSaveBlocked.
+  ///
+  /// In de, this message translates to:
+  /// **'„Zwischenstand speichern“ geht erst, wenn der gespeicherte Zwischenstand geladen ist – sonst würde er ungesehen ersetzt.'**
+  String get checklistDraftSaveBlocked;
+
+  /// No description provided for @checklistDraftReloadTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Zwischenstand laden?'**
+  String get checklistDraftReloadTitle;
+
+  /// No description provided for @checklistDraftReloadMessage.
+  ///
+  /// In de, this message translates to:
+  /// **'Ein gespeicherter Zwischenstand ersetzt deine bisherigen Eingaben in diesem Lauf.'**
+  String get checklistDraftReloadMessage;
+
+  /// No description provided for @checklistDraftReloadConfirm.
+  ///
+  /// In de, this message translates to:
+  /// **'Laden'**
+  String get checklistDraftReloadConfirm;
+
   /// No description provided for @checklistValidationFailed.
   ///
   /// In de, this message translates to:

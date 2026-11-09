@@ -1260,6 +1260,20 @@ class AppLocalizationsDe extends AppLocalizations {
       'Der Zwischenstand gehört der Wache: Speichern ersetzt ihn für alle.';
 
   @override
+  String get checklistDraftSaveBlocked =>
+      '„Zwischenstand speichern“ geht erst, wenn der gespeicherte Zwischenstand geladen ist – sonst würde er ungesehen ersetzt.';
+
+  @override
+  String get checklistDraftReloadTitle => 'Zwischenstand laden?';
+
+  @override
+  String get checklistDraftReloadMessage =>
+      'Ein gespeicherter Zwischenstand ersetzt deine bisherigen Eingaben in diesem Lauf.';
+
+  @override
+  String get checklistDraftReloadConfirm => 'Laden';
+
+  @override
   String get checklistValidationFailed =>
       'Der Server hat den Lauf nicht angenommen. Deine Eingaben sind erhalten.';
 
